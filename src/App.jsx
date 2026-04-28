@@ -8,6 +8,8 @@ const App = () => {
     phone: ''
   });
   const [status, setStatus] = useState('idle'); // idle, loading, success (Bridge Page)
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isBridgePlaying, setIsBridgePlaying] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -16,6 +18,8 @@ const App = () => {
     setTimeout(() => {
       setStatus('success');
       window.scrollTo(0, 0);
+      setIsPlaying(false);
+      setIsBridgePlaying(false);
     }, 1500);
   };
 
@@ -23,6 +27,9 @@ const App = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  const videoUrl = "https://player.mediadelivery.net/play/587199/a6ea9b0b-7601-441f-9d8b-8a3bd37b4f1e";
+  const profilePic = "https://images.travelprox.com/callista/rahj.png";
 
   // --- BRIDGE PAGE (SUCCESS STATE) ---
   if (status === 'success') {
@@ -54,35 +61,47 @@ const App = () => {
              {/* Relatable Authority Badge */}
              <div className="flex items-center gap-4 mb-8 bg-slate-900 px-5 py-3 rounded-2xl shadow-xl">
               <img 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces&q=80" 
-                alt="Alex" 
-                className="w-10 h-10 rounded-full border border-indigo-400 object-cover"
+                src={profilePic} 
+                alt="Rahj" 
+                className="w-10 h-10 rounded-full border border-indigo-400 object-cover bg-slate-800"
               />
               <div className="text-left">
-                <p className="text-white font-black text-xs tracking-tight uppercase leading-none mb-1">Alex — I’ll walk you through this</p>
+                <p className="text-white font-black text-xs tracking-tight uppercase leading-none mb-1">Rahj — I’ll walk you through this</p>
                 <p className="text-indigo-300 text-[9px] font-black uppercase tracking-widest opacity-80">Turning interest into income</p>
               </div>
             </div>
 
             <div className="w-full group relative">
               <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-[1.5rem] md:rounded-[2.5rem] blur opacity-20 transition duration-1000"></div>
-              <div className="relative aspect-video w-full bg-slate-900 rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-200 cursor-pointer">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-40"></div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
-                  
-                  <div className="relative w-20 h-20 bg-white text-indigo-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500">
-                    <Play className="fill-current ml-1" size={32} />
+              <div className="relative aspect-video w-full bg-slate-900 rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-200">
+                {!isBridgePlaying ? (
+                  <div className="absolute inset-0 flex items-center justify-center cursor-pointer" onClick={() => setIsBridgePlaying(true)}>
+                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-40"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                    <div className="relative w-20 h-20 bg-white text-indigo-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500">
+                      <Play className="fill-current ml-1" size={32} />
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <iframe 
+                    src={videoUrl} 
+                    className="w-full h-full"
+                    loading="lazy" 
+                    style={{ border: 0 }} 
+                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
+                    allowFullScreen={true}
+                  />
+                )}
                 
-                <div className="absolute bottom-0 left-0 w-full p-6 md:p-10 text-white pointer-events-none">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Globe size={14} className="text-indigo-400" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">Step 3: The Engine</p>
+                {!isBridgePlaying && (
+                  <div className="absolute bottom-0 left-0 w-full p-6 md:p-10 text-white pointer-events-none">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Globe size={14} className="text-indigo-400" />
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">Step 3: The Engine</p>
+                    </div>
+                    <h3 className="text-xl md:text-3xl font-black uppercase tracking-tight">How I Actually Make Money With This.</h3>
                   </div>
-                  <h3 className="text-xl md:text-3xl font-black uppercase tracking-tight">How I Actually Make Money With This.</h3>
-                </div>
+                )}
               </div>
             </div>
 
@@ -95,7 +114,7 @@ const App = () => {
                 className="w-full group relative flex items-center justify-center px-8 py-6 font-black text-white transition-all duration-300 bg-indigo-600 rounded-2xl hover:bg-slate-950 shadow-[0_20px_40px_rgba(79,70,229,0.2)] uppercase tracking-widest"
                 onClick={() => window.open('#', '_blank')}
               >
-                Show Me How This Makes Money <ExternalLink className="ml-2" size={18} />
+                See How This Actually Works <ExternalLink className="ml-2" size={18} />
               </button>
               <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                 This is what I personally use to build my business
@@ -168,35 +187,49 @@ const App = () => {
             <div className="relative">
               <div className="absolute inset-0 bg-indigo-500 rounded-full blur-sm opacity-50"></div>
               <img 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces&q=80" 
-                alt="Alex" 
-                className="relative w-12 h-12 rounded-full border-2 border-indigo-400 object-cover"
+                src={profilePic} 
+                alt="Rahj" 
+                className="relative w-12 h-12 rounded-full border-2 border-indigo-400 object-cover bg-slate-800"
               />
             </div>
             <div>
-              <p className="text-white font-black text-sm tracking-tight uppercase leading-none mb-1">Alex — I'll walk you through this</p>
+              <p className="text-white font-black text-sm tracking-tight uppercase leading-none mb-1">Rahj — I'll walk you through this</p>
               <p className="text-indigo-300 text-[10px] font-black uppercase tracking-widest opacity-80">Stop chasing. Start attracting.</p>
             </div>
           </div>
 
           <div className="w-full group relative">
             <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-[2rem] md:rounded-[3rem] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-            <div className="relative aspect-video w-full bg-slate-900 rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/10 cursor-pointer">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-30 grayscale group-hover:grayscale-0 transition-all duration-700"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-                <div className="relative w-20 h-20 md:w-28 md:h-28 bg-white text-indigo-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500">
-                  <Play className="fill-current ml-1.5" size={32} />
-                  <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20 animate-ping"></div>
+            <div className="relative aspect-video w-full bg-slate-900 rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/10">
+              {!isPlaying ? (
+                <div className="absolute inset-0 flex items-center justify-center cursor-pointer" onClick={() => setIsPlaying(true)}>
+                  <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-30 grayscale group-hover:grayscale-0 transition-all duration-700"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+                  <div className="relative w-20 h-20 md:w-28 md:h-28 bg-white text-indigo-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500">
+                    <Play className="fill-current ml-1.5" size={32} />
+                    <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20 animate-ping"></div>
+                  </div>
                 </div>
-              </div>
-              <div className="absolute bottom-0 left-0 w-full p-6 md:p-10 text-white pointer-events-none">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">Current Proof</p>
+              ) : (
+                <iframe 
+                  src={videoUrl} 
+                  className="w-full h-full"
+                  loading="lazy" 
+                  style={{ border: 0 }} 
+                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
+                  allowFullScreen={true}
+                />
+              )}
+              
+              {!isPlaying && (
+                <div className="absolute bottom-0 left-0 w-full p-6 md:p-10 text-white pointer-events-none">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">Current Proof</p>
+                  </div>
+                  <h3 className="text-xl md:text-3xl font-black leading-tight tracking-tight max-w-2xl uppercase">How I attract qualified <span className="text-indigo-400">leads</span> without sending a single cold message.</h3>
                 </div>
-                <h3 className="text-xl md:text-3xl font-black leading-tight tracking-tight max-w-2xl uppercase">How I attract qualified <span className="text-indigo-400">leads</span> without sending a single cold message.</h3>
-              </div>
+              )}
             </div>
           </div>
 
