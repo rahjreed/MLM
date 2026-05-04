@@ -1,393 +1,321 @@
-import React, { useState } from 'react';
-import { Play, CheckCircle2, Send, Loader2, User, Mail, Phone, ArrowRight, Zap, DoorOpen, Search, MousePointerClick, ExternalLink, Globe, XCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  ArrowRight, 
+  MapPin, 
+  ShieldCheck, 
+  Star, 
+  Zap, 
+  Play, 
+  X,
+  Send,
+  Navigation,
+  Lock,
+  Timer,
+  Eye
+} from 'lucide-react';
 
 const App = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: ''
-  });
-  const [status, setStatus] = useState('idle'); // idle, loading, success (Bridge Page)
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isBridgePlaying, setIsBridgePlaying] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatStep, setChatStep] = useState(0);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [liveViewers, setLiveViewers] = useState(212);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setStatus('loading');
-    // Simulate API call
+  // Live social proof simulation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveViewers(prev => prev + Math.floor(Math.random() * 3) - 1);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const nextChatStep = () => {
+    setIsTyping(true);
     setTimeout(() => {
-      setStatus('success');
-      window.scrollTo(0, 0);
-      setIsPlaying(false);
-      setIsBridgePlaying(false);
-    }, 1500);
+      setIsTyping(false);
+      setChatStep(prev => prev + 1);
+    }, 1000);
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const openChat = () => {
+    setIsChatOpen(true);
+    if (chatStep === 0) nextChatStep();
   };
 
-  const videoUrl = "https://player.mediadelivery.net/play/587199/a6ea9b0b-7601-441f-9d8b-8a3bd37b4f1e";
-  const profilePic = "https://images.travelprox.com/callista/rahj.png";
-
-  // --- BRIDGE PAGE (SUCCESS STATE) ---
-  if (status === 'success') {
-    return (
-      <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-indigo-500 selection:text-white overflow-x-hidden flex flex-col">
-        {/* Header/Nav for Bridge Page */}
-        <div className="bg-slate-950 py-4 px-6 text-center border-b border-white/5">
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-[10px] font-black text-white uppercase tracking-[0.3em]">Access Granted</span>
-          </div>
-        </div>
-
-        {/* Bridge Hero - Outcome Driven */}
-        <section className="pt-16 pb-12 px-6 text-center max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-slate-950 leading-[1.1] mb-6 uppercase">
-            Now That You See How I Get Leads… <br/>
-            <span className="text-indigo-600">Here’s What I’m Actually Building</span>
-          </h2>
-          <p className="text-lg md:text-xl text-slate-500 font-medium leading-relaxed max-w-2xl mx-auto italic">
-            “The system you just saw is what brings people to me… <br className="hidden md:block"/> but this is what actually allows me to turn that into income and build something long-term.”
-          </p>
-        </section>
-
-        {/* Bridge Video Section - Curiosity Driven */}
-        <section className="px-6 pb-20 max-w-4xl mx-auto w-full">
-          <div className="flex flex-col items-center">
-             
-             {/* Relatable Authority Badge */}
-             <div className="flex items-center gap-4 mb-8 bg-slate-900 px-5 py-3 rounded-2xl shadow-xl">
-              <img 
-                src={profilePic} 
-                alt="Rahj" 
-                className="w-10 h-10 rounded-full border border-indigo-400 object-cover bg-slate-800"
-              />
-              <div className="text-left">
-                <p className="text-white font-black text-xs tracking-tight uppercase leading-none mb-1">Rahj — I’ll walk you through this</p>
-                <p className="text-indigo-300 text-[9px] font-black uppercase tracking-widest opacity-80">Turning interest into income</p>
-              </div>
-            </div>
-
-            <div className="w-full group relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-[1.5rem] md:rounded-[2.5rem] blur opacity-20 transition duration-1000"></div>
-              <div className="relative aspect-video w-full bg-slate-900 rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-200">
-                {!isBridgePlaying ? (
-                  <div className="absolute inset-0 flex items-center justify-center cursor-pointer" onClick={() => setIsBridgePlaying(true)}>
-                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-40"></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
-                    <div className="relative w-20 h-20 bg-white text-indigo-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500">
-                      <Play className="fill-current ml-1" size={32} />
-                    </div>
-                  </div>
-                ) : (
-                  <iframe 
-                    src={videoUrl} 
-                    className="w-full h-full"
-                    loading="lazy" 
-                    style={{ border: 0 }} 
-                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
-                    allowFullScreen={true}
-                  />
-                )}
-                
-                {!isBridgePlaying && (
-                  <div className="absolute bottom-0 left-0 w-full p-6 md:p-10 text-white pointer-events-none">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Globe size={14} className="text-indigo-400" />
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">Step 3: The Engine</p>
-                    </div>
-                    <h3 className="text-xl md:text-3xl font-black uppercase tracking-tight">How I Actually Make Money With This.</h3>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Bridge CTA Area */}
-            <div className="mt-12 text-center w-full max-w-sm">
-              <p className="mb-4 text-sm font-bold text-slate-600 italic">
-                If this makes sense so far… this is the next step
-              </p>
-              <button 
-                className="w-full group relative flex items-center justify-center px-8 py-6 font-black text-white transition-all duration-300 bg-indigo-600 rounded-2xl hover:bg-slate-950 shadow-[0_20px_40px_rgba(79,70,229,0.2)] uppercase tracking-widest"
-                onClick={() => window.open('#', '_blank')}
-              >
-                See How This Actually Works <ExternalLink className="ml-2" size={18} />
-              </button>
-              <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                This is what I personally use to build my business
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <footer className="py-12 bg-slate-50 text-center border-t border-slate-100 mt-auto">
-          <button onClick={() => setStatus('idle')} className="text-xs font-black text-slate-300 uppercase tracking-widest hover:text-indigo-600 transition-colors">
-            Back to Home
-          </button>
-        </footer>
-      </div>
-    );
-  }
-
-  // --- LANDING PAGE (IDLE/LOADING STATE) ---
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-indigo-500 selection:text-white overflow-x-hidden">
-      
-      {/* 1. HERO SECTION - EMOTIONAL & DIRECT */}
-      <section className="relative pt-20 pb-32 md:pt-32 md:pb-48 px-6 bg-slate-950 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/20 blur-[120px] rounded-full"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-violet-600/20 blur-[120px] rounded-full"></div>
+    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-blue-500/30 overflow-x-hidden">
+      {/* LIVE SAVINGS TICKER */}
+      <div className="bg-blue-600 text-white py-2 overflow-hidden whitespace-nowrap sticky top-0 z-[60] font-black text-[10px] uppercase tracking-tighter border-b border-white/10">
+        <div className="inline-block animate-marquee">
+          <span className="mx-6">✅ $1,402 SAVED BY @SARAH_J</span>
+          <span className="mx-6">✅ $890 SAVED BY @MARCUS_TRAVELS</span>
+          <span className="mx-6">✅ $2,100 SAVED BY @THE_MILLERS</span>
+          <span className="mx-6">✅ $450 SAVED BY @JASON_K</span>
         </div>
+        <div className="absolute top-0 inline-block animate-marquee2">
+          <span className="mx-6">✅ $1,402 SAVED BY @SARAH_J</span>
+          <span className="mx-6">✅ $890 SAVED BY @MARCUS_TRAVELS</span>
+          <span className="mx-6">✅ $2,100 SAVED BY @THE_MILLERS</span>
+          <span className="mx-6">✅ $450 SAVED BY @JASON_K</span>
+        </div>
+      </div>
 
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-indigo-300 text-xs font-black tracking-[0.2em] uppercase mb-8">
-            <Zap size={14} className="fill-current" />
-            Limited Availability
+      {/* Floating Social Proof */}
+      <div className="fixed bottom-6 left-6 z-40 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full flex items-center gap-2 text-[10px] font-bold">
+        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+        <Eye className="w-3 h-3 text-white/50" />
+        <span>{liveViewers} people checking private rates</span>
+      </div>
+
+      {/* 1. Hero Section (Headline + Subhead) */}
+      <section className="relative pt-12 pb-6 px-6 text-center">
+        <div className="max-w-xl mx-auto space-y-5">
+          <div className="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-500/30 px-4 py-1 rounded-full text-[10px] font-black text-blue-400 uppercase tracking-widest">
+            <Lock className="w-3 h-3 fill-current" />
+            <span>Invitation Only: Hidden Rate Portal</span>
           </div>
           
-          <h1 className="text-5xl md:text-8xl font-black tracking-tighter text-white leading-[0.95] mb-8">
-            Posting every day… <br className="hidden md:block" />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 uppercase">
-              and still nobody’s reaching out?
+          <h1 className="text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter uppercase">
+            Stop Seeing The <br />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500 italic">
+              Wrong Price.
             </span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-slate-400 mb-12 max-w-3xl mx-auto leading-relaxed font-medium">
-            This is how you get people reaching out to <span className="text-white">YOU</span> instead.
+          <p className="text-lg text-slate-400 font-medium max-w-sm mx-auto leading-tight">
+            The prices you see on booking sites aren’t deals… they’re just the public version.
+          </p>
+        </div>
+      </section>
+
+      {/* 2. Video Section */}
+      <section className="py-6 px-4 md:px-6">
+        <div className="max-w-4xl mx-auto">
+          {/* Micro Copy Updated */}
+          <p className="text-center text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">
+            Takes 3–5 minutes. Most people skip this.
           </p>
           
-          <div className="flex flex-col items-center gap-4">
-            <a 
-              href="#video"
-              className="group relative inline-flex items-center justify-center px-10 py-5 font-black text-white transition-all duration-300 bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl hover:scale-105 hover:shadow-[0_0_40px_rgba(79,70,229,0.6)] focus:outline-none uppercase tracking-wider"
-            >
-              Watch How I’m Building This
-              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-            </a>
-            <span className="mt-2 text-[10px] text-slate-500 font-black uppercase tracking-[0.3em]">
-              No more chasing people all day
-            </span>
+          <div className="relative group aspect-video rounded-3xl bg-slate-900 border-4 border-white/5 overflow-hidden shadow-[0_0_80px_-20px_rgba(59,130,246,0.6)]">
+            {!isVideoPlaying ? (
+              <div 
+                className="absolute inset-0 bg-cover bg-center flex flex-col items-center justify-center cursor-pointer p-8"
+                style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1544124499-58912cbddaad?auto=format&fit=crop&q=80')" }}
+                onClick={() => setIsVideoPlaying(true)}
+              >
+                <div className="bg-blue-500 text-white w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-all mb-4">
+                  <Play className="w-8 h-8 md:w-12 md:h-12 fill-current translate-x-1" />
+                </div>
+                <div className="space-y-2 text-center">
+                  {/* Simplified Overlay */}
+                  <h2 className="text-2xl md:text-4xl font-black uppercase tracking-tighter leading-none">
+                    Watch This Before You <br className="hidden md:block" /> Book Anything
+                  </h2>
+                </div>
+              </div>
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black">
+                <div className="text-center animate-pulse space-y-2">
+                  <Play className="w-12 h-12 text-blue-400 mx-auto" />
+                  <p className="text-blue-400 font-mono text-[10px] uppercase tracking-[0.3em]">Accessing_Real_Pricing_Portal</p>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className="mt-4 text-center space-y-6">
+            {/* Minimized text below video */}
+            <p className="text-xs font-bold text-blue-400/80 uppercase tracking-widest">
+              Skipping this could cost you hundreds
+            </p>
+            
+            <div className="space-y-2">
+              <button 
+                onClick={openChat}
+                className="w-full max-w-sm mx-auto bg-white text-black font-black py-5 rounded-2xl shadow-2xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 text-xl"
+              >
+                Check My Dates <ArrowRight className="w-6 h-6" />
+              </button>
+              {/* Friction Reducer */}
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Only takes 30 seconds</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 2. VIDEO & AUTHORITY SECTION - PROOF CENTERED */}
-      <section id="video" className="px-6 -mt-20 md:-mt-32 pb-24 max-w-4xl mx-auto relative z-20">
-        <div className="flex flex-col items-center">
+      {/* 5. Trust Line Placement (ABOVE Proof) */}
+      <section className="py-12 px-6 bg-white/[0.02] border-y border-white/5">
+        <div className="max-w-md mx-auto space-y-6">
+          <p className="text-center text-xs font-medium text-slate-400 italic px-6 pb-2">
+            "I thought this was fake at first too, then I saw the difference..."
+          </p>
+
+          {/* 4. Proof Card Clarity Updated */}
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-3xl flex items-center gap-5 relative overflow-hidden">
+            <div className="w-16 h-16 rounded-2xl bg-slate-800 overflow-hidden flex-shrink-0 border border-white/5">
+               <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&q=80" className="w-full h-full object-cover" />
+            </div>
+            <div className="flex-1 space-y-1">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Mexico Luxury Resort</p>
+              <div className="flex flex-col">
+                <span className="text-xs text-slate-500 line-through">Public: $420/nt</span>
+                <span className="text-xl font-black italic text-blue-400">Real: $195/nt</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-3xl flex items-center gap-5 relative overflow-hidden">
+            <div className="w-16 h-16 rounded-2xl bg-slate-800 overflow-hidden flex-shrink-0 border border-white/5">
+               <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80" className="w-full h-full object-cover" />
+            </div>
+            <div className="flex-1 space-y-1">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Orlando Suites</p>
+              <div className="flex flex-col">
+                <span className="text-xs text-slate-500 line-through">Public: $285/nt</span>
+                <span className="text-xl font-black italic text-blue-400">Real: $112/nt</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom CTA Section */}
+      <section className="py-20 px-6 text-center">
+        <div className="max-w-lg mx-auto space-y-8">
+          <div className="space-y-3">
+            <h2 className="text-4xl font-black uppercase tracking-tighter italic leading-none">Ready to <br />Check Your Dates?</h2>
+            <p className="text-slate-400 font-medium">Takes 30 seconds. See your real price.</p>
+          </div>
           
-          <div className="mb-4">
-            <p className="text-white/60 font-black text-[10px] uppercase tracking-[0.4em] mb-4">This is exactly what I’m doing right now</p>
-          </div>
+          <button 
+            onClick={openChat}
+            className="w-full bg-blue-500 text-white font-black py-6 rounded-[2rem] text-2xl hover:scale-[1.02] transition-all shadow-[0_20px_50px_-12px_rgba(59,130,246,0.5)] flex items-center justify-center gap-3 active:scale-95 animate-pulse"
+            style={{ animationDuration: '3s' }}
+          >
+            Check My Dates <ArrowRight className="w-8 h-8" />
+          </button>
 
-          <div className="flex items-center gap-4 mb-6 bg-slate-900/80 backdrop-blur-xl border border-white/10 px-5 py-3 rounded-2xl shadow-2xl">
-            <div className="relative">
-              <div className="absolute inset-0 bg-indigo-500 rounded-full blur-sm opacity-50"></div>
-              <img 
-                src={profilePic} 
-                alt="Rahj" 
-                className="relative w-12 h-12 rounded-full border-2 border-indigo-400 object-cover bg-slate-800"
-              />
-            </div>
-            <div>
-              <p className="text-white font-black text-sm tracking-tight uppercase leading-none mb-1">Rahj — I'll walk you through this</p>
-              <p className="text-indigo-300 text-[10px] font-black uppercase tracking-widest opacity-80">Stop chasing. Start attracting.</p>
-            </div>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+            <span className="flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5 text-blue-500" /> Private Access</span>
+            <span className="flex items-center gap-1"><Lock className="w-3.5 h-3.5 text-blue-500" /> Secure Connection</span>
           </div>
+        </div>
+      </section>
 
-          <div className="w-full group relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-violet-600 rounded-[2rem] md:rounded-[3rem] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-            <div className="relative aspect-video w-full bg-slate-900 rounded-[1.5rem] md:rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/10">
-              {!isPlaying ? (
-                <div className="absolute inset-0 flex items-center justify-center cursor-pointer" onClick={() => setIsPlaying(true)}>
-                  <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-30 grayscale group-hover:grayscale-0 transition-all duration-700"></div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
-                  <div className="relative w-20 h-20 md:w-28 md:h-28 bg-white text-indigo-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-500">
-                    <Play className="fill-current ml-1.5" size={32} />
-                    <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20 animate-ping"></div>
-                  </div>
+      {/* Interactive Chatbot */}
+      {isChatOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-end md:justify-center p-4">
+          <button onClick={() => { setIsChatOpen(false); setChatStep(0); }} className="absolute top-6 right-6 p-3 bg-white/10 rounded-full">
+            <X className="w-6 h-6" />
+          </button>
+          
+          <div className="w-full max-w-md bg-[#0a0a0a] rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col h-[75vh]">
+            <div className="p-5 border-b border-white/5 flex items-center gap-4 bg-white/[0.02]">
+              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center font-black text-white">
+                <Navigation className="w-5 h-5 fill-current" />
+              </div>
+              <div>
+                <p className="font-black text-sm uppercase italic text-white/90">Rate Assistant</p>
+                <p className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Connected to Private Pool</p>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {chatStep >= 1 && (
+                <div className="bg-white/5 p-5 rounded-3xl rounded-tl-none max-w-[90%] text-sm font-medium animate-in fade-in slide-in-from-left-4">
+                  Let's check the hidden rates for your trip. ✈️ <br /><br />Where are you thinking of going?
                 </div>
-              ) : (
-                <iframe 
-                  src={videoUrl} 
-                  className="w-full h-full"
-                  loading="lazy" 
-                  style={{ border: 0 }} 
-                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
-                  allowFullScreen={true}
-                />
               )}
               
-              {!isPlaying && (
-                <div className="absolute bottom-0 left-0 w-full p-6 md:p-10 text-white pointer-events-none">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">Current Proof</p>
-                  </div>
-                  <h3 className="text-xl md:text-3xl font-black leading-tight tracking-tight max-w-2xl uppercase">How I attract qualified <span className="text-indigo-400">leads</span> without sending a single cold message.</h3>
+              {chatStep >= 2 && (
+                <div className="bg-blue-500 text-white p-4 rounded-3xl rounded-tr-none ml-auto max-w-[80%] text-sm font-black italic animate-in fade-in slide-in-from-right-4">
+                   Hawaii / Tropics 🌴
+                </div>
+              )}
+
+              {chatStep >= 2 && (
+                <div className="bg-white/5 p-5 rounded-3xl rounded-tl-none max-w-[90%] text-sm font-medium animate-in fade-in slide-in-from-left-4">
+                  Searching the non-public inventory... <br /><br />What month are you planning?
+                </div>
+              )}
+
+              {chatStep >= 3 && (
+                <div className="bg-blue-500 text-white p-4 rounded-3xl rounded-tr-none ml-auto max-w-[80%] text-sm font-black italic animate-in fade-in slide-in-from-right-4">
+                   This Fall ✈️
+                </div>
+              )}
+
+              {chatStep >= 3 && (
+                <div className="bg-white/5 p-5 rounded-3xl rounded-tl-none max-w-[90%] text-sm font-medium animate-in fade-in slide-in-from-left-4">
+                  Matches found. 🏷️ <br /><br />We have rates up to 48% lower than the public boards. Where should we send your link?
+                </div>
+              )}
+
+              {isTyping && (
+                <div className="flex gap-1 p-2">
+                  <div className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce"></div>
+                  <div className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce delay-100"></div>
+                  <div className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce delay-200"></div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 border-t border-white/5 bg-black/50">
+              {chatStep < 3 ? (
+                <button 
+                  onClick={nextChatStep}
+                  disabled={isTyping}
+                  className="w-full bg-white text-black font-black py-4 rounded-2xl flex items-center justify-center gap-2 text-lg uppercase tracking-tighter italic"
+                >
+                  Continue <ArrowRight className="w-5 h-5" />
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <input type="email" placeholder="Email for private link..." className="flex-1 bg-white/5 border border-white/10 rounded-2xl px-6 text-sm focus:outline-none focus:border-blue-500 font-bold text-white" />
+                  <button 
+                    onClick={() => {
+                       const btn = document.querySelector('#final-btn');
+                       btn.innerHTML = "...";
+                       setTimeout(() => setIsChatOpen(false), 2000);
+                    }}
+                    id="final-btn"
+                    className="bg-blue-500 p-5 rounded-2xl text-white hover:scale-105 transition-all"
+                  >
+                    <Send className="w-5 h-5 fill-current" />
+                  </button>
                 </div>
               )}
             </div>
           </div>
-
-          <div className="mt-6 flex items-center gap-4 py-3 px-6 bg-slate-50 border border-slate-100 rounded-full">
-            <p className="text-[10px] md:text-xs font-black uppercase tracking-widest text-slate-500">
-              People get responses within <span className="text-indigo-600">days</span> of doing this
-            </p>
-          </div>
         </div>
-      </section>
+      )}
 
-      {/* 3. CLARITY SECTION - THE CONTRAST */}
-      <section className="py-24 bg-slate-50 px-6 border-y border-slate-100">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black text-slate-950 tracking-tighter mb-6 uppercase">Why Most People Struggle To Get Leads</h2>
-            <div className="h-1.5 w-20 bg-indigo-600 mx-auto rounded-full mb-8"></div>
-            <p className="text-xl text-slate-600 font-medium max-w-2xl mx-auto leading-relaxed">
-              Most people are stuck interrupting people all day… <span className="text-slate-950 font-bold underline decoration-indigo-400 decoration-4">instead</span> of putting themselves in front of people already looking.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6 mb-12">
-            <div className="bg-white p-10 rounded-[2.5rem] border border-slate-200 shadow-sm">
-              <div className="w-12 h-12 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mb-6">
-                <XCircle size={24} />
-              </div>
-              <h4 className="text-xl font-black mb-4 uppercase tracking-tight">The Old Way</h4>
-              <ul className="text-slate-600 space-y-3 font-medium">
-                <li className="flex gap-2"><span>•</span> Posting every day hoping something sticks</li>
-                <li className="flex gap-2"><span>•</span> Messaging people who don’t respond</li>
-                <li className="flex gap-2"><span>•</span> Staying consistent… but nothing changes</li>
-              </ul>
-            </div>
-            <div className="bg-indigo-600 p-10 rounded-[2.5rem] text-white shadow-2xl shadow-indigo-200">
-              <div className="w-12 h-12 bg-white/20 text-white rounded-2xl flex items-center justify-center mb-6">
-                <Zap size={24} />
-              </div>
-              <h4 className="text-xl font-black mb-4 uppercase tracking-tight text-white">The Attraction Way</h4>
-              <ul className="text-indigo-50 space-y-3 font-medium">
-                <li className="flex gap-2"><span>•</span> People come to you already interested</li>
-                <li className="flex gap-2"><span>•</span> No chasing, no convincing</li>
-                <li className="flex gap-2"><span>•</span> You just respond and close</li>
-              </ul>
-            </div>
-          </div>
+      {/* Footer */}
+      <footer className="py-12 px-6 text-center border-t border-white/5">
+        <p className="text-[10px] text-slate-700 font-black uppercase tracking-[0.4em] italic mb-4">Invite Only • Private Rate Portal</p>
+        <div className="flex justify-center gap-6 opacity-20 grayscale">
+          <Star fill="currentColor" className="w-4 h-4" />
+          <Star fill="currentColor" className="w-4 h-4" />
+          <Star fill="currentColor" className="w-4 h-4" />
         </div>
-      </section>
-
-      {/* 4. SYSTEM STEPS - SHORT & CONFIDENT */}
-      <section className="py-24 bg-white px-6">
-        <div className="max-w-4xl mx-auto text-center mb-16">
-          <h2 className="text-4xl md:text-6xl font-black text-slate-950 tracking-tighter mb-4 uppercase leading-none">How the <br className="md:hidden" /> system works</h2>
-        </div>
-        <div className="max-w-4xl mx-auto grid gap-4">
-          {[
-            { text: "I post simple content that gets attention", icon: "01" },
-            { text: "I send people to a page that explains everything", icon: "02" },
-            { text: "The right people reach out already interested", icon: "03" },
-            { text: "I don’t chase or convince anyone", icon: "04", highlight: true }
-          ].map((item, index) => (
-            <div key={index} className={`flex items-center justify-between p-6 md:p-8 rounded-[2rem] border transition-all duration-300 ${item.highlight ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl shadow-indigo-100 scale-[1.02]' : 'bg-white border-slate-100 hover:border-indigo-200'}`}>
-              <div className="flex items-center gap-6">
-                <span className={`text-xl font-black ${item.highlight ? 'text-indigo-300' : 'text-slate-200'}`}>{item.icon}</span>
-                <p className={`text-lg md:text-2xl font-black uppercase tracking-tight`}>{item.text}</p>
-              </div>
-              <MousePointerClick className={item.highlight ? 'text-white/40' : 'text-indigo-600/20'} size={24} />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 5. OPT-IN SECTION - CRITICAL FOCUS */}
-      <section className="py-24 px-6 bg-slate-950 relative overflow-hidden">
-        <div className="max-w-2xl mx-auto relative z-10">
-          <div className="bg-white rounded-[3rem] p-10 md:p-16 shadow-2xl relative">
-            <div className="text-center mb-12">
-              <span className="inline-block px-4 py-1 bg-indigo-100 text-indigo-700 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-4">Step 2: Access Now</span>
-              <h2 className="text-3xl md:text-5xl font-black text-slate-950 tracking-tighter mb-4 uppercase leading-[0.9]">Ready to stop chasing people?</h2>
-              <p className="text-slate-500 font-medium text-lg italic underline decoration-indigo-100 underline-offset-8">Enter your info and I’ll personally show you how this works</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Your Full Name</label>
-                <div className="relative group">
-                  <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={18} />
-                  <input
-                    required
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Full Name"
-                    className="w-full pl-14 pr-6 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-indigo-500 focus:bg-white outline-none transition-all font-bold text-slate-900"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Best Email</label>
-                <div className="relative group">
-                  <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={18} />
-                  <input
-                    required
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="Email Address"
-                    className="w-full pl-14 pr-6 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-indigo-500 focus:bg-white outline-none transition-all font-bold text-slate-900"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number (Required)</label>
-                <div className="relative group">
-                  <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-indigo-500 transition-colors" size={18} />
-                  <input
-                    required
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    placeholder="(555) 000-0000"
-                    className="w-full pl-14 pr-6 py-5 bg-slate-50 border border-slate-100 rounded-2xl focus:border-indigo-500 focus:bg-white outline-none transition-all font-bold text-slate-900"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-6 text-center">
-                <button
-                  type="submit"
-                  disabled={status === 'loading'}
-                  className="w-full group relative flex items-center justify-center px-8 py-6 font-black text-white transition-all duration-300 bg-indigo-600 rounded-2xl hover:bg-slate-950 shadow-[0_20px_40px_rgba(79,70,229,0.2)] uppercase tracking-widest disabled:opacity-70"
-                >
-                  {status === 'loading' ? (
-                    <Loader2 className="animate-spin mr-2" />
-                  ) : (
-                    <>Show Me How To Get Leads Like This <ArrowRight className="ml-2 group-hover:translate-x-2 transition-transform" /></>
-                  )}
-                </button>
-                <div className="mt-6 flex items-center justify-center gap-2 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
-                  <Zap size={10} className="text-indigo-500 fill-current" />
-                  This is exactly what I use to get people reaching out to me
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <footer className="py-12 bg-white text-center border-t border-slate-100">
-        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">
-          Business Builder Systems © {new Date().getFullYear()} — Built for Serious Entrepreneurs
-        </p>
       </footer>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-100%); }
+        }
+        @keyframes marquee2 {
+          0% { transform: translateX(100%); }
+          100% { transform: translateX(0); }
+        }
+        .animate-marquee {
+          animation: marquee 35s linear infinite;
+        }
+        .animate-marquee2 {
+          animation: marquee2 35s linear infinite;
+        }
+      ` }} />
     </div>
   );
 };
