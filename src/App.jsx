@@ -1,49 +1,32 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Globe,
-  Camera,
   Star, 
-  ShieldCheck,
+  Shield,
   Clock,
   Plane,
-  Palmtree,
   MapPin,
-  Sun,
   Search,
   Calendar,
   Users,
-  Building2,
-  ArrowUpRight,
-  Info,
+  ArrowRight,
   Navigation,
-  Ship,
-  TrendingUp,
-  MoveRight,
-  Key,
-  Code,
   Lock,
   X,
-  AlertCircle,
-  Timer,
-  PlayCircle,
-  CheckCircle2,
+  Play,
+  Check,
   ChevronRight,
   Flame,
   Sparkles,
-  Zap,
-  Layout,
-  UserCheck,
-  Wand2,
   Award,
   Gift,
-  Ticket,
   MessageSquare,
-  ArrowLeft
+  ArrowLeft,
+  Layout,
+  Code,
+  AlertTriangle
 } from 'lucide-react';
 
-/**
- * ASSETS & CONFIG
- */
 const OFFICIAL_HERO_IMAGE = "https://images.travelprox.com/splash/villa.png";
 const TESTIMONIAL_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/02956ab7-33a5-4f3b-8754-ef763a308f28";
 const PERKS_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/43d40616-b9b4-4efa-b54f-22d08d420e09";
@@ -82,9 +65,6 @@ const SAVINGS_FEED = [
   { user: "James K.", location: "Tokyo", saved: "$1,080", time: "50m ago" },
 ];
 
-/**
- * STYLES & ANIMATIONS
- */
 const customStyles = `
   @keyframes gloss-sweep {
     0% { transform: translateX(-150%) skewX(-25deg); }
@@ -110,10 +90,6 @@ const customStyles = `
     box-shadow: 0 0 50px -10px rgba(234, 179, 8, 0.3);
   }
 `;
-
-/**
- * REUSABLE COMPONENTS
- */
 
 const ScrollReveal = ({ children, className = "" }) => {
   const ref = useRef(null);
@@ -206,7 +182,7 @@ const WaitlistModal = ({ isOpen, onClose }) => {
                Request Member Invite
              </ActionButton>
              <div className="flex items-center justify-center space-x-2 mt-6">
-                <ShieldCheck className="w-4 h-4 text-green-500" />
+                <Shield className="w-4 h-4 text-green-500" />
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Secured by Travel Pro X Vault</span>
              </div>
           </form>
@@ -248,15 +224,12 @@ const SavingsTicker = () => {
   );
 };
 
-/**
- * INTERACTIVE BOOKING & VALUE CALCULATOR QUIZ
- */
 const InteractiveBookingCard = () => {
   const [isQuizActive, setIsQuizActive] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0); // 0 = Idle engine search, 1-5 = Quiz, 6 = Lead Form, 7 = Results
+  const [currentStep, setCurrentStep] = useState(0); // 0 = Idle state, 1-5 = Questions, 6 = Lead Form, 7 = Results
   const [activeTab, setActiveTab] = useState('flights');
 
-  // Input states for the idle/initial booking widget
+  // Input states for idle search engine state
   const [destination, setDestination] = useState('');
   const [travelDate, setDestinationDate] = useState('');
 
@@ -265,7 +238,7 @@ const InteractiveBookingCard = () => {
   const [q2, setQ2] = useState(null); // Frequency Multiplier
   const [q3, setQ3] = useState(null); // Days Multiplier
   const [q4, setQ4] = useState(null); // Nightly Base
-  const [q5, setQ5] = useState('');    // Primary Objective / Persona logic
+  const [q5, setQ5] = useState('');    // Objective / Persona logic
 
   // Lead Generation state
   const [name, setName] = useState('');
@@ -285,7 +258,6 @@ const InteractiveBookingCard = () => {
     setIsQuizActive(false);
   };
 
-  // Safe Math Calculation
   const wastedRevenue = useMemo(() => {
     if (!q2 || !q3 || !q4) return 0;
     // Math Formula: Math.round((NightlyBase * DaysMultiplier * FrequencyMultiplier) * 0.45)
@@ -367,361 +339,381 @@ const InteractiveBookingCard = () => {
 
   return (
     <>
-      {/* 1. PASSIVE ENGINE STATE (renders in-line inside Hero structure) */}
-      {currentStep === 0 && (
-        <div className="w-full bg-white/95 backdrop-blur-2xl rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] border border-white overflow-hidden transition-all duration-300">
-          <div className="flex border-b border-slate-100">
-            {['flights', 'hotels', 'cruises'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => {
-                  setActiveTab(tab);
-                  triggerQuizFocus();
-                }}
-                className={`flex-1 py-6 text-[10px] font-black uppercase tracking-widest transition-all ${
-                  activeTab === tab ? 'bg-white text-amber-600 border-b-4 border-amber-500' : 'text-slate-400 hover:bg-slate-50'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          <div className="p-8 md:p-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div 
-                onClick={triggerQuizFocus}
-                className="bg-slate-50 p-5 rounded-2xl text-left border border-slate-100 cursor-pointer hover:border-yellow-400 transition-colors"
-              >
-                <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Destination</span>
-                <div className="flex items-center space-x-3 text-slate-400 font-bold italic">
-                  <MapPin className="w-5 h-5 text-amber-500" />
-                  <input 
-                    type="text" 
-                    placeholder="Where are we heading?" 
-                    value={destination} 
-                    onChange={(e) => setDestination(e.target.value)}
-                    onFocus={triggerQuizFocus}
-                    className="bg-transparent text-slate-900 placeholder-slate-400 outline-none w-full text-sm not-italic font-bold"
-                  />
-                </div>
-              </div>
-              <div 
-                onClick={triggerQuizFocus}
-                className="bg-slate-50 p-5 rounded-2xl text-left border border-slate-100 cursor-pointer hover:border-yellow-400 transition-colors"
-              >
-                <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Date Range</span>
-                <div className="flex items-center space-x-3 text-slate-400 font-bold italic">
-                  <Calendar className="w-5 h-5 text-orange-500" />
-                  <input 
-                    type="text" 
-                    placeholder="Select Departure" 
-                    value={travelDate} 
-                    onChange={(e) => setDestinationDate(e.target.value)}
-                    onFocus={triggerQuizFocus}
-                    className="bg-transparent text-slate-900 placeholder-slate-400 outline-none w-full text-sm not-italic font-bold"
-                  />
-                </div>
-              </div>
-              <ActionButton variant="orange" className="h-full rounded-2xl" onClick={triggerQuizFocus}>
-                <Search className="w-5 h-5 animate-pulse" />
-                <span>Scan Unlisted</span>
-              </ActionButton>
-            </div>
-          </div>
-        </div>
+      {/* Dynamic Full Screen Backdrop focus lock overlay */}
+      {isQuizActive && (
+        <div 
+          className="fixed inset-0 z-[110] bg-slate-950/75 backdrop-blur-xl transition-opacity duration-500 animate-in fade-in"
+          onClick={handleReset}
+        />
       )}
 
-      {/* 2. GAUSSIAN OVERLAY & FOCUSED ACTIVE QUIZ STAGES */}
-      {isQuizActive && currentStep > 0 && (
-        <div className="fixed inset-0 z-[150] backdrop-blur-xl bg-slate-950/75 flex items-center justify-center p-4 md:p-6 overflow-y-auto">
-          <div className="w-full max-w-2xl bg-white rounded-[40px] md:rounded-[56px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-slate-200 overflow-hidden relative my-auto animate-in zoom-in-95 duration-300">
-            
-            {/* Header progress bar */}
-            {currentStep <= 5 && (
-              <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-100">
+      {/* CORE INTEGRATED BOOKING/QUIZ CONTAINER CARD */}
+      <div className={`w-full bg-white/95 backdrop-blur-2xl rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] border border-white overflow-hidden transition-all duration-500 ${
+        isQuizActive ? 'relative z-[120] max-w-2xl mx-auto ring-4 ring-yellow-400/30 scale-102' : 'max-w-5xl'
+      }`}>
+        
+        {/* Step Indicator Header (Only active during Quiz Steps 1-5) */}
+        {isQuizActive && currentStep <= 5 && (
+          <div className="w-full h-1.5 bg-slate-100 relative">
+            <div 
+              className="bg-gradient-to-r from-amber-500 to-yellow-400 h-full transition-all duration-500"
+              style={{ width: `${(currentStep / 5) * 100}%` }}
+            />
+          </div>
+        )}
+
+        {/* STEP 0: THE IDLE INTERACTIVE SEARCH WIDGET STATE */}
+        {currentStep === 0 && (
+          <div>
+            <div className="flex border-b border-slate-100 bg-slate-50/50">
+              {['flights', 'hotels', 'cruises'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    setActiveTab(tab);
+                    triggerQuizFocus();
+                  }}
+                  className={`flex-1 py-6 text-[10px] font-black uppercase tracking-widest transition-all ${
+                    activeTab === tab ? 'bg-white text-amber-600 border-b-4 border-amber-500' : 'text-slate-400 hover:bg-slate-50'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <div className="p-8 md:p-12">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div 
-                  className="bg-gradient-to-r from-amber-500 to-yellow-400 h-full transition-all duration-500"
-                  style={{ width: `${(currentStep / 5) * 100}%` }}
-                />
+                  onClick={triggerQuizFocus}
+                  className="bg-slate-50 p-5 rounded-2xl text-left border border-slate-100 cursor-pointer hover:border-yellow-400 transition-colors"
+                >
+                  <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Destination</span>
+                  <div className="flex items-center space-x-3 text-slate-400 font-bold italic">
+                    <MapPin className="w-5 h-5 text-amber-500" />
+                    <input 
+                      type="text" 
+                      placeholder="Where are we heading?" 
+                      value={destination} 
+                      onChange={(e) => setDestination(e.target.value)}
+                      onFocus={triggerQuizFocus}
+                      className="bg-transparent text-slate-900 placeholder-slate-400 outline-none w-full text-sm not-italic font-bold"
+                    />
+                  </div>
+                </div>
+                <div 
+                  onClick={triggerQuizFocus}
+                  className="bg-slate-50 p-5 rounded-2xl text-left border border-slate-100 cursor-pointer hover:border-yellow-400 transition-colors"
+                >
+                  <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Date Range</span>
+                  <div className="flex items-center space-x-3 text-slate-400 font-bold italic">
+                    <Calendar className="w-5 h-5 text-orange-500" />
+                    <input 
+                      type="text" 
+                      placeholder="Select Departure" 
+                      value={travelDate} 
+                      onChange={(e) => setDestinationDate(e.target.value)}
+                      onFocus={triggerQuizFocus}
+                      className="bg-transparent text-slate-900 placeholder-slate-400 outline-none w-full text-sm not-italic font-bold"
+                    />
+                  </div>
+                </div>
+                <ActionButton variant="orange" className="h-full rounded-2xl" onClick={triggerQuizFocus}>
+                  <Search className="w-5 h-5 animate-pulse" />
+                  <span>Scan Unlisted</span>
+                </ActionButton>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ACTIVE QUIZ WRAPPER */}
+        {isQuizActive && currentStep > 0 && (
+          <div className="p-8 md:p-12 relative animate-in zoom-in-95 duration-300">
+            
+            {/* Header controls inside card */}
+            <div className="flex justify-between items-center mb-8 border-b border-slate-50 pb-6">
+              {currentStep > 1 && currentStep <= 6 ? (
+                <button 
+                  onClick={handlePrevStep}
+                  className="flex items-center space-x-2 text-slate-400 hover:text-slate-950 font-black text-[10px] uppercase tracking-wider transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Previous</span>
+                </button>
+              ) : <div />}
+              
+              <button 
+                onClick={handleReset}
+                className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* STEP 1: DESTINATION PREFERENCE */}
+            {currentStep === 1 && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">01 / 05 • Dream Target</span>
+                <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
+                  Where is your family planning to vacation next?
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  {[
+                    { val: "A", label: "Orlando / Theme Parks", emoji: "🎡" },
+                    { val: "B", label: "Las Vegas / Entertainment Hubs", emoji: "🎲" },
+                    { val: "C", label: "Tropical Beach / All-Inclusive Resorts", emoji: "🏖️" },
+                    { val: "D", label: "Major City Exploration / Mountain Getaways", emoji: "🏔️" }
+                  ].map((opt) => (
+                    <button
+                      key={opt.val}
+                      onClick={() => handleSelectOption(1, opt.label)}
+                      className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
+                    >
+                      <span className="flex items-center space-x-3">
+                        <span className="text-xl">{opt.emoji}</span>
+                        <span>{opt.label}</span>
+                      </span>
+                      <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
-            {/* Close / Escape focus button */}
-            <button 
-              onClick={handleReset}
-              className="absolute top-6 right-6 p-2 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full transition-colors z-20"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {/* QUIZ INTERFACE CONTAINER */}
-            <div className="p-8 md:p-12 pt-12 md:pt-16">
-              
-              {/* BACK BUTTON for quiz stages */}
-              {currentStep > 1 && currentStep <= 6 && (
-                <button 
-                  onClick={handlePrevStep} 
-                  className="flex items-center space-x-2 text-slate-400 hover:text-slate-900 font-black text-[10px] uppercase tracking-wider mb-6 transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Previous Question</span>
-                </button>
-              )}
-
-              {/* STEP 1: DESTINATION PREFERENCE */}
-              {currentStep === 1 && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                  <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">01 / 05 • Dream Target</span>
-                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
-                    Where is your family planning to vacation next?
-                  </h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    {[
-                      { val: "A", label: "Orlando / Theme Parks" },
-                      { val: "B", label: "Las Vegas / Entertainment Hubs" },
-                      { val: "C", label: "Tropical Beach / All-Inclusive Resorts" },
-                      { val: "D", label: "Major City Exploration / Mountain Getaways" }
-                    ].map((opt) => (
-                      <button
-                        key={opt.val}
-                        onClick={() => handleSelectOption(1, opt.label)}
-                        className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
-                      >
-                        <span>{opt.label}</span>
-                        <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 2: TRAVEL FREQUENCY */}
-              {currentStep === 2 && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                  <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">02 / 05 • Frequency</span>
-                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
-                    How many times a year do you typically travel?
-                  </h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    {[
-                      { val: "A", label: "Only Once (1 trip a year)", mult: 1 },
-                      { val: "B", label: "Seasonal Jetsetter (2-3 trips a year)", mult: 2.5 },
-                      { val: "C", label: "Regular Voyager (4-5 trips a year)", mult: 4.5 },
-                      { val: "D", label: "Constant Explorer (6+ trips a year)", mult: 6 }
-                    ].map((opt) => (
-                      <button
-                        key={opt.val}
-                        onClick={() => handleSelectOption(2, opt.label, opt.mult)}
-                        className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
-                      >
-                        <span>{opt.label}</span>
-                        <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 3: TRIP LENGTH */}
-              {currentStep === 3 && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                  <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">03 / 05 • Duration</span>
-                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
-                    On average, how many days do you stay on a single vacation?
-                  </h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    {[
-                      { val: "A", label: "Quick Weekend (2-3 Days)", mult: 2.5 },
-                      { val: "B", label: "Standard Getaway (4-5 Days)", mult: 4.5 },
-                      { val: "C", label: "Full Week (6-7 Days)", mult: 6.5 },
-                      { val: "D", label: "Extended Luxury (8+ Days)", mult: 9 }
-                    ].map((opt) => (
-                      <button
-                        key={opt.val}
-                        onClick={() => handleSelectOption(3, opt.label, opt.mult)}
-                        className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
-                      >
-                        <span>{opt.label}</span>
-                        <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 4: BUDGET SELECTOR */}
-              {currentStep === 4 && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                  <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">04 / 05 • Budget</span>
-                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
-                    What is your typical nightly budget for a quality resort or hotel stay?
-                  </h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    {[
-                      { val: "A", label: "Value Conscious ($100 - $180 / night)", base: 140 },
-                      { val: "B", label: "Standard Comfort ($180 - $280 / night)", base: 230 },
-                      { val: "C", label: "Premium Luxury ($280 - $450 / night)", base: 365 },
-                      { val: "D", label: "Elite Executive ($450+ / night)", base: 550 }
-                    ].map((opt) => (
-                      <button
-                        key={opt.val}
-                        onClick={() => handleSelectOption(4, opt.label, opt.base)}
-                        className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
-                      >
-                        <span>{opt.label}</span>
-                        <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 5: OBJECTIVE SELECTOR */}
-              {currentStep === 5 && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                  <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">05 / 05 • Personal Objective</span>
-                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
-                    What is your primary objective right now?
-                  </h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    {[
-                      { val: "save_max", label: "Just looking to save maximum money on my own personal vacations." },
-                      { val: "save_income", label: "I want to save money, but I’m also open to making a recurring income promoting travel." },
-                      { val: "luxury_vip", label: "I want to experience luxury VIP destinations without paying retail." },
-                      { val: "replace_income", label: "I am looking to completely replace my current income with a travel business." }
-                    ].map((opt) => (
-                      <button
-                        key={opt.val}
-                        onClick={() => handleSelectOption(5, opt.val)}
-                        className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
-                      >
-                        <span>{opt.label}</span>
-                        <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 6: LEAD GENERATION FORM */}
-              {currentStep === 6 && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 text-center">
-                  <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <ShieldCheck className="w-8 h-8" />
-                  </div>
-                  <h3 className="text-2xl md:text-3xl font-black text-slate-950 uppercase tracking-tighter mb-4">
-                    CALCULATING RESULTS...
-                  </h3>
-                  <p className="text-slate-500 font-medium mb-8 max-w-lg mx-auto text-sm leading-relaxed">
-                    Where should we send your official wholesale savings report? Enter your details to instantly view your back-office access video.
-                  </p>
-                  
-                  <form onSubmit={handleKitSubmit} className="space-y-4 max-w-md mx-auto">
-                    <input 
-                      required 
-                      type="text" 
-                      placeholder="Your First Name" 
-                      value={name} 
-                      onChange={(e) => setName(e.target.value)} 
-                      className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 outline-none focus:border-yellow-400 text-slate-900 font-bold transition-all text-sm" 
-                    />
-                    <input 
-                      required 
-                      type="email" 
-                      placeholder="your@email.com" 
-                      value={email} 
-                      onChange={(e) => setEmail(e.target.value)} 
-                      className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 outline-none focus:border-yellow-400 text-slate-900 font-bold transition-all text-sm" 
-                    />
-                    <ActionButton type="submit" variant="orange" className="w-full py-4 text-sm" noGloss={isSubmitting}>
-                      {isSubmitting ? "Calculating..." : "Access Private Back-Office Walkthrough"}
-                    </ActionButton>
-                  </form>
-                </div>
-              )}
-
-              {/* STEP 7: DYNAMIC CALCULATED RESULTS SCREEN */}
-              {currentStep === 7 && (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-full">
-                  
-                  {/* High-Contrast Alert Banner */}
-                  <div className="bg-red-50 border-2 border-red-200 text-red-700 p-5 rounded-[24px] mb-8 flex items-start space-x-4">
-                    <AlertCircle className="w-6 h-6 shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="font-black text-sm uppercase tracking-wider mb-1">WASTED TRAVEL REVENUE DETECTED</h4>
-                      <p className="text-sm font-medium">
-                        ⚠️ WARNING: You are currently losing an estimated <span className="font-black text-red-800 underline">${wastedRevenue.toLocaleString()}</span> per year to public booking engines.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Persona Category */}
-                  <div className="bg-slate-50 p-6 rounded-[28px] border border-slate-100 mb-8">
-                     <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-2">Calculated Persona Profile</span>
-                     <h4 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2 italic">
-                       {travelerPersona.title}
-                     </h4>
-                     <p className="text-slate-500 font-medium text-sm leading-relaxed">
-                       {travelerPersona.description}
-                     </p>
-                  </div>
-
-                  {/* Embed Walkthrough Video Player */}
-                  <div className="mb-8">
-                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] block mb-3 text-center">Secure Back-Office Walkthrough</span>
-                    <div className="relative aspect-video w-full rounded-3xl overflow-hidden border-4 border-slate-950/10 shadow-lg bg-black">
-                      <iframe 
-                        src={BACKOFFICE_WALKTHROUGH_VIDEO_URL} 
-                        className="w-full h-full"
-                        loading="lazy" 
-                        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
-                        allowFullScreen
-                      />
-                    </div>
-                  </div>
-
-                  {/* Action Row */}
-                  <div className="flex flex-col space-y-4">
-                     <a 
-                       href={TRAVORIUM_ENROLL_URL} 
-                       target="_blank" 
-                       rel="noopener noreferrer"
-                       className="w-full py-5 rounded-2xl bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black uppercase tracking-widest text-center transition-all duration-300 flex items-center justify-center space-x-2"
-                     >
-                       <span>Join the team, get a membership</span>
-                       <ArrowUpRight className="w-5 h-5" />
-                     </a>
-                     <div className="p-4 bg-slate-100 rounded-2xl flex items-center justify-center space-x-3">
-                       <MessageSquare className="w-5 h-5 text-amber-600" />
-                       <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">
-                         Questions? Text Roger Reed: <a href={`tel:${ROGER_PHONE}`} className="underline text-amber-600">{ROGER_PHONE}</a>
-                       </span>
-                     </div>
-                  </div>
-
-                  <div className="mt-8 text-center">
-                    <button 
-                      onClick={handleReset} 
-                      className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-950 transition-colors"
+            {/* STEP 2: TRAVEL FREQUENCY */}
+            {currentStep === 2 && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">02 / 05 • Frequency</span>
+                <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
+                  How many times a year do you typically travel?
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  {[
+                    { val: "A", label: "Only Once (1 trip a year)", mult: 1, emoji: "✈️" },
+                    { val: "B", label: "Seasonal Jetsetter (2-3 trips a year)", mult: 2.5, emoji: "🚀" },
+                    { val: "C", label: "Regular Voyager (4-5 trips a year)", mult: 4.5, emoji: "🗺️" },
+                    { val: "D", label: "Constant Explorer (6+ trips a year)", mult: 6, emoji: "🌍" }
+                  ].map((opt) => (
+                    <button
+                      key={opt.val}
+                      onClick={() => handleSelectOption(2, opt.label, opt.mult)}
+                      className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
                     >
-                      Reset and Recalculate
+                      <span className="flex items-center space-x-3">
+                        <span className="text-xl">{opt.emoji}</span>
+                        <span>{opt.label}</span>
+                      </span>
+                      <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
                     </button>
-                  </div>
-
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
-            </div>
+            {/* STEP 3: TRIP LENGTH */}
+            {currentStep === 3 && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">03 / 05 • Duration</span>
+                <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
+                  On average, how many days do you stay on a single vacation?
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  {[
+                    { val: "A", label: "Quick Weekend (2-3 Days)", mult: 2.5, emoji: "🗓️" },
+                    { val: "B", label: "Standard Getaway (4-5 Days)", mult: 4.5, emoji: "📆" },
+                    { val: "C", label: "Full Week (6-7 Days)", mult: 6.5, emoji: "📅" },
+                    { val: "D", label: "Extended Luxury (8+ Days)", mult: 9, emoji: "👑" }
+                  ].map((opt) => (
+                    <button
+                      key={opt.val}
+                      onClick={() => handleSelectOption(3, opt.label, opt.mult)}
+                      className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
+                    >
+                      <span className="flex items-center space-x-3">
+                        <span className="text-xl">{opt.emoji}</span>
+                        <span>{opt.label}</span>
+                      </span>
+                      <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* STEP 4: BUDGET SELECTOR */}
+            {currentStep === 4 && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">04 / 05 • Budget</span>
+                <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
+                  What is your typical nightly budget for a quality resort or hotel stay?
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  {[
+                    { val: "A", label: "Value Conscious ($100 - $180 / night)", base: 140, emoji: "💵" },
+                    { val: "B", label: "Standard Comfort ($180 - $280 / night)", base: 230, emoji: "💵💵" },
+                    { val: "C", label: "Premium Luxury ($280 - $450 / night)", base: 365, emoji: "💎" },
+                    { val: "D", label: "Elite Executive ($450+ / night)", base: 550, emoji: "💳" }
+                  ].map((opt) => (
+                    <button
+                      key={opt.val}
+                      onClick={() => handleSelectOption(4, opt.label, opt.base)}
+                      className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
+                    >
+                      <span className="flex items-center space-x-3">
+                        <span className="text-xl">{opt.emoji}</span>
+                        <span>{opt.label}</span>
+                      </span>
+                      <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* STEP 5: OBJECTIVE SELECTOR */}
+            {currentStep === 5 && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">05 / 05 • Objective</span>
+                <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
+                  What is your primary objective right now?
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  {[
+                    { val: "save_max", label: "Just looking to save maximum money on my own personal vacations.", emoji: "💰" },
+                    { val: "save_income", label: "I want to save money, but I’m also open to making a recurring income promoting travel.", emoji: "📈" },
+                    { val: "luxury_vip", label: "I want to experience luxury VIP destinations without paying retail.", emoji: "💎" },
+                    { val: "replace_income", label: "I am looking to completely replace my current income with a travel business.", emoji: "💼" }
+                  ].map((opt) => (
+                    <button
+                      key={opt.val}
+                      onClick={() => handleSelectOption(5, opt.val)}
+                      className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
+                    >
+                      <span className="flex items-center space-x-3">
+                        <span className="text-xl">{opt.emoji}</span>
+                        <span>{opt.label}</span>
+                      </span>
+                      <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* STEP 6: LEAD GENERATION FORM */}
+            {currentStep === 6 && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 text-center">
+                <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Shield className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-black text-slate-950 uppercase tracking-tighter mb-4 leading-none">
+                  CALCULATING PORTAL ACCESS...
+                </h3>
+                <p className="text-slate-500 font-medium mb-8 max-w-lg mx-auto text-sm leading-relaxed">
+                  Where should we send your official wholesale savings report? Enter your details to instantly view your back-office access video.
+                </p>
+                
+                <form onSubmit={handleKitSubmit} className="space-y-4 max-w-md mx-auto">
+                  <input 
+                    required 
+                    type="text" 
+                    placeholder="Your First Name" 
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)} 
+                    className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 outline-none focus:border-yellow-400 text-slate-900 font-bold transition-all text-sm" 
+                  />
+                  <input 
+                    required 
+                    type="email" 
+                    placeholder="your@email.com" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 outline-none focus:border-yellow-400 text-slate-900 font-bold transition-all text-sm" 
+                  />
+                  <ActionButton type="submit" variant="orange" className="w-full py-4 text-sm animate-pulse" noGloss={isSubmitting}>
+                    {isSubmitting ? "Calculating..." : "Access Private Back-Office Walkthrough"}
+                  </ActionButton>
+                </form>
+              </div>
+            )}
+
+            {/* STEP 7: CALCULATED RESULTS */}
+            {currentStep === 7 && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-full">
+                
+                {/* Warning Card */}
+                <div className="bg-red-50 border-2 border-red-200 text-red-700 p-5 rounded-[24px] mb-8 flex items-start space-x-4">
+                  <AlertTriangle className="w-6 h-6 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-black text-sm uppercase tracking-wider mb-1">WASTED TRAVEL REVENUE DETECTED</h4>
+                    <p className="text-sm font-medium">
+                      ⚠️ WARNING: You are currently losing an estimated <span className="font-black text-red-800 underline">${wastedRevenue.toLocaleString()}</span> per year to public booking engines.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Persona Profile */}
+                <div className="bg-slate-50 p-6 rounded-[28px] border border-slate-100 mb-8">
+                   <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-2">Calculated Persona Profile</span>
+                   <h4 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2 italic">
+                     {travelerPersona.title}
+                   </h4>
+                   <p className="text-slate-500 font-medium text-sm leading-relaxed">
+                     {travelerPersona.description}
+                   </p>
+                </div>
+
+                {/* Secure Video walk-through */}
+                <div className="mb-8">
+                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] block mb-3 text-center">Secure Back-Office Walkthrough</span>
+                  <div className="relative aspect-video w-full rounded-3xl overflow-hidden border-4 border-slate-950/10 shadow-lg bg-black">
+                    <iframe 
+                      src={BACKOFFICE_WALKTHROUGH_VIDEO_URL} 
+                      className="w-full h-full"
+                      loading="lazy" 
+                      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+
+                {/* CTA Action Deck */}
+                <div className="flex flex-col space-y-4">
+                   <a 
+                     href={TRAVORIUM_ENROLL_URL} 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     className="w-full py-5 rounded-2xl bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black uppercase tracking-widest text-center transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg"
+                   >
+                     <span>Join the team, get a membership</span>
+                     <ArrowRight className="w-5 h-5 animate-pulse" />
+                   </a>
+                   <div className="p-4 bg-slate-100 rounded-2xl flex items-center justify-center space-x-3">
+                     <MessageSquare className="w-5 h-5 text-amber-600" />
+                     <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">
+                       Questions? Text Roger Reed: <a href={`tel:${ROGER_PHONE}`} className="underline text-amber-600">{ROGER_PHONE}</a>
+                     </span>
+                   </div>
+                </div>
+
+                <div className="mt-8 text-center">
+                  <button 
+                    onClick={handleReset} 
+                    className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-950 transition-colors"
+                  >
+                    Reset and Recalculate
+                  </button>
+                </div>
+
+              </div>
+            )}
+
           </div>
         </div>
       )}
     </>
   );
 };
-
-/**
- * REUSABLE COMPONENTS
- */
 
 const Header = ({ setView }) => (
   <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-6 py-6 pointer-events-none">
@@ -773,7 +765,7 @@ const HomeView = ({ openWaitlist, setView }) => {
                 onClick={() => document.getElementById('insights').scrollIntoView({ behavior: 'smooth' })} 
                 className="group text-white font-black text-[11px] uppercase tracking-[0.5em] flex items-center hover:text-yellow-400 transition-colors py-4"
               >
-                View Comparison <MoveRight className="ml-3 w-5 h-5 group-hover:translate-x-3 transition-transform" />
+                View Comparison <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-3 transition-transform" />
               </button>
             </div>
           </ScrollReveal>
@@ -839,7 +831,7 @@ const HomeView = ({ openWaitlist, setView }) => {
         <div className="max-w-6xl mx-auto">
           <ScrollReveal className="text-center">
             <div className="inline-flex items-center space-x-2 px-4 py-2 mb-8 text-[10px] font-black tracking-[0.4em] uppercase bg-white/10 text-yellow-400 rounded-full border border-white/10">
-              <PlayCircle className="w-4 h-4" />
+              <Play className="w-4 h-4 text-yellow-400" />
               <span>Member Diaries</span>
             </div>
             <h2 className="text-6xl md:text-[9rem] font-black text-white tracking-tighter uppercase leading-[0.8] mb-12 drop-shadow-lg">
@@ -854,7 +846,7 @@ const HomeView = ({ openWaitlist, setView }) => {
                 "Zero Commissions"
               ].map((item, idx) => (
                 <div key={idx} className="flex items-center space-x-3 bg-white/5 border border-white/10 px-6 py-3 rounded-2xl">
-                  <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                  <Check className="w-5 h-5 text-green-500 shrink-0" />
                   <span className="text-white/90 font-bold text-sm uppercase tracking-wider">{item}</span>
                 </div>
               ))}
@@ -874,7 +866,7 @@ const HomeView = ({ openWaitlist, setView }) => {
             </div>
 
             <ActionButton variant="primary" className="mx-auto px-12 py-6 text-lg" onClick={openWaitlist}>
-              Explore Member Life <MoveRight className="ml-3 w-5 h-5" />
+              Explore Member Life <ArrowRight className="ml-3 w-5 h-5" />
             </ActionButton>
           </ScrollReveal>
         </div>
@@ -1011,7 +1003,7 @@ const AgencyView = ({ setView }) => (
             </div>
 
             <button onClick={() => setView('home')} className="flex items-center space-x-3 text-slate-400 font-black uppercase tracking-[0.5em] text-[10px] hover:text-slate-950 transition-colors mt-12">
-              <MoveRight className="w-5 h-5 rotate-180" />
+              <ArrowRight className="w-5 h-5 rotate-180" />
               <span>Back to Member Portal</span>
             </button>
           </div>
@@ -1040,7 +1032,7 @@ const AgencyView = ({ setView }) => (
                       Platinum Travorium Enrollment Review <br/> Bespoke Page Included • travelprox.com
                     </p>
                     <div className="flex items-center justify-center space-x-2 text-green-600">
-                      <ShieldCheck className="w-4 h-4" />
+                      <Shield className="w-4 h-4" />
                       <span className="text-[9px] font-black uppercase tracking-widest">Confidential Team Onboarding</span>
                     </div>
                   </div>
@@ -1059,9 +1051,6 @@ const AgencyView = ({ setView }) => (
   </div>
 );
 
-/**
- * PRESENTATION VIEW
- */
 const PresentationView = ({ setView }) => {
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });
 
@@ -1116,7 +1105,7 @@ const PresentationView = ({ setView }) => {
               <div className="flex items-center space-x-4">
                 <span>Join the team, get a membership</span>
                 <div className="bg-slate-950 p-2 rounded-full text-yellow-400 group-hover:rotate-45 transition-transform shrink-0">
-                  <ArrowUpRight className="w-6 h-6 md:w-8 md:h-8" />
+                  <ArrowRight className="w-6 h-6 md:w-8 md:h-8" />
                 </div>
               </div>
             </a>
@@ -1129,7 +1118,7 @@ const PresentationView = ({ setView }) => {
             
             <div className="mt-12 flex justify-center items-center space-x-8 opacity-40">
                 <div className="flex items-center space-x-2">
-                    <ShieldCheck className="w-4 h-4" />
+                    <Shield className="w-4 h-4" />
                     <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Wholesale Access</span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -1144,13 +1133,15 @@ const PresentationView = ({ setView }) => {
           </div>
         </ScrollReveal>
       </main>
+      <footer className="py-20 border-t border-white/5 text-center px-6">
+          <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest text-center">
+            © 2026 TRAVEL PRO X & CALLISTA DIGITAL • EST. 2014
+          </p>
+      </footer>
     </div>
   );
 };
 
-/**
- * APP ENTRY POINT
- */
 const App = () => {
   const [view, setView] = useState('home'); 
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
@@ -1205,7 +1196,7 @@ const App = () => {
         className="fixed bottom-8 right-8 z-[120] bg-white border border-slate-200/50 p-1.5 rounded-full shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] flex items-center space-x-1 cursor-pointer hover:scale-105 transition-all group"
       >
         <div className="bg-yellow-400 px-5 py-3 rounded-full flex items-center space-x-3">
-           <Timer className="w-5 h-5 text-slate-950" />
+           <Clock className="w-5 h-5 text-slate-950" />
            <span className="text-[12px] font-black text-slate-950 uppercase tracking-widest">{spotsLeft} Spots Left</span>
         </div>
         <div className="px-4 py-3 hidden md:flex items-center space-x-2">
