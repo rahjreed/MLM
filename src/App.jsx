@@ -1,39 +1,52 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Globe,
+  Camera,
   Star, 
-  Shield,
+  ShieldCheck,
   Clock,
   Plane,
+  Palmtree,
   MapPin,
+  Sun,
   Search,
   Calendar,
   Users,
-  ArrowRight,
+  Building2,
+  ArrowUpRight,
+  Info,
   Navigation,
+  Ship,
+  TrendingUp,
+  MoveRight,
+  Key,
+  Code,
   Lock,
   X,
-  Play,
-  Check,
+  AlertCircle,
+  Timer,
+  PlayCircle,
+  CheckCircle2,
   ChevronRight,
   Flame,
   Sparkles,
+  Zap,
+  Layout,
+  UserCheck,
+  Wand2,
   Award,
   Gift,
-  MessageSquare,
-  ArrowLeft,
-  Layout,
-  Code,
-  AlertTriangle
+  Ticket
 } from 'lucide-react';
 
+/**
+ * ASSETS & CONFIG
+ */
 const OFFICIAL_HERO_IMAGE = "https://images.travelprox.com/splash/villa.png";
 const TESTIMONIAL_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/02956ab7-33a5-4f3b-8754-ef763a308f28";
 const PERKS_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/43d40616-b9b4-4efa-b54f-22d08d420e09";
-const BACKOFFICE_WALKTHROUGH_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/03a48a31-4610-4d41-b4fc-72f8f4a84af2";
 const ROGER_PROFILE_IMAGE = "https://images.travelprox.com/callista/rahj.png";
 const TRAVORIUM_ENROLL_URL = "https://travorium.com/enroll.php?sponsor=376362";
-const ROGER_PHONE = "765.228.2839";
 
 const DESTINATION_ASSETS = {
   "Florida": "https://images.travelprox.com/splash/miami.png",
@@ -65,6 +78,9 @@ const SAVINGS_FEED = [
   { user: "James K.", location: "Tokyo", saved: "$1,080", time: "50m ago" },
 ];
 
+/**
+ * STYLES & ANIMATIONS
+ */
 const customStyles = `
   @keyframes gloss-sweep {
     0% { transform: translateX(-150%) skewX(-25deg); }
@@ -91,6 +107,9 @@ const customStyles = `
   }
 `;
 
+/**
+ * REUSABLE COMPONENTS
+ */
 const ScrollReveal = ({ children, className = "" }) => {
   const ref = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -143,6 +162,324 @@ const ActionButton = ({ onClick, children, className = "", variant = "primary", 
   );
 };
 
+/**
+ * TRAVELER PERSONA QUIZ & DIAGNOSTIC MODAL
+ */
+const TravelerQuiz = ({ isOpen, onClose, setView }) => {
+  const [step, setStep] = useState(1); // Steps 1 to 5, 'lead', 'results'
+  const [answers, setAnswers] = useState({ q1: null, q2: null, q3: null, q4: null, q5: null });
+  const [leadName, setLeadName] = useState('');
+  const [leadEmail, setLeadEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!isOpen) return null;
+
+  const QUESTIONS = [
+    {
+      id: 'q1',
+      title: "Where is your family planning to vacation next?",
+      options: [
+        { key: 'A', text: "Orlando / Theme Parks" },
+        { key: 'B', text: "Las Vegas / Entertainment Hubs" },
+        { key: 'C', text: "Tropical Beach / All-Inclusive Resorts" },
+        { key: 'D', text: "Major City Exploration / Mountain Getaways" }
+      ]
+    },
+    {
+      id: 'q2',
+      title: "How many times a year do you typically travel?",
+      options: [
+        { key: 'A', text: "Only Once (1 trip a year)", value: 1 },
+        { key: 'B', text: "Seasonal Jetsetter (2-3 trips a year)", value: 2.5 },
+        { key: 'C', text: "Regular Voyager (4-5 trips a year)", value: 4.5 },
+        { key: 'D', text: "Constant Explorer (6+ trips a year)", value: 6 }
+      ]
+    },
+    {
+      id: 'q3',
+      title: "On average, how many days do you stay on a single vacation?",
+      options: [
+        { key: 'A', text: "Quick Weekend (2-3 Days)", value: 2.5 },
+        { key: 'B', text: "Standard Getaway (4-5 Days)", value: 4.5 },
+        { key: 'C', text: "Full Week (6-7 Days)", value: 6.5 },
+        { key: 'D', text: "Extended Luxury (8+ Days)", value: 9 }
+      ]
+    },
+    {
+      id: 'q4',
+      title: "What is your typical nightly budget for a quality resort or hotel stay?",
+      options: [
+        { key: 'A', text: "Value Conscious ($100 - $180 / night)", value: 140 },
+        { key: 'B', text: "Standard Comfort ($180 - $280 / night)", value: 230 },
+        { key: 'C', text: "Premium Luxury ($280 - $450 / night)", value: 365 },
+        { key: 'D', text: "Elite Executive ($450+ / night)", value: 550 }
+      ]
+    },
+    {
+      id: 'q5',
+      title: "What is your primary objective right now?",
+      options: [
+        { key: 'A', text: "Just looking to save maximum money on my own personal vacations." },
+        { key: 'B', text: "I want to save money, but I’m also open to making a recurring income promoting travel." },
+        { key: 'C', text: "I want to experience luxury VIP destinations without paying retail." },
+        { key: 'D', text: "I am looking to completely replace my current income with a travel business." }
+      ]
+    }
+  ];
+
+  const currentQuestion = QUESTIONS[step - 1];
+
+  const handleOptionSelect = (option) => {
+    setAnswers(prev => ({ ...prev, [`q${step}`]: option }));
+    if (step < 5) {
+      setTimeout(() => setStep(prev => prev + 1), 250);
+    } else {
+      setTimeout(() => setStep('lead'), 250);
+    }
+  };
+
+  const handleLeadSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    // Simulate data pipeline ingestion to Kit while retaining users inside results frame
+    try {
+      const formData = new FormData();
+      formData.append('email_address', leadEmail);
+      formData.append('fields[first_name]', leadName);
+      
+      await fetch("https://app.kit.com/forms/9018875/subscriptions", {
+        method: "POST",
+        body: formData,
+        mode: 'no-cors'
+      });
+    } catch (err) {
+      console.log("Local Lead Processed Securely.");
+    }
+
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setStep('results');
+    }, 1200);
+  };
+
+  // Mathematical formulations for retail markups
+  const q2Multiplier = answers.q2?.value || 1;
+  const q3Multiplier = answers.q3?.value || 1;
+  const q4Base = answers.q4?.value || 140;
+  const calculatedLoss = Math.round((q4Base * q3Multiplier * q2Multiplier) * 0.45);
+
+  const q5Key = answers.q5?.key || 'A';
+  const isVictim = q5Key === 'A' || q5Key === 'C';
+  const personaTitle = isVictim ? "The Retail Victim" : "The Hidden Empire Builder";
+  const personaDesc = isVictim 
+    ? "Traveling well but burning massive profits by paying public retail search engine markups."
+    : "Primed to turn standard vacation expenses into an automated recurring revenue stream.";
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6 backdrop-blur-xl bg-slate-950/85 overflow-y-auto animate-in fade-in duration-300">
+      <div className="bg-white w-full max-w-4xl rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border border-slate-200 overflow-hidden relative my-8 animate-in zoom-in-95 duration-300">
+        
+        {/* Navigation / Header */}
+        <div className="flex justify-between items-center px-8 md:px-12 py-6 border-b border-slate-100">
+          <div className="flex items-center space-x-2">
+            <Plane className="w-5 h-5 text-amber-500" />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Wholesale Savings Diagnostic</span>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+            <X className="w-6 h-6 text-slate-400" />
+          </button>
+        </div>
+
+        {/* Diagnostic Stepper */}
+        {typeof step === 'number' && (
+          <div className="w-full bg-slate-100 h-1.5 relative">
+            <div 
+              className="bg-amber-500 h-1.5 transition-all duration-300"
+              style={{ width: `${(step / 5) * 100}%` }}
+            />
+          </div>
+        )}
+
+        <div className="p-8 md:p-12">
+          {typeof step === 'number' && (
+            <div className="space-y-8">
+              <div className="text-center md:text-left space-y-2">
+                <span className="text-[10px] font-black text-amber-600 uppercase tracking-[0.4em]">Section {step} of 5</span>
+                <h2 className="text-2xl md:text-4xl font-black text-slate-950 uppercase tracking-tighter leading-tight">
+                  {currentQuestion.title}
+                </h2>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {currentQuestion.options.map((option) => {
+                  const isSelected = answers[`q${step}`]?.key === option.key;
+                  return (
+                    <button
+                      key={option.key}
+                      onClick={() => handleOptionSelect(option)}
+                      className={`group text-left p-6 rounded-2xl border-2 transition-all duration-300 active:scale-95 flex items-start space-x-4 ${
+                        isSelected 
+                          ? 'border-yellow-400 bg-yellow-50 text-slate-950' 
+                          : 'border-slate-100 bg-slate-50 hover:border-yellow-400 hover:bg-white text-slate-700'
+                      }`}
+                    >
+                      <span className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shrink-0 transition-colors ${
+                        isSelected 
+                          ? 'bg-slate-950 text-white' 
+                          : 'bg-white border border-slate-200 text-slate-400 group-hover:bg-yellow-400 group-hover:text-slate-950'
+                      }`}>
+                        {option.key}
+                      </span>
+                      <span className="font-bold text-sm md:text-base pt-1">
+                        {option.text}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {step === 'lead' && (
+            <div className="max-w-2xl mx-auto text-center space-y-8 py-6">
+              {isSubmitting ? (
+                <div className="flex flex-col items-center justify-center space-y-6 py-12">
+                  <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="space-y-2">
+                    <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-amber-600 animate-pulse">Analyzing Target Channels</span>
+                    <span className="block text-slate-400 font-bold text-xs uppercase tracking-widest">Compiling wholesale variance index...</span>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="w-20 h-20 bg-amber-50 rounded-3xl flex items-center justify-center text-amber-600 mx-auto animate-float">
+                    <ShieldCheck className="w-10 h-10" />
+                  </div>
+                  <div className="space-y-3">
+                    <h2 className="text-3xl md:text-5xl font-black text-slate-950 uppercase tracking-tighter leading-none">
+                      DIAGNOSTIC ARCHIVED.
+                    </h2>
+                    <p className="text-slate-500 font-bold text-sm md:text-base leading-relaxed">
+                      Where should we send your official wholesale savings report? Enter your details to instantly view your back-office access video.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleLeadSubmit} className="space-y-6 text-left">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-2">Your Full Name</label>
+                        <input 
+                          required
+                          type="text" 
+                          placeholder="First & Last Name" 
+                          value={leadName}
+                          onChange={(e) => setLeadName(e.target.value)}
+                          className="w-full h-16 bg-slate-50 rounded-2xl px-6 outline-none border-2 border-slate-100 focus:border-yellow-400 text-slate-900 font-bold transition-all" 
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-2">Best Contact Email</label>
+                        <input 
+                          required
+                          type="email" 
+                          placeholder="name@domain.com" 
+                          value={leadEmail}
+                          onChange={(e) => setLeadEmail(e.target.value)}
+                          className="w-full h-16 bg-slate-50 rounded-2xl px-6 outline-none border-2 border-slate-100 focus:border-yellow-400 text-slate-900 font-bold transition-all" 
+                        />
+                      </div>
+                    </div>
+                    
+                    <ActionButton type="submit" variant="waitlist" className="w-full py-5 text-sm uppercase font-black">
+                      Calculate Wholesale Savings Report
+                    </ActionButton>
+                  </form>
+                </>
+              )}
+            </div>
+          )}
+
+          {step === 'results' && (
+            <div className="space-y-8 py-4">
+              {/* Dynamic Danger Alert Banner */}
+              <div className="bg-red-50 border-4 border-red-500 rounded-3xl p-6 md:p-8 text-center animate-pulse shadow-md">
+                <h3 className="text-2xl md:text-4xl font-black text-red-700 tracking-tighter uppercase leading-tight">
+                  ⚠️ WARNING: You are currently losing an estimated ${calculatedLoss.toLocaleString()} per year to public booking engines.
+                </h3>
+              </div>
+
+              {/* Persona Display Card */}
+              <div className="bg-slate-900 text-white rounded-3xl p-8 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-yellow-400/5 blur-[80px] rounded-full pointer-events-none" />
+                <div className="text-center md:text-left space-y-2 relative z-10">
+                  <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest">Assigned Persona</span>
+                  <h4 className="text-3xl md:text-4xl font-black text-white tracking-tighter uppercase italic leading-none">
+                    {personaTitle}
+                  </h4>
+                  <p className="text-white/75 font-medium text-sm md:text-base max-w-xl">
+                    {personaDesc}
+                  </p>
+                </div>
+                <div className="bg-yellow-400 p-6 rounded-3xl text-slate-950 font-black text-center shrink-0 min-w-[200px] shadow-2xl relative z-10">
+                  <span className="block text-[10px] uppercase tracking-widest opacity-80">Calculated Annual Waste</span>
+                  <span className="text-3xl md:text-4xl block mt-1">${calculatedLoss.toLocaleString()} / Yr</span>
+                </div>
+              </div>
+
+              {/* Secure Private Presentation Player */}
+              <div className="space-y-3">
+                <span className="block text-[10px] font-black text-center text-slate-400 uppercase tracking-[0.3em]">SECURE BACK-OFFICE PRESENTATION INVENTORY</span>
+                <div className="relative aspect-video w-full rounded-[40px] overflow-hidden border-8 border-slate-950 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] bg-black gold-glow">
+                  <iframe 
+                    src="https://player.mediadelivery.net/play/587199/03a48a31-4610-4d41-b4fc-72f8f4a84af2" 
+                    className="w-full h-full"
+                    loading="lazy" 
+                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+
+              {/* Interactive Flow CTAs */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-6">
+                <ActionButton 
+                  variant="primary" 
+                  className="w-full sm:w-auto px-12 py-5 text-sm font-black"
+                  onClick={() => {
+                    onClose();
+                    setView('agency');
+                  }}
+                >
+                  Speak to Team Leadership
+                </ActionButton>
+                <button 
+                  onClick={() => {
+                    onClose();
+                    setView('presentation');
+                  }}
+                  className="text-slate-500 hover:text-slate-950 font-black uppercase text-[10px] tracking-widest py-3"
+                >
+                  Explore Member Rewards
+                </button>
+                <button 
+                  onClick={() => {
+                    setStep(1);
+                    setAnswers({ q1: null, q2: null, q3: null, q4: null, q5: null });
+                  }}
+                  className="text-slate-400 hover:text-slate-950 font-black uppercase text-[10px] tracking-widest py-3"
+                >
+                  Reset Diagnostic
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const WaitlistModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
   return (
@@ -182,7 +519,7 @@ const WaitlistModal = ({ isOpen, onClose }) => {
                Request Member Invite
              </ActionButton>
              <div className="flex items-center justify-center space-x-2 mt-6">
-                <Shield className="w-4 h-4 text-green-500" />
+                <ShieldCheck className="w-4 h-4 text-green-500" />
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Secured by Travel Pro X Vault</span>
              </div>
           </form>
@@ -224,497 +561,9 @@ const SavingsTicker = () => {
   );
 };
 
-const InteractiveBookingCard = () => {
-  const [isQuizActive, setIsQuizActive] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0); // 0 = Idle state, 1-5 = Questions, 6 = Lead Form, 7 = Results
-  const [activeTab, setActiveTab] = useState('flights');
-
-  // Input states for idle search engine state
-  const [destination, setDestination] = useState('');
-  const [travelDate, setDestinationDate] = useState('');
-
-  // Quiz Choices state
-  const [q1, setQ1] = useState('');
-  const [q2, setQ2] = useState(null); // Frequency Multiplier
-  const [q3, setQ3] = useState(null); // Days Multiplier
-  const [q4, setQ4] = useState(null); // Nightly Base
-  const [q5, setQ5] = useState('');    // Objective / Persona logic
-
-  // Lead Generation state
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Restart Quiz
-  const handleReset = () => {
-    setQ1('');
-    setQ2(null);
-    setQ3(null);
-    setQ4(null);
-    setQ5('');
-    setName('');
-    setEmail('');
-    setCurrentStep(0);
-    setIsQuizActive(false);
-  };
-
-  const wastedRevenue = useMemo(() => {
-    if (!q2 || !q3 || !q4) return 0;
-    // Math Formula: Math.round((NightlyBase * DaysMultiplier * FrequencyMultiplier) * 0.45)
-    return Math.round((q4 * q3 * q2) * 0.45);
-  }, [q2, q3, q4]);
-
-  const travelerPersona = useMemo(() => {
-    if (q5 === 'save_max' || q5 === 'luxury_vip') {
-      return {
-        title: "The Retail Victim",
-        description: "You are traveling well but burning massive potential profits by paying standard retail search engine markups. A hidden market gap is costing you thousands."
-      };
-    } else if (q5 === 'save_income' || q5 === 'replace_income') {
-      return {
-        title: "The Hidden Empire Builder",
-        description: "You are primed to turn standard vacation expenses into an automated recurring revenue stream. You recognize the massive potential of wholesale systems."
-      };
-    }
-    return { title: "Uncategorized Voyager", description: "Calculating your custom traveler profiles." };
-  }, [q5]);
-
-  const handleNextStep = () => {
-    setCurrentStep((prev) => prev + 1);
-  };
-
-  const handlePrevStep = () => {
-    setCurrentStep((prev) => Math.max(0, prev - 1));
-  };
-
-  const handleSelectOption = (stepIndex, value, multiplierValue = null) => {
-    if (stepIndex === 1) {
-      setQ1(value);
-      handleNextStep();
-    } else if (stepIndex === 2) {
-      setQ2(multiplierValue);
-      handleNextStep();
-    } else if (stepIndex === 3) {
-      setQ3(multiplierValue);
-      handleNextStep();
-    } else if (stepIndex === 4) {
-      setQ4(multiplierValue);
-      handleNextStep();
-    } else if (stepIndex === 5) {
-      setQ5(value);
-      handleNextStep(); // Moves to Lead Generation Form (Step 6)
-    }
-  };
-
-  const handleKitSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const formData = new FormData();
-      formData.append('email_address', email);
-      formData.append('first_name', name);
-      formData.append('fields[wasted_revenue]', wastedRevenue.toString());
-      formData.append('fields[traveler_persona]', travelerPersona.title);
-
-      // Secure async submission with no-cors to avoid cross-origin API lock
-      await fetch('https://app.kit.com/forms/9018875/subscriptions', {
-        method: 'POST',
-        body: formData,
-        mode: 'no-cors'
-      });
-    } catch (err) {
-      console.error("Kit submit bypass/error:", err);
-    } finally {
-      setIsSubmitting(false);
-      setCurrentStep(7); // Results Screen
-    }
-  };
-
-  // Initial card triggering
-  const triggerQuizFocus = () => {
-    setIsQuizActive(true);
-    setCurrentStep(1);
-  };
-
-  return (
-    <>
-      {/* Dynamic Full Screen Backdrop focus lock overlay */}
-      {isQuizActive && (
-        <div 
-          className="fixed inset-0 z-[110] bg-slate-950/75 backdrop-blur-xl transition-opacity duration-500 animate-in fade-in"
-          onClick={handleReset}
-        />
-      )}
-
-      {/* CORE INTEGRATED BOOKING/QUIZ CONTAINER CARD */}
-      <div className={`w-full bg-white/95 backdrop-blur-2xl rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] border border-white overflow-hidden transition-all duration-500 ${
-        isQuizActive ? 'relative z-[120] max-w-2xl mx-auto ring-4 ring-yellow-400/30 scale-102' : 'max-w-5xl'
-      }`}>
-        
-        {/* Step Indicator Header (Only active during Quiz Steps 1-5) */}
-        {isQuizActive && currentStep <= 5 && (
-          <div className="w-full h-1.5 bg-slate-100 relative">
-            <div 
-              className="bg-gradient-to-r from-amber-500 to-yellow-400 h-full transition-all duration-500"
-              style={{ width: `${(currentStep / 5) * 100}%` }}
-            />
-          </div>
-        )}
-
-        {/* STEP 0: THE IDLE INTERACTIVE SEARCH WIDGET STATE */}
-        {currentStep === 0 && (
-          <div>
-            <div className="flex border-b border-slate-100 bg-slate-50/50">
-              {['flights', 'hotels', 'cruises'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    setActiveTab(tab);
-                    triggerQuizFocus();
-                  }}
-                  className={`flex-1 py-6 text-[10px] font-black uppercase tracking-widest transition-all ${
-                    activeTab === tab ? 'bg-white text-amber-600 border-b-4 border-amber-500' : 'text-slate-400 hover:bg-slate-50'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-            <div className="p-8 md:p-12">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div 
-                  onClick={triggerQuizFocus}
-                  className="bg-slate-50 p-5 rounded-2xl text-left border border-slate-100 cursor-pointer hover:border-yellow-400 transition-colors"
-                >
-                  <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Destination</span>
-                  <div className="flex items-center space-x-3 text-slate-400 font-bold italic">
-                    <MapPin className="w-5 h-5 text-amber-500" />
-                    <input 
-                      type="text" 
-                      placeholder="Where are we heading?" 
-                      value={destination} 
-                      onChange={(e) => setDestination(e.target.value)}
-                      onFocus={triggerQuizFocus}
-                      className="bg-transparent text-slate-900 placeholder-slate-400 outline-none w-full text-sm not-italic font-bold"
-                    />
-                  </div>
-                </div>
-                <div 
-                  onClick={triggerQuizFocus}
-                  className="bg-slate-50 p-5 rounded-2xl text-left border border-slate-100 cursor-pointer hover:border-yellow-400 transition-colors"
-                >
-                  <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Date Range</span>
-                  <div className="flex items-center space-x-3 text-slate-400 font-bold italic">
-                    <Calendar className="w-5 h-5 text-orange-500" />
-                    <input 
-                      type="text" 
-                      placeholder="Select Departure" 
-                      value={travelDate} 
-                      onChange={(e) => setDestinationDate(e.target.value)}
-                      onFocus={triggerQuizFocus}
-                      className="bg-transparent text-slate-900 placeholder-slate-400 outline-none w-full text-sm not-italic font-bold"
-                    />
-                  </div>
-                </div>
-                <ActionButton variant="orange" className="h-full rounded-2xl" onClick={triggerQuizFocus}>
-                  <Search className="w-5 h-5 animate-pulse" />
-                  <span>Scan Unlisted</span>
-                </ActionButton>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ACTIVE QUIZ WRAPPER */}
-        {isQuizActive && currentStep > 0 && (
-          <div className="p-8 md:p-12 relative animate-in zoom-in-95 duration-300">
-            
-            {/* Header controls inside card */}
-            <div className="flex justify-between items-center mb-8 border-b border-slate-50 pb-6">
-              {currentStep > 1 && currentStep <= 6 ? (
-                <button 
-                  onClick={handlePrevStep}
-                  className="flex items-center space-x-2 text-slate-400 hover:text-slate-950 font-black text-[10px] uppercase tracking-wider transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Previous</span>
-                </button>
-              ) : <div />}
-              
-              <button 
-                onClick={handleReset}
-                className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* STEP 1: DESTINATION PREFERENCE */}
-            {currentStep === 1 && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">01 / 05 • Dream Target</span>
-                <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
-                  Where is your family planning to vacation next?
-                </h3>
-                <div className="grid grid-cols-1 gap-4">
-                  {[
-                    { val: "A", label: "Orlando / Theme Parks", emoji: "🎡" },
-                    { val: "B", label: "Las Vegas / Entertainment Hubs", emoji: "🎲" },
-                    { val: "C", label: "Tropical Beach / All-Inclusive Resorts", emoji: "🏖️" },
-                    { val: "D", label: "Major City Exploration / Mountain Getaways", emoji: "🏔️" }
-                  ].map((opt) => (
-                    <button
-                      key={opt.val}
-                      onClick={() => handleSelectOption(1, opt.label)}
-                      className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
-                    >
-                      <span className="flex items-center space-x-3">
-                        <span className="text-xl">{opt.emoji}</span>
-                        <span>{opt.label}</span>
-                      </span>
-                      <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* STEP 2: TRAVEL FREQUENCY */}
-            {currentStep === 2 && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">02 / 05 • Frequency</span>
-                <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
-                  How many times a year do you typically travel?
-                </h3>
-                <div className="grid grid-cols-1 gap-4">
-                  {[
-                    { val: "A", label: "Only Once (1 trip a year)", mult: 1, emoji: "✈️" },
-                    { val: "B", label: "Seasonal Jetsetter (2-3 trips a year)", mult: 2.5, emoji: "🚀" },
-                    { val: "C", label: "Regular Voyager (4-5 trips a year)", mult: 4.5, emoji: "🗺️" },
-                    { val: "D", label: "Constant Explorer (6+ trips a year)", mult: 6, emoji: "🌍" }
-                  ].map((opt) => (
-                    <button
-                      key={opt.val}
-                      onClick={() => handleSelectOption(2, opt.label, opt.mult)}
-                      className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
-                    >
-                      <span className="flex items-center space-x-3">
-                        <span className="text-xl">{opt.emoji}</span>
-                        <span>{opt.label}</span>
-                      </span>
-                      <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* STEP 3: TRIP LENGTH */}
-            {currentStep === 3 && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">03 / 05 • Duration</span>
-                <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
-                  On average, how many days do you stay on a single vacation?
-                </h3>
-                <div className="grid grid-cols-1 gap-4">
-                  {[
-                    { val: "A", label: "Quick Weekend (2-3 Days)", mult: 2.5, emoji: "🗓️" },
-                    { val: "B", label: "Standard Getaway (4-5 Days)", mult: 4.5, emoji: "📆" },
-                    { val: "C", label: "Full Week (6-7 Days)", mult: 6.5, emoji: "📅" },
-                    { val: "D", label: "Extended Luxury (8+ Days)", mult: 9, emoji: "👑" }
-                  ].map((opt) => (
-                    <button
-                      key={opt.val}
-                      onClick={() => handleSelectOption(3, opt.label, opt.mult)}
-                      className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
-                    >
-                      <span className="flex items-center space-x-3">
-                        <span className="text-xl">{opt.emoji}</span>
-                        <span>{opt.label}</span>
-                      </span>
-                      <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* STEP 4: BUDGET SELECTOR */}
-            {currentStep === 4 && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">04 / 05 • Budget</span>
-                <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
-                  What is your typical nightly budget for a quality resort or hotel stay?
-                </h3>
-                <div className="grid grid-cols-1 gap-4">
-                  {[
-                    { val: "A", label: "Value Conscious ($100 - $180 / night)", base: 140, emoji: "💵" },
-                    { val: "B", label: "Standard Comfort ($180 - $280 / night)", base: 230, emoji: "💵💵" },
-                    { val: "C", label: "Premium Luxury ($280 - $450 / night)", base: 365, emoji: "💎" },
-                    { val: "D", label: "Elite Executive ($450+ / night)", base: 550, emoji: "💳" }
-                  ].map((opt) => (
-                    <button
-                      key={opt.val}
-                      onClick={() => handleSelectOption(4, opt.label, opt.base)}
-                      className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
-                    >
-                      <span className="flex items-center space-x-3">
-                        <span className="text-xl">{opt.emoji}</span>
-                        <span>{opt.label}</span>
-                      </span>
-                      <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* STEP 5: OBJECTIVE SELECTOR */}
-            {currentStep === 5 && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">05 / 05 • Objective</span>
-                <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
-                  What is your primary objective right now?
-                </h3>
-                <div className="grid grid-cols-1 gap-4">
-                  {[
-                    { val: "save_max", label: "Just looking to save maximum money on my own personal vacations.", emoji: "💰" },
-                    { val: "save_income", label: "I want to save money, but I’m also open to making a recurring income promoting travel.", emoji: "📈" },
-                    { val: "luxury_vip", label: "I want to experience luxury VIP destinations without paying retail.", emoji: "💎" },
-                    { val: "replace_income", label: "I am looking to completely replace my current income with a travel business.", emoji: "💼" }
-                  ].map((opt) => (
-                    <button
-                      key={opt.val}
-                      onClick={() => handleSelectOption(5, opt.val)}
-                      className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
-                    >
-                      <span className="flex items-center space-x-3">
-                        <span className="text-xl">{opt.emoji}</span>
-                        <span>{opt.label}</span>
-                      </span>
-                      <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* STEP 6: LEAD GENERATION FORM */}
-            {currentStep === 6 && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 text-center">
-                <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Shield className="w-8 h-8" />
-                </div>
-                <h3 className="text-2xl md:text-3xl font-black text-slate-950 uppercase tracking-tighter mb-4 leading-none">
-                  CALCULATING PORTAL ACCESS...
-                </h3>
-                <p className="text-slate-500 font-medium mb-8 max-w-lg mx-auto text-sm leading-relaxed">
-                  Where should we send your official wholesale savings report? Enter your details to instantly view your back-office access video.
-                </p>
-                
-                <form onSubmit={handleKitSubmit} className="space-y-4 max-w-md mx-auto">
-                  <input 
-                    required 
-                    type="text" 
-                    placeholder="Your First Name" 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                    className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 outline-none focus:border-yellow-400 text-slate-900 font-bold transition-all text-sm" 
-                  />
-                  <input 
-                    required 
-                    type="email" 
-                    placeholder="your@email.com" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 outline-none focus:border-yellow-400 text-slate-900 font-bold transition-all text-sm" 
-                  />
-                  <ActionButton type="submit" variant="orange" className="w-full py-4 text-sm animate-pulse" noGloss={isSubmitting}>
-                    {isSubmitting ? "Calculating..." : "Access Private Back-Office Walkthrough"}
-                  </ActionButton>
-                </form>
-              </div>
-            )}
-
-            {/* STEP 7: CALCULATED RESULTS */}
-            {currentStep === 7 && (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-full">
-                
-                {/* Warning Card */}
-                <div className="bg-red-50 border-2 border-red-200 text-red-700 p-5 rounded-[24px] mb-8 flex items-start space-x-4">
-                  <AlertTriangle className="w-6 h-6 shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-black text-sm uppercase tracking-wider mb-1">WASTED TRAVEL REVENUE DETECTED</h4>
-                    <p className="text-sm font-medium">
-                      ⚠️ WARNING: You are currently losing an estimated <span className="font-black text-red-800 underline">${wastedRevenue.toLocaleString()}</span> per year to public booking engines.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Persona Profile */}
-                <div className="bg-slate-50 p-6 rounded-[28px] border border-slate-100 mb-8">
-                   <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-2">Calculated Persona Profile</span>
-                   <h4 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2 italic">
-                     {travelerPersona.title}
-                   </h4>
-                   <p className="text-slate-500 font-medium text-sm leading-relaxed">
-                     {travelerPersona.description}
-                   </p>
-                </div>
-
-                {/* Secure Video walk-through */}
-                <div className="mb-8">
-                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] block mb-3 text-center">Secure Back-Office Walkthrough</span>
-                  <div className="relative aspect-video w-full rounded-3xl overflow-hidden border-4 border-slate-950/10 shadow-lg bg-black">
-                    <iframe 
-                      src={BACKOFFICE_WALKTHROUGH_VIDEO_URL} 
-                      className="w-full h-full"
-                      loading="lazy" 
-                      allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
-                      allowFullScreen
-                    />
-                  </div>
-                </div>
-
-                {/* CTA Action Deck */}
-                <div className="flex flex-col space-y-4">
-                   <a 
-                     href={TRAVORIUM_ENROLL_URL} 
-                     target="_blank" 
-                     rel="noopener noreferrer"
-                     className="w-full py-5 rounded-2xl bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black uppercase tracking-widest text-center transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg"
-                   >
-                     <span>Join the team, get a membership</span>
-                     <ArrowRight className="w-5 h-5 animate-pulse" />
-                   </a>
-                   <div className="p-4 bg-slate-100 rounded-2xl flex items-center justify-center space-x-3">
-                     <MessageSquare className="w-5 h-5 text-amber-600" />
-                     <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">
-                       Questions? Text Roger Reed: <a href={`tel:${ROGER_PHONE}`} className="underline text-amber-600">{ROGER_PHONE}</a>
-                     </span>
-                   </div>
-                </div>
-
-                <div className="mt-8 text-center">
-                  <button 
-                    onClick={handleReset} 
-                    className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-950 transition-colors"
-                  >
-                    Reset and Recalculate
-                  </button>
-                </div>
-
-              </div>
-            )}
-
-          </div>
-        </div>
-      )}
-    </>
-  );
-};
-
+/**
+ * MAIN VIEWS
+ */
 const Header = ({ setView }) => (
   <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-6 py-6 pointer-events-none">
     <div className="max-w-7xl mx-auto flex justify-between items-center bg-white/90 backdrop-blur-xl border border-slate-200/50 rounded-[28px] px-6 py-3 shadow-2xl pointer-events-auto">
@@ -736,6 +585,8 @@ const Header = ({ setView }) => (
 );
 
 const HomeView = ({ openWaitlist, setView }) => {
+  const [isQuizOpen, setIsQuizOpen] = useState(false);
+
   return (
     <div className="bg-white min-h-screen text-slate-900 overflow-x-hidden">
       {/* HERO SECTION */}
@@ -753,31 +604,70 @@ const HomeView = ({ openWaitlist, setView }) => {
                 THE TRAVEL <br/> <span className="text-yellow-400 italic drop-shadow-[0_15px_30px_rgba(0,0,0,0.8)]">CARTEL.</span>
               </h1>
               <p className="text-white text-xl md:text-3xl font-medium max-w-4xl mx-auto leading-tight drop-shadow-lg opacity-90">
-                Stop paying retail. Our members access "Unlisted" wholesale rates protected by private travel agreements.
+                Stop paying retail. Our members access \"Unlisted\" wholesale rates protected by private travel agreements.
               </p>
             </div>
             
             <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6 mb-16">
-              <ActionButton variant="primary" className="w-full md:w-auto px-12 py-7 text-lg" onClick={openWaitlist}>
-                Unlock Member Portal
+              <ActionButton variant="primary" className="w-full md:w-auto px-12 py-7 text-lg" onClick={() => setIsQuizOpen(true)}>
+                Scan Travel Profile
               </ActionButton>
               <button 
                 onClick={() => document.getElementById('insights').scrollIntoView({ behavior: 'smooth' })} 
                 className="group text-white font-black text-[11px] uppercase tracking-[0.5em] flex items-center hover:text-yellow-400 transition-colors py-4"
               >
-                View Comparison <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-3 transition-transform" />
+                View Comparison <MoveRight className="ml-3 w-5 h-5 group-hover:translate-x-3 transition-transform" />
               </button>
             </div>
           </ScrollReveal>
 
-          {/* DYNAMIC QUIZ INTEGRATED SEARCH ENGINE WIDGET */}
+          {/* DYNAMIC BOOKING SYSTEM TO SCANNING MORPH */}
           <ScrollReveal>
-            <div className="max-w-5xl mx-auto">
-              <InteractiveBookingCard />
+            <div 
+              onClick={() => setIsQuizOpen(true)}
+              className="max-w-5xl mx-auto bg-white/95 backdrop-blur-2xl rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] border border-white overflow-hidden cursor-pointer group hover:scale-[1.01] transition-all duration-500"
+            >
+              <div className="flex border-b border-slate-100">
+                {['Hotel Diagnostic', 'Flight Scan', 'Cruise Sizer'].map((tab, idx) => (
+                  <div
+                    key={tab}
+                    className={`flex-1 py-6 text-[10px] font-black uppercase tracking-widest text-center transition-all ${
+                      idx === 0 ? 'bg-white text-amber-600 border-b-4 border-amber-500' : 'text-slate-400 group-hover:text-slate-600'
+                    }`}
+                  >
+                    {tab}
+                  </div>
+                ))}
+              </div>
+              <div className="p-8 md:p-12">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-slate-50 p-5 rounded-2xl text-left border border-slate-100">
+                    <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Destination</span>
+                    <div className="flex items-center space-x-3 text-slate-400 font-bold italic">
+                      <MapPin className="w-5 h-5 text-amber-500 animate-bounce" />
+                      <span>Select Vacation Target Hub</span>
+                    </div>
+                  </div>
+                  <div className="bg-slate-50 p-5 rounded-2xl text-left border border-slate-100">
+                    <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Usage Parameters</span>
+                    <div className="flex items-center space-x-3 text-slate-400 font-bold italic">
+                      <Calendar className="w-5 h-5 text-orange-500" />
+                      <span>Input Frequency & Budgets</span>
+                    </div>
+                  </div>
+                  <ActionButton variant="orange" className="h-full rounded-2xl cursor-pointer" onClick={() => setIsQuizOpen(true)}>
+                    <Search className="w-5 h-5 animate-pulse" />
+                    <span>Scan Unlisted</span>
+                  </ActionButton>
+                </div>
+              </div>
             </div>
           </ScrollReveal>
         </div>
       </section>
+
+      {/* TRAVEL QUIZ EXPANSION MOUNT */}
+      <TravelerQuiz isOpen={isQuizOpen} onClose={() => setIsQuizOpen(false)} setView={setView} />
 
       {/* MEMBER INSIGHTS */}
       <section id="insights" className="max-w-7xl mx-auto px-6 py-32 bg-white">
@@ -807,7 +697,7 @@ const HomeView = ({ openWaitlist, setView }) => {
                   <div className="absolute top-10 left-10"><span className="px-6 py-3 bg-yellow-400 rounded-full text-[10px] font-black text-slate-950 uppercase tracking-widest shadow-xl">{dest.tag}</span></div>
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
                   <div className="absolute bottom-12 left-10 right-10 text-white translate-y-6 group-hover:translate-y-0 transition-all duration-500">
-                    <ActionButton variant="waitlist" className="w-full py-5 rounded-3xl" onClick={openWaitlist}>Verify Private Rate</ActionButton>
+                    <ActionButton variant="waitlist" className="w-full py-5 rounded-3xl" onClick={() => setIsQuizOpen(true)}>Verify Private Rate</ActionButton>
                   </div>
                 </div>
                 <div className="flex justify-between items-start px-6">
@@ -831,7 +721,7 @@ const HomeView = ({ openWaitlist, setView }) => {
         <div className="max-w-6xl mx-auto">
           <ScrollReveal className="text-center">
             <div className="inline-flex items-center space-x-2 px-4 py-2 mb-8 text-[10px] font-black tracking-[0.4em] uppercase bg-white/10 text-yellow-400 rounded-full border border-white/10">
-              <Play className="w-4 h-4 text-yellow-400" />
+              <PlayCircle className="w-4 h-4" />
               <span>Member Diaries</span>
             </div>
             <h2 className="text-6xl md:text-[9rem] font-black text-white tracking-tighter uppercase leading-[0.8] mb-12 drop-shadow-lg">
@@ -846,7 +736,7 @@ const HomeView = ({ openWaitlist, setView }) => {
                 "Zero Commissions"
               ].map((item, idx) => (
                 <div key={idx} className="flex items-center space-x-3 bg-white/5 border border-white/10 px-6 py-3 rounded-2xl">
-                  <Check className="w-5 h-5 text-green-500 shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
                   <span className="text-white/90 font-bold text-sm uppercase tracking-wider">{item}</span>
                 </div>
               ))}
@@ -865,8 +755,8 @@ const HomeView = ({ openWaitlist, setView }) => {
               </div>
             </div>
 
-            <ActionButton variant="primary" className="mx-auto px-12 py-6 text-lg" onClick={openWaitlist}>
-              Explore Member Life <ArrowRight className="ml-3 w-5 h-5" />
+            <ActionButton variant="primary" className="mx-auto px-12 py-6 text-lg" onClick={() => setIsQuizOpen(true)}>
+              Explore Member Life <MoveRight className="ml-3 w-5 h-5" />
             </ActionButton>
           </ScrollReveal>
         </div>
@@ -969,7 +859,7 @@ const AgencyView = ({ setView }) => (
                         As your team leader, <span className="text-white">Roger Reed</span> will personally build your professional online presence.
                       </p>
 
-                      <div className="grid grid-cols-1 gap-4 mb-6">
+                      <div className="grid grid-cols-1 gap-4 mb-10">
                         <div className="flex items-center space-x-4 bg-white/5 p-4 rounded-2xl border border-white/10">
                           <CheckCircle2 className="w-6 h-6 text-yellow-400 shrink-0" />
                           <span className="text-white font-black uppercase tracking-widest text-[10px] md:text-xs">16 Years Expert Graphic Design</span>
@@ -984,15 +874,6 @@ const AgencyView = ({ setView }) => (
                         </div>
                       </div>
 
-                      {/* TEXT CONTACT OPTION */}
-                      <div className="mb-10 p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center space-x-4">
-                        <MessageSquare className="w-6 h-6 text-yellow-400" />
-                        <div className="flex flex-col">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Questions? Text Roger</span>
-                          <span className="text-lg font-black text-white">{ROGER_PHONE}</span>
-                        </div>
-                      </div>
-
                       <div className="bg-white/10 rounded-3xl p-6 border-l-8 border-yellow-400">
                         <p className="text-white/60 text-[10px] md:text-xs uppercase font-black tracking-widest mb-1">Standard Industry Value</p>
                         <p className="text-2xl md:text-3xl font-black text-white tracking-tighter">$1,000+ <span className="text-yellow-400 line-through text-lg md:text-xl opacity-50 ml-2">COST</span> <span className="text-[10px] bg-white text-slate-950 px-3 py-1 rounded-full ml-3 italic shrink-0 whitespace-nowrap">FREE FOR TEAM</span></p>
@@ -1003,7 +884,7 @@ const AgencyView = ({ setView }) => (
             </div>
 
             <button onClick={() => setView('home')} className="flex items-center space-x-3 text-slate-400 font-black uppercase tracking-[0.5em] text-[10px] hover:text-slate-950 transition-colors mt-12">
-              <ArrowRight className="w-5 h-5 rotate-180" />
+              <MoveRight className="w-5 h-5 rotate-180" />
               <span>Back to Member Portal</span>
             </button>
           </div>
@@ -1032,7 +913,7 @@ const AgencyView = ({ setView }) => (
                       Platinum Travorium Enrollment Review <br/> Bespoke Page Included • travelprox.com
                     </p>
                     <div className="flex items-center justify-center space-x-2 text-green-600">
-                      <Shield className="w-4 h-4" />
+                      <ShieldCheck className="w-4 h-4" />
                       <span className="text-[9px] font-black uppercase tracking-widest">Confidential Team Onboarding</span>
                     </div>
                   </div>
@@ -1051,6 +932,9 @@ const AgencyView = ({ setView }) => (
   </div>
 );
 
+/**
+ * PRESENTATION VIEW
+ */
 const PresentationView = ({ setView }) => {
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });
 
@@ -1081,7 +965,7 @@ const PresentationView = ({ setView }) => {
           {/* FULL WIDTH MOBILE VIDEO CONTAINER */}
           <div className="w-full relative group">
             <div className="absolute -inset-2 bg-yellow-400/5 blur-[100px] rounded-full pointer-events-none" />
-            <div className="max-w-[1400px] mx-auto w-full px-0 md:px-6">
+            <div className="max-w-[1400px] mx-auto w-full">
                 <div className="relative aspect-video w-full md:rounded-[40px] overflow-hidden md:border-[12px] border-white/5 shadow-2xl bg-black">
                 <iframe 
                     src={PERKS_VIDEO_URL} 
@@ -1105,20 +989,14 @@ const PresentationView = ({ setView }) => {
               <div className="flex items-center space-x-4">
                 <span>Join the team, get a membership</span>
                 <div className="bg-slate-950 p-2 rounded-full text-yellow-400 group-hover:rotate-45 transition-transform shrink-0">
-                  <ArrowRight className="w-6 h-6 md:w-8 md:h-8" />
+                  <ArrowUpRight className="w-6 h-6 md:w-8 md:h-8" />
                 </div>
               </div>
             </a>
-
-            {/* TEXT CONTACT FOR QUESTIONS */}
-            <div className="mt-8 flex flex-col items-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">Have Questions? Text Roger Directly</p>
-              <a href={`tel:${ROGER_PHONE}`} className="text-xl font-black text-yellow-400 hover:text-yellow-500 transition-colors">{ROGER_PHONE}</a>
-            </div>
             
             <div className="mt-12 flex justify-center items-center space-x-8 opacity-40">
                 <div className="flex items-center space-x-2">
-                    <Shield className="w-4 h-4" />
+                    <ShieldCheck className="w-4 h-4" />
                     <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Wholesale Access</span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -1142,6 +1020,9 @@ const PresentationView = ({ setView }) => {
   );
 };
 
+/**
+ * APP ENTRY POINT
+ */
 const App = () => {
   const [view, setView] = useState('home'); 
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
@@ -1150,7 +1031,6 @@ const App = () => {
   const { spotsLeft } = useMemo(() => {
     const now = new Date();
     const dayOfMonth = now.getDate();
-    // Deterministic countdown throughout the month
     const remaining = Math.max(100 - (dayOfMonth - 1) * 3, 4); 
     return { spotsLeft: remaining };
   }, []);
@@ -1196,7 +1076,7 @@ const App = () => {
         className="fixed bottom-8 right-8 z-[120] bg-white border border-slate-200/50 p-1.5 rounded-full shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] flex items-center space-x-1 cursor-pointer hover:scale-105 transition-all group"
       >
         <div className="bg-yellow-400 px-5 py-3 rounded-full flex items-center space-x-3">
-           <Clock className="w-5 h-5 text-slate-950" />
+           <Timer className="w-5 h-5 text-slate-950" />
            <span className="text-[12px] font-black text-slate-950 uppercase tracking-widest">{spotsLeft} Spots Left</span>
         </div>
         <div className="px-4 py-3 hidden md:flex items-center space-x-2">
