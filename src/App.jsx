@@ -505,11 +505,11 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                   variant="primary" 
                   className="w-full sm:w-auto px-10 py-5 text-sm font-black"
                   onClick={() => {
-                    onClose();
-                    setView('agency');
+                    // Automatically triggers SMS app on mobile devices with pre-filled message
+                    window.location.href = "sms:+17658107271?&body=TPXLife";
                   }}
                 >
-                  Apply to Promoters Hub
+                  Text TPXLife to 765.810.7271 for more info
                 </ActionButton>
                 <button 
                   onClick={() => {
