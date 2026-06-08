@@ -1,476 +1,1218 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
-  ArrowRight, 
-  MapPin, 
-  ShieldCheck, 
+  Globe,
+  Camera,
   Star, 
-  Zap, 
-  Play, 
-  X,
-  Send,
+  ShieldCheck,
+  Clock,
+  Plane,
+  Palmtree,
+  MapPin,
+  Sun,
+  Search,
+  Calendar,
+  Users,
+  Building2,
+  ArrowUpRight,
+  Info,
   Navigation,
+  Ship,
+  TrendingUp,
+  MoveRight,
+  Key,
+  Code,
   Lock,
+  X,
+  AlertCircle,
   Timer,
-  Eye,
-  Home,
-  Coffee,
-  Utensils,
-  CheckCircle,
-  ChevronLeft
+  PlayCircle,
+  CheckCircle2,
+  ChevronRight,
+  Flame,
+  Sparkles,
+  Zap,
+  Layout,
+  UserCheck,
+  Wand2,
+  Award,
+  Gift,
+  Ticket,
+  MessageSquare,
+  ArrowLeft
 } from 'lucide-react';
 
-const App = () => {
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatStep, setChatStep] = useState(0);
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
-  const [isBridgeVideoPlaying, setIsBridgeVideoPlaying] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
-  const [liveViewers, setLiveViewers] = useState(212);
-  const [showBridge, setShowBridge] = useState(false);
-  const [showJotForm, setShowJotForm] = useState(false);
-  
-  // Selection state for chatbot
-  const [selections, setSelections] = useState({
-    destination: '',
-    timeframe: ''
-  });
+/**
+ * ASSETS & CONFIG
+ */
+const OFFICIAL_HERO_IMAGE = "https://images.travelprox.com/splash/villa.png";
+const TESTIMONIAL_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/02956ab7-33a5-4f3b-8754-ef763a308f28";
+const PERKS_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/43d40616-b9b4-4efa-b54f-22d08d420e09";
+const BACKOFFICE_WALKTHROUGH_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/03a48a31-4610-4d41-b4fc-72f8f4a84af2";
+const ROGER_PROFILE_IMAGE = "https://images.travelprox.com/callista/rahj.png";
+const TRAVORIUM_ENROLL_URL = "https://travorium.com/enroll.php?sponsor=376362";
+const ROGER_PHONE = "765.228.2839";
 
-  // Live social proof simulation
+const DESTINATION_ASSETS = {
+  "Florida": "https://images.travelprox.com/splash/miami.png",
+  "New York": "https://images.travelprox.com/splash/newyork.png",
+  "Las Vegas": "https://images.travelprox.com/splash/vegas.png",
+  "Cancun": "https://images.travelprox.com/splash/cancun.png"
+};
+
+const SAVINGS_FEED = [
+  { user: "Sarah J.", location: "Miami", saved: "$420", time: "1m ago" },
+  { user: "Michael R.", location: "Cancun", saved: "$890", time: "3m ago" },
+  { user: "Elena W.", location: "NYC", saved: "$310", time: "1m ago" },
+  { user: "David K.", location: "Vegas", saved: "$1,200", time: "8m ago" },
+  { user: "Sophia L.", location: "Paris", saved: "$540", time: "12m ago" },
+  { user: "Marcus T.", location: "Dubai", saved: "$2,100", time: "15m ago" },
+  { user: "Julian M.", location: "Bali", saved: "$760", time: "18m ago" },
+  { user: "Aria V.", location: "London", saved: "$480", time: "21m ago" },
+  { user: "Chloe B.", location: "Rome", saved: "$390", time: "24m ago" },
+  { user: "Nathan S.", location: "Santorini", saved: "$1,150", time: "26m ago" },
+  { user: "Isabella G.", location: "Mykonos", saved: "$920", time: "29m ago" },
+  { user: "Liam P.", location: "Aspen", saved: "$630", time: "31m ago" },
+  { user: "Olivia H.", location: "Tulum", saved: "$410", time: "33m ago" },
+  { user: "Ethan W.", location: "Barcelona", saved: "$580", time: "35m ago" },
+  { user: "Mia C.", location: "Maldives", saved: "$2,450", time: "38m ago" },
+  { user: "Noah F.", location: "Amalfi", saved: "$1,340", time: "40m ago" },
+  { user: "Ava R.", location: "Ibiza", saved: "$720", time: "42m ago" },
+  { user: "Lucas D.", location: "Cabo", saved: "$850", time: "45m ago" },
+  { user: "Emma S.", location: "Zurich", saved: "$610", time: "47m ago" },
+  { user: "James K.", location: "Tokyo", saved: "$1,080", time: "50m ago" },
+];
+
+/**
+ * STYLES & ANIMATIONS
+ */
+const customStyles = `
+  @keyframes gloss-sweep {
+    0% { transform: translateX(-150%) skewX(-25deg); }
+    30% { transform: translateX(150%) skewX(-25deg); }
+    100% { transform: translateX(150%) skewX(-25deg); }
+  }
+  .animate-gloss {
+    animation: gloss-sweep 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  .gold-glow {
+    box-shadow: 0 0 50px -10px rgba(234, 179, 8, 0.3);
+  }
+`;
+
+/**
+ * REUSABLE COMPONENTS
+ */
+
+const ScrollReveal = ({ children, className = "" }) => {
+  const ref = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setLiveViewers(prev => prev + Math.floor(Math.random() * 3) - 1);
-    }, 4000);
-    return () => clearInterval(interval);
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
+      { threshold: 0.1 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => { if (ref.current) observer.unobserve(ref.current); };
   }, []);
 
-  const handleChoice = (field, value) => {
-    setSelections(prev => ({ ...prev, [field]: value }));
-    setIsTyping(true);
-    setTimeout(() => {
-      setIsTyping(false);
-      setChatStep(prev => prev + 1);
-    }, 1000);
+  return (
+    <div 
+      ref={ref} 
+      className={`transition-all duration-1000 ease-out ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"} ${className}`}
+    >
+      {children}
+    </div>
+  );
+};
+
+const ActionButton = ({ onClick, children, className = "", variant = "primary", noGloss = false, type = "button" }) => {
+  const styles = {
+    primary: "bg-yellow-400 hover:bg-yellow-500 text-slate-950", 
+    secondary: "bg-slate-950 hover:bg-black text-white",
+    waitlist: "bg-amber-600 hover:bg-amber-700 text-white shadow-lg",
+    orange: "bg-orange-500 hover:bg-orange-600 text-white",
+    outline: "bg-transparent border-2 border-slate-200 text-slate-700 hover:border-yellow-500 hover:text-yellow-600"
   };
 
-  const handleContinueToBridge = () => {
-    setIsTyping(true);
-    setTimeout(() => {
-      setIsTyping(false);
-      setShowBridge(true);
-    }, 1200);
+  const showGloss = !noGloss && (variant === 'primary' || variant === 'waitlist' || variant === 'orange');
+
+  return (
+    <button 
+      type={type}
+      onClick={onClick} 
+      className={`relative overflow-hidden px-8 py-4 rounded-2xl font-black uppercase tracking-widest transition-all duration-300 active:scale-95 flex items-center justify-center space-x-2 ${styles[variant]} ${className}`}
+    >
+      {showGloss && (
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="w-[40%] h-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-gloss" />
+        </div>
+      )}
+      <span className="relative z-10 flex items-center justify-center space-x-2">
+        {children}
+      </span>
+    </button>
+  );
+};
+
+const WaitlistModal = ({ isOpen, onClose }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 backdrop-blur-xl bg-slate-950/60">
+      <div className="bg-white w-full max-w-lg rounded-[48px] p-8 md:p-12 relative shadow-2xl animate-in zoom-in-95 duration-300">
+        <button onClick={onClose} className="absolute top-8 right-8 p-2 hover:bg-slate-100 rounded-full transition-colors z-20">
+          <X className="w-6 h-6 text-slate-400" />
+        </button>
+        <div className="text-center relative z-10">
+          <div className="w-20 h-20 bg-amber-50 rounded-3xl flex items-center justify-center text-amber-600 mx-auto mb-8 shadow-inner animate-float">
+            <Lock className="w-10 h-10" />
+          </div>
+          <h3 className="text-4xl font-black text-slate-950 uppercase tracking-tighter mb-4 leading-none">
+            UNLISTED RATES <br/> ARE PROTECTED.
+          </h3>
+          <p className="text-slate-500 font-medium mb-10 leading-relaxed text-sm">
+            To view our private group pricing, you must be a verified member. Join the waitlist to be notified when a membership slot opens.
+          </p>
+          
+          <form 
+            action="https://app.kit.com/forms/9018875/subscriptions" 
+            method="post" 
+            data-sv-form="9018875" 
+            data-uid="d33b584771" 
+            className="space-y-4"
+          >
+             <div className="text-left">
+               <input 
+                 name="email_address" 
+                 required 
+                 type="email" 
+                 placeholder="your@email.com" 
+                 className="w-full h-16 bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 outline-none focus:border-yellow-400 text-slate-900 font-bold transition-all" 
+               />
+             </div>
+             <ActionButton type="submit" variant="waitlist" className="w-full py-5 text-sm">
+               Request Member Invite
+             </ActionButton>
+             <div className="flex items-center justify-center space-x-2 mt-6">
+                <ShieldCheck className="w-4 h-4 text-green-500" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Secured by Travel Pro X Vault</span>
+             </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const SavingsTicker = () => {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % SAVINGS_FEED.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="flex flex-col md:flex-row items-center gap-3">
+      {/* Social Proof Pill */}
+      <div className="bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-full px-6 py-2.5 flex items-center space-x-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex -space-x-2">
+          <div className="w-6 h-6 rounded-full bg-yellow-400 flex items-center justify-center text-[10px] font-black text-slate-950 border-2 border-slate-900">TP</div>
+        </div>
+        <p className="text-white text-[11px] font-medium tracking-wide">
+          <span className="text-yellow-400 font-black">{SAVINGS_FEED[index].user}</span> just saved <span className="font-black">{SAVINGS_FEED[index].saved}</span> in <span className="text-amber-400">{SAVINGS_FEED[index].location}</span>
+        </p>
+        <span className="text-white/40 text-[10px] uppercase font-black tracking-widest shrink-0">{SAVINGS_FEED[index].time}</span>
+      </div>
+
+      {/* Hot Destination Highlight */}
+      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-2.5 flex items-center space-x-2 animate-pulse">
+        <Flame className="w-3 h-3 text-orange-500" />
+        <span className="text-white text-[10px] font-black uppercase tracking-widest">Trending: Tokyo</span>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * INTERACTIVE BOOKING & VALUE CALCULATOR QUIZ
+ */
+const InteractiveBookingCard = () => {
+  const [isQuizActive, setIsQuizActive] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0); // 0 = Idle engine search, 1-5 = Quiz, 6 = Lead Form, 7 = Results
+  const [activeTab, setActiveTab] = useState('flights');
+
+  // Input states for the idle/initial booking widget
+  const [destination, setDestination] = useState('');
+  const [travelDate, setDestinationDate] = useState('');
+
+  // Quiz Choices state
+  const [q1, setQ1] = useState('');
+  const [q2, setQ2] = useState(null); // Frequency Multiplier
+  const [q3, setQ3] = useState(null); // Days Multiplier
+  const [q4, setQ4] = useState(null); // Nightly Base
+  const [q5, setQ5] = useState('');    // Primary Objective / Persona logic
+
+  // Lead Generation state
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Restart Quiz
+  const handleReset = () => {
+    setQ1('');
+    setQ2(null);
+    setQ3(null);
+    setQ4(null);
+    setQ5('');
+    setName('');
+    setEmail('');
+    setCurrentStep(0);
+    setIsQuizActive(false);
   };
 
-  const openChat = () => {
-    setIsChatOpen(true);
-    if (chatStep === 0) {
-      setChatStep(1);
+  // Safe Math Calculation
+  const wastedRevenue = useMemo(() => {
+    if (!q2 || !q3 || !q4) return 0;
+    // Math Formula: Math.round((NightlyBase * DaysMultiplier * FrequencyMultiplier) * 0.45)
+    return Math.round((q4 * q3 * q2) * 0.45);
+  }, [q2, q3, q4]);
+
+  const travelerPersona = useMemo(() => {
+    if (q5 === 'save_max' || q5 === 'luxury_vip') {
+      return {
+        title: "The Retail Victim",
+        description: "You are traveling well but burning massive potential profits by paying standard retail search engine markups. A hidden market gap is costing you thousands."
+      };
+    } else if (q5 === 'save_income' || q5 === 'replace_income') {
+      return {
+        title: "The Hidden Empire Builder",
+        description: "You are primed to turn standard vacation expenses into an automated recurring revenue stream. You recognize the massive potential of wholesale systems."
+      };
+    }
+    return { title: "Uncategorized Voyager", description: "Calculating your custom traveler profiles." };
+  }, [q5]);
+
+  const handleNextStep = () => {
+    setCurrentStep((prev) => prev + 1);
+  };
+
+  const handlePrevStep = () => {
+    setCurrentStep((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleSelectOption = (stepIndex, value, multiplierValue = null) => {
+    if (stepIndex === 1) {
+      setQ1(value);
+      handleNextStep();
+    } else if (stepIndex === 2) {
+      setQ2(multiplierValue);
+      handleNextStep();
+    } else if (stepIndex === 3) {
+      setQ3(multiplierValue);
+      handleNextStep();
+    } else if (stepIndex === 4) {
+      setQ4(multiplierValue);
+      handleNextStep();
+    } else if (stepIndex === 5) {
+      setQ5(value);
+      handleNextStep(); // Moves to Lead Generation Form (Step 6)
     }
   };
 
-  const closeChat = () => {
-    setIsChatOpen(false);
-    setChatStep(0);
-    setShowBridge(false);
-    setShowJotForm(false);
-    setIsBridgeVideoPlaying(false);
+  const handleKitSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('email_address', email);
+      formData.append('first_name', name);
+      formData.append('fields[wasted_revenue]', wastedRevenue.toString());
+      formData.append('fields[traveler_persona]', travelerPersona.title);
+
+      // Secure async submission with no-cors to avoid cross-origin API lock
+      await fetch('https://app.kit.com/forms/9018875/subscriptions', {
+        method: 'POST',
+        body: formData,
+        mode: 'no-cors'
+      });
+    } catch (err) {
+      console.error("Kit submit bypass/error:", err);
+    } finally {
+      setIsSubmitting(false);
+      setCurrentStep(7); // Results Screen
+    }
+  };
+
+  // Initial card triggering
+  const triggerQuizFocus = () => {
+    setIsQuizActive(true);
+    setCurrentStep(1);
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-blue-500/30 overflow-x-hidden">
-      {/* LIVE SAVINGS TICKER */}
-      <div className="bg-blue-600 text-white py-2 overflow-hidden whitespace-nowrap sticky top-0 z-[60] font-black text-[10px] uppercase tracking-tighter border-b border-white/10">
-        <div className="inline-block animate-marquee">
-          <span className="mx-6">✅ $1,402 SAVED BY @SARAH_J</span>
-          <span className="mx-6">✅ $890 SAVED BY @MARCUS_TRAVELS</span>
-          <span className="mx-6">✅ $2,100 SAVED BY @THE_MILLERS</span>
-          <span className="mx-6">✅ $450 SAVED BY @JASON_K</span>
-        </div>
-        <div className="absolute top-0 inline-block animate-marquee2">
-          <span className="mx-6">✅ $1,402 SAVED BY @SARAH_J</span>
-          <span className="mx-6">✅ $890 SAVED BY @MARCUS_TRAVELS</span>
-          <span className="mx-6">✅ $2,100 SAVED BY @THE_MILLERS</span>
-          <span className="mx-6">✅ $450 SAVED BY @JASON_K</span>
-        </div>
-      </div>
-
-      {/* Floating Social Proof */}
-      <div className="fixed bottom-6 left-6 z-40 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full flex items-center gap-2 text-[10px] font-bold">
-        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-        <Eye className="w-3 h-3 text-white/50" />
-        <span>{liveViewers} people checking private rates</span>
-      </div>
-
-      {/* 1. Hero Section */}
-      <section className="relative pt-12 pb-6 px-6 text-center">
-        <div className="max-w-xl mx-auto space-y-5">
-          <div className="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-500/30 px-4 py-1 rounded-full text-[10px] font-black text-blue-400 uppercase tracking-widest">
-            <Lock className="w-3 h-3 fill-current" />
-            <span>Invitation Only: Hidden Rate Portal</span>
-          </div>
-          
-          <h1 className="text-5xl md:text-7xl font-black leading-[0.95] tracking-tighter uppercase">
-            Stop Seeing The <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500 italic">
-              Wrong Price.
-            </span>
-          </h1>
-          
-          <p className="text-lg text-slate-400 font-medium max-w-sm mx-auto leading-tight">
-            The prices you see on booking sites aren’t deals… they’re just the public version.
-          </p>
-        </div>
-      </section>
-
-      {/* 2. Video Section */}
-      <section className="py-6 px-4 md:px-6">
-        <div className="max-w-4xl mx-auto">
-          <p className="text-center text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">
-            Takes 3–5 minutes. Most people skip this.
-          </p>
-          
-          <div className="relative group aspect-video rounded-3xl bg-slate-900 border-4 border-white/5 overflow-hidden shadow-[0_0_80px_-20px_rgba(59,130,246,0.6)]">
-            {!isVideoPlaying ? (
-              <div 
-                className="absolute inset-0 bg-cover bg-center flex flex-col items-center justify-center cursor-pointer p-8"
-                style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1544124499-58912cbddaad?auto=format&fit=crop&q=80')" }}
-                onClick={() => setIsVideoPlaying(true)}
+    <>
+      {/* 1. PASSIVE ENGINE STATE (renders in-line inside Hero structure) */}
+      {currentStep === 0 && (
+        <div className="w-full bg-white/95 backdrop-blur-2xl rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] border border-white overflow-hidden transition-all duration-300">
+          <div className="flex border-b border-slate-100">
+            {['flights', 'hotels', 'cruises'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => {
+                  setActiveTab(tab);
+                  triggerQuizFocus();
+                }}
+                className={`flex-1 py-6 text-[10px] font-black uppercase tracking-widest transition-all ${
+                  activeTab === tab ? 'bg-white text-amber-600 border-b-4 border-amber-500' : 'text-slate-400 hover:bg-slate-50'
+                }`}
               >
-                <div className="bg-blue-500 text-white w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-all mb-4">
-                  <Play className="w-8 h-8 md:w-12 md:h-12 fill-current translate-x-1" />
-                </div>
-                <div className="space-y-2 text-center">
-                  <h2 className="text-2xl md:text-4xl font-black uppercase tracking-tighter leading-none">
-                    Watch This Before You <br className="hidden md:block" /> Book Anything
-                  </h2>
-                </div>
-              </div>
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black">
-                <iframe 
-                  src="https://player.mediadelivery.net/play/587199/346df526-ca9c-4e32-805a-131e54de1fdd?autoplay=true" 
-                  loading="lazy" 
-                  style={{ border: 'none', position: 'absolute', top: 0, left: 0, height: '100%', width: '100%' }} 
-                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
-                  allowFullScreen={true}
-                ></iframe>
-              </div>
-            )}
-          </div>
-          
-          <div className="mt-4 text-center space-y-6">
-            <p className="text-xs font-bold text-blue-400/80 uppercase tracking-widest">
-              Skipping this could cost you hundreds
-            </p>
-            
-            <div className="space-y-2">
-              <button 
-                onClick={openChat}
-                className="w-full max-w-sm mx-auto bg-white text-black font-black py-5 rounded-2xl shadow-2xl shadow-blue-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 text-xl"
-              >
-                Check My Dates <ArrowRight className="w-6 h-6" />
+                {tab}
               </button>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Only takes 30 seconds</p>
-            </div>
+            ))}
           </div>
-        </div>
-      </section>
-
-      {/* Proof Section */}
-      <section className="py-12 px-6 bg-white/[0.02] border-y border-white/5">
-        <div className="max-w-md mx-auto space-y-6">
-          <p className="text-center text-xs font-medium text-slate-400 italic px-6 pb-2">
-            "I thought this was fake at first too, then I saw the difference..."
-          </p>
-
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-3xl flex items-center gap-5 relative overflow-hidden">
-            <div className="w-16 h-16 rounded-2xl bg-slate-800 overflow-hidden flex-shrink-0 border border-white/5">
-               <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&q=80" className="w-full h-full object-cover" />
-            </div>
-            <div className="flex-1 space-y-1">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Mexico Luxury Resort</p>
-              <div className="flex flex-col">
-                <span className="text-xs text-slate-500 line-through">Public: $420/nt</span>
-                <span className="text-xl font-black italic text-blue-400">Real: $195/nt</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-5 rounded-3xl flex items-center gap-4 relative overflow-hidden">
-            <div className="w-16 h-16 rounded-2xl bg-slate-800 overflow-hidden flex-shrink-0 border border-white/5">
-               <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&q=80" className="w-full h-full object-cover" />
-            </div>
-            <div className="flex-1 space-y-1">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Orlando Suites</p>
-              <div className="flex flex-col">
-                <span className="text-xs text-slate-500 line-through">Public: $285/nt</span>
-                <span className="text-xl font-black italic text-blue-400">Real: $112/nt</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Bottom CTA Section */}
-      <section className="py-20 px-6 text-center">
-        <div className="max-w-lg mx-auto space-y-8">
-          <div className="space-y-3">
-            <h2 className="text-4xl font-black uppercase tracking-tighter italic leading-none">Ready to <br />Check Your Dates?</h2>
-            <p className="text-slate-400 font-medium">Takes 30 seconds. See your real price.</p>
-          </div>
-          
-          <button 
-            onClick={openChat}
-            className="w-full bg-blue-500 text-white font-black py-6 rounded-[2rem] text-2xl hover:scale-[1.02] transition-all shadow-[0_20px_50px_-12px_rgba(59,130,246,0.5)] flex items-center justify-center gap-3 active:scale-95 animate-pulse"
-            style={{ animationDuration: '3s' }}
-          >
-            Check My Dates <ArrowRight className="w-8 h-8" />
-          </button>
-        </div>
-      </section>
-
-      {/* Interactive Chatbot Overlay */}
-      {isChatOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-end md:justify-center p-4">
-          <button onClick={closeChat} className="absolute top-6 right-6 p-3 bg-white/10 rounded-full z-[110]">
-            <X className="w-6 h-6" />
-          </button>
-          
-          <div className="w-full max-w-md bg-[#0a0a0a] rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col h-[85vh] md:h-[75vh] relative text-left">
-            
-            {/* JOTFORM FINAL STEP */}
-            {showJotForm ? (
-              <div className="absolute inset-0 z-50 bg-[#0a0a0a] flex flex-col animate-in fade-in zoom-in-95 duration-300">
-                <div className="p-4 border-b border-white/5 flex items-center gap-3">
-                   <button onClick={() => setShowJotForm(false)} className="p-2 hover:bg-white/5 rounded-full">
-                     <ChevronLeft className="w-5 h-5 text-slate-400" />
-                   </button>
-                   <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center font-black text-white">
-                    <Navigation className="w-4 h-4 fill-current" />
-                  </div>
-                  <div>
-                    <p className="font-black text-xs uppercase italic text-white/90">Maya Assistant</p>
-                    <p className="text-[8px] text-blue-400 font-bold uppercase tracking-wider">Final Step: Customization</p>
-                  </div>
-                </div>
-                <div className="flex-1 overflow-hidden">
-                  <iframe 
-                    id="JotFormIFrame-019df64622dd7a838187d0280ecd1cc763c3"
-                    title="Maya: Travel Inquiry Assistant" 
-                    allowtransparency="true"
-                    allow="geolocation; microphone; camera; fullscreen"
-                    src="https://agent.jotform.com/019df64622dd7a838187d0280ecd1cc763c3?embedMode=iframe&autofocus=0&background=1&shadow=1"
-                    frameBorder="0" 
-                    style={{ width: '100%', height: '100%', border: 'none' }} 
-                    scrolling="no"
-                  ></iframe>
+          <div className="p-8 md:p-12">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div 
+                onClick={triggerQuizFocus}
+                className="bg-slate-50 p-5 rounded-2xl text-left border border-slate-100 cursor-pointer hover:border-yellow-400 transition-colors"
+              >
+                <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Destination</span>
+                <div className="flex items-center space-x-3 text-slate-400 font-bold italic">
+                  <MapPin className="w-5 h-5 text-amber-500" />
+                  <input 
+                    type="text" 
+                    placeholder="Where are we heading?" 
+                    value={destination} 
+                    onChange={(e) => setDestination(e.target.value)}
+                    onFocus={triggerQuizFocus}
+                    className="bg-transparent text-slate-900 placeholder-slate-400 outline-none w-full text-sm not-italic font-bold"
+                  />
                 </div>
               </div>
-            ) : showBridge ? (
-              /* THE BRIDGE PAGE (SCOTTSDALE 2025) */
-              <div className="absolute inset-0 z-40 bg-[#0a0a0a] flex flex-col animate-in fade-in slide-in-from-bottom-8 duration-500 overflow-y-auto">
-                <div className="flex-1 p-6 md:p-8 space-y-6">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-blue-400 font-black text-[10px] uppercase tracking-widest">
-                      <Star className="w-3 h-3 fill-current" />
-                      <span>Sneak Peak: Live Proof</span>
-                    </div>
-                    <h2 className="text-3xl font-black uppercase italic leading-none">Scottsdale 2025</h2>
-                    <p className="text-slate-400 text-sm font-medium italic">"I can't believe this was our life for a week..."</p>
-                  </div>
-
-                  {/* Bridge Proof Video Container */}
-                  <div className="relative aspect-[4/5] rounded-3xl bg-slate-900 border border-white/10 overflow-hidden group">
-                    {!isBridgeVideoPlaying ? (
-                      <div 
-                        className="absolute inset-0 cursor-pointer"
-                        onClick={() => setIsBridgeVideoPlaying(true)}
-                      >
-                        <img 
-                          src="https://images.unsplash.com/photo-1544124499-58912cbddaad?auto=format&fit=crop&q=80" 
-                          className="w-full h-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-110" 
-                          alt="Scottsdale Resort"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-16 h-16 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xl">
-                            <Play className="w-6 h-6 text-white fill-current translate-x-0.5" />
-                          </div>
-                        </div>
-                        <div className="absolute bottom-6 left-6 right-6 space-y-1 text-left">
-                          <p className="text-2xl font-black text-white italic tracking-tighter">TOTAL: &lt;$100</p>
-                          <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">8 Days / 7 Nights</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <iframe 
-                        src="https://player.mediadelivery.net/play/587199/02956ab7-33a5-4f3b-8754-ef763a308f28?autoplay=true" 
-                        loading="lazy" 
-                        style={{ border: 'none', position: 'absolute', top: 0, left: 0, height: '100%', width: '100%' }} 
-                        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
-                        allowFullScreen={true}
-                      ></iframe>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center gap-3">
-                      <Home className="w-5 h-5 text-blue-400" />
-                      <span className="text-[10px] font-bold uppercase tracking-tighter">Luxury Villa</span>
-                    </div>
-                    <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center gap-3">
-                      <Utensils className="w-5 h-5 text-blue-400" />
-                      <span className="text-[10px] font-bold uppercase tracking-tighter">Full Kitchen</span>
-                    </div>
-                    <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center gap-3">
-                      <Coffee className="w-5 h-5 text-blue-400" />
-                      <span className="text-[10px] font-bold uppercase tracking-tighter">Living Room</span>
-                    </div>
-                    <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-blue-400" />
-                      <span className="text-[10px] font-bold uppercase tracking-tighter">Dining Room</span>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                    This is what happens when you skip the public booking sites. We want to find this for you too.
-                  </p>
-                </div>
-
-                <div className="p-6 bg-black border-t border-white/5 shrink-0">
-                  <button 
-                    className="w-full bg-blue-500 text-white font-black py-5 rounded-2xl flex items-center justify-center gap-3 text-xl hover:scale-[1.02] active:scale-95 transition-all shadow-[0_10px_40px_-12px_rgba(59,130,246,0.6)]"
-                    onClick={() => setShowJotForm(true)}
-                  >
-                    Find My Trip Options <ArrowRight className="w-6 h-6" />
-                  </button>
+              <div 
+                onClick={triggerQuizFocus}
+                className="bg-slate-50 p-5 rounded-2xl text-left border border-slate-100 cursor-pointer hover:border-yellow-400 transition-colors"
+              >
+                <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Date Range</span>
+                <div className="flex items-center space-x-3 text-slate-400 font-bold italic">
+                  <Calendar className="w-5 h-5 text-orange-500" />
+                  <input 
+                    type="text" 
+                    placeholder="Select Departure" 
+                    value={travelDate} 
+                    onChange={(e) => setDestinationDate(e.target.value)}
+                    onFocus={triggerQuizFocus}
+                    className="bg-transparent text-slate-900 placeholder-slate-400 outline-none w-full text-sm not-italic font-bold"
+                  />
                 </div>
               </div>
-            ) : (
-              /* Standard Chatbot Flow */
-              <>
-                <div className="p-5 border-b border-white/5 flex items-center gap-4 bg-white/[0.02]">
-                  <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center font-black text-white">
-                    <Navigation className="w-5 h-5 fill-current" />
-                  </div>
-                  <div>
-                    <p className="font-black text-sm uppercase italic text-white/90">Rate Assistant</p>
-                    <p className="text-[10px] text-blue-400 font-bold uppercase tracking-wider">Connected to Private Pool</p>
-                  </div>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                  {chatStep >= 1 && (
-                    <div className="bg-white/5 p-5 rounded-3xl rounded-tl-none max-w-[90%] text-sm font-medium animate-in fade-in slide-in-from-left-4">
-                      Let's check the hidden rates for your trip. ✈️ <br /><br />Where are you thinking of going?
-                    </div>
-                  )}
-                  
-                  {chatStep >= 2 && selections.destination && (
-                    <div className="bg-blue-500 text-white p-4 rounded-3xl rounded-tr-none ml-auto max-w-[80%] text-sm font-black italic animate-in fade-in slide-in-from-right-4">
-                       {selections.destination}
-                    </div>
-                  )}
-
-                  {chatStep >= 2 && (
-                    <div className="bg-white/5 p-5 rounded-3xl rounded-tl-none max-w-[90%] text-sm font-medium animate-in fade-in slide-in-from-left-4">
-                      Excellent choice. Those areas have high markups we can bypass. <br /><br />What time of year are you planning to go?
-                    </div>
-                  )}
-
-                  {chatStep >= 3 && selections.timeframe && (
-                    <div className="bg-blue-500 text-white p-4 rounded-3xl rounded-tr-none ml-auto max-w-[80%] text-sm font-black italic animate-in fade-in slide-in-from-right-4">
-                       {selections.timeframe}
-                    </div>
-                  )}
-
-                  {chatStep >= 3 && (
-                    <div className="bg-white/5 p-5 rounded-3xl rounded-tl-none max-w-[90%] text-sm font-medium animate-in fade-in slide-in-from-left-4">
-                      Checking current inventory... Matches found. 🏷️ <br /><br />We found rates up to 48% lower than public sites. Ready to see the proof?
-                    </div>
-                  )}
-
-                  {isTyping && (
-                    <div className="flex gap-1 p-2">
-                      <div className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce"></div>
-                      <div className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce delay-100"></div>
-                      <div className="w-1.5 h-1.5 bg-slate-600 rounded-full animate-bounce delay-200"></div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-6 border-t border-white/5 bg-black/50">
-                  {chatStep === 1 && !isTyping && (
-                    <div className="grid grid-cols-2 gap-3">
-                      {['Vegas', 'Orlando', 'Hawaii', 'International'].map((dest) => (
-                        <button 
-                          key={dest}
-                          onClick={() => handleChoice('destination', dest)}
-                          className="bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all active:scale-95"
-                        >
-                          {dest}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {chatStep === 2 && !isTyping && (
-                    <div className="grid grid-cols-2 gap-3">
-                      {['Spring', 'Summer', 'Winter', 'Fall'].map((season) => (
-                        <button 
-                          key={season}
-                          onClick={() => handleChoice('timeframe', season)}
-                          className="bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all active:scale-95"
-                        >
-                          {season}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {chatStep >= 3 && !isTyping && (
-                    <div className="flex flex-col gap-4">
-                      <button 
-                        onClick={handleContinueToBridge}
-                        className="w-full bg-white text-black font-black py-5 rounded-2xl flex items-center justify-center gap-3 text-xl hover:scale-[1.02] active:scale-95 transition-all shadow-2xl"
-                      >
-                        See Live Proof <ArrowRight className="w-6 h-6" />
-                      </button>
-                      <p className="text-[10px] text-slate-500 text-center font-bold uppercase tracking-widest underline underline-offset-4">Only takes 30 seconds</p>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+              <ActionButton variant="orange" className="h-full rounded-2xl" onClick={triggerQuizFocus}>
+                <Search className="w-5 h-5 animate-pulse" />
+                <span>Scan Unlisted</span>
+              </ActionButton>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Footer */}
-      <footer className="py-12 px-6 text-center border-t border-white/5">
-        <p className="text-[10px] text-slate-700 font-black uppercase tracking-[0.4em] italic mb-4">Invite Only • Private Rate Portal</p>
-        <div className="flex justify-center gap-6 opacity-20 grayscale">
-          <Star fill="currentColor" className="w-4 h-4" />
-          <Star fill="currentColor" className="w-4 h-4" />
-          <Star fill="currentColor" className="w-4 h-4" />
+      {/* 2. GAUSSIAN OVERLAY & FOCUSED ACTIVE QUIZ STAGES */}
+      {isQuizActive && currentStep > 0 && (
+        <div className="fixed inset-0 z-[150] backdrop-blur-xl bg-slate-950/75 flex items-center justify-center p-4 md:p-6 overflow-y-auto">
+          <div className="w-full max-w-2xl bg-white rounded-[40px] md:rounded-[56px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border border-slate-200 overflow-hidden relative my-auto animate-in zoom-in-95 duration-300">
+            
+            {/* Header progress bar */}
+            {currentStep <= 5 && (
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-100">
+                <div 
+                  className="bg-gradient-to-r from-amber-500 to-yellow-400 h-full transition-all duration-500"
+                  style={{ width: `${(currentStep / 5) * 100}%` }}
+                />
+              </div>
+            )}
+
+            {/* Close / Escape focus button */}
+            <button 
+              onClick={handleReset}
+              className="absolute top-6 right-6 p-2 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full transition-colors z-20"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* QUIZ INTERFACE CONTAINER */}
+            <div className="p-8 md:p-12 pt-12 md:pt-16">
+              
+              {/* BACK BUTTON for quiz stages */}
+              {currentStep > 1 && currentStep <= 6 && (
+                <button 
+                  onClick={handlePrevStep} 
+                  className="flex items-center space-x-2 text-slate-400 hover:text-slate-900 font-black text-[10px] uppercase tracking-wider mb-6 transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span>Previous Question</span>
+                </button>
+              )}
+
+              {/* STEP 1: DESTINATION PREFERENCE */}
+              {currentStep === 1 && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">01 / 05 • Dream Target</span>
+                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
+                    Where is your family planning to vacation next?
+                  </h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {[
+                      { val: "A", label: "Orlando / Theme Parks" },
+                      { val: "B", label: "Las Vegas / Entertainment Hubs" },
+                      { val: "C", label: "Tropical Beach / All-Inclusive Resorts" },
+                      { val: "D", label: "Major City Exploration / Mountain Getaways" }
+                    ].map((opt) => (
+                      <button
+                        key={opt.val}
+                        onClick={() => handleSelectOption(1, opt.label)}
+                        className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
+                      >
+                        <span>{opt.label}</span>
+                        <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 2: TRAVEL FREQUENCY */}
+              {currentStep === 2 && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">02 / 05 • Frequency</span>
+                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
+                    How many times a year do you typically travel?
+                  </h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {[
+                      { val: "A", label: "Only Once (1 trip a year)", mult: 1 },
+                      { val: "B", label: "Seasonal Jetsetter (2-3 trips a year)", mult: 2.5 },
+                      { val: "C", label: "Regular Voyager (4-5 trips a year)", mult: 4.5 },
+                      { val: "D", label: "Constant Explorer (6+ trips a year)", mult: 6 }
+                    ].map((opt) => (
+                      <button
+                        key={opt.val}
+                        onClick={() => handleSelectOption(2, opt.label, opt.mult)}
+                        className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
+                      >
+                        <span>{opt.label}</span>
+                        <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3: TRIP LENGTH */}
+              {currentStep === 3 && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">03 / 05 • Duration</span>
+                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
+                    On average, how many days do you stay on a single vacation?
+                  </h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {[
+                      { val: "A", label: "Quick Weekend (2-3 Days)", mult: 2.5 },
+                      { val: "B", label: "Standard Getaway (4-5 Days)", mult: 4.5 },
+                      { val: "C", label: "Full Week (6-7 Days)", mult: 6.5 },
+                      { val: "D", label: "Extended Luxury (8+ Days)", mult: 9 }
+                    ].map((opt) => (
+                      <button
+                        key={opt.val}
+                        onClick={() => handleSelectOption(3, opt.label, opt.mult)}
+                        className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
+                      >
+                        <span>{opt.label}</span>
+                        <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 4: BUDGET SELECTOR */}
+              {currentStep === 4 && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">04 / 05 • Budget</span>
+                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
+                    What is your typical nightly budget for a quality resort or hotel stay?
+                  </h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {[
+                      { val: "A", label: "Value Conscious ($100 - $180 / night)", base: 140 },
+                      { val: "B", label: "Standard Comfort ($180 - $280 / night)", base: 230 },
+                      { val: "C", label: "Premium Luxury ($280 - $450 / night)", base: 365 },
+                      { val: "D", label: "Elite Executive ($450+ / night)", base: 550 }
+                    ].map((opt) => (
+                      <button
+                        key={opt.val}
+                        onClick={() => handleSelectOption(4, opt.label, opt.base)}
+                        className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
+                      >
+                        <span>{opt.label}</span>
+                        <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 5: OBJECTIVE SELECTOR */}
+              {currentStep === 5 && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-3">05 / 05 • Personal Objective</span>
+                  <h3 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight mb-8">
+                    What is your primary objective right now?
+                  </h3>
+                  <div className="grid grid-cols-1 gap-4">
+                    {[
+                      { val: "save_max", label: "Just looking to save maximum money on my own personal vacations." },
+                      { val: "save_income", label: "I want to save money, but I’m also open to making a recurring income promoting travel." },
+                      { val: "luxury_vip", label: "I want to experience luxury VIP destinations without paying retail." },
+                      { val: "replace_income", label: "I am looking to completely replace my current income with a travel business." }
+                    ].map((opt) => (
+                      <button
+                        key={opt.val}
+                        onClick={() => handleSelectOption(5, opt.val)}
+                        className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-yellow-400 bg-slate-50/50 hover:bg-white font-bold text-slate-700 hover:text-slate-950 transition-all flex items-center justify-between group"
+                      >
+                        <span>{opt.label}</span>
+                        <ChevronRight className="w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 6: LEAD GENERATION FORM */}
+              {currentStep === 6 && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 text-center">
+                  <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <ShieldCheck className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-black text-slate-950 uppercase tracking-tighter mb-4">
+                    CALCULATING RESULTS...
+                  </h3>
+                  <p className="text-slate-500 font-medium mb-8 max-w-lg mx-auto text-sm leading-relaxed">
+                    Where should we send your official wholesale savings report? Enter your details to instantly view your back-office access video.
+                  </p>
+                  
+                  <form onSubmit={handleKitSubmit} className="space-y-4 max-w-md mx-auto">
+                    <input 
+                      required 
+                      type="text" 
+                      placeholder="Your First Name" 
+                      value={name} 
+                      onChange={(e) => setName(e.target.value)} 
+                      className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 outline-none focus:border-yellow-400 text-slate-900 font-bold transition-all text-sm" 
+                    />
+                    <input 
+                      required 
+                      type="email" 
+                      placeholder="your@email.com" 
+                      value={email} 
+                      onChange={(e) => setEmail(e.target.value)} 
+                      className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 outline-none focus:border-yellow-400 text-slate-900 font-bold transition-all text-sm" 
+                    />
+                    <ActionButton type="submit" variant="orange" className="w-full py-4 text-sm" noGloss={isSubmitting}>
+                      {isSubmitting ? "Calculating..." : "Access Private Back-Office Walkthrough"}
+                    </ActionButton>
+                  </form>
+                </div>
+              )}
+
+              {/* STEP 7: DYNAMIC CALCULATED RESULTS SCREEN */}
+              {currentStep === 7 && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-full">
+                  
+                  {/* High-Contrast Alert Banner */}
+                  <div className="bg-red-50 border-2 border-red-200 text-red-700 p-5 rounded-[24px] mb-8 flex items-start space-x-4">
+                    <AlertCircle className="w-6 h-6 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-black text-sm uppercase tracking-wider mb-1">WASTED TRAVEL REVENUE DETECTED</h4>
+                      <p className="text-sm font-medium">
+                        ⚠️ WARNING: You are currently losing an estimated <span className="font-black text-red-800 underline">${wastedRevenue.toLocaleString()}</span> per year to public booking engines.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Persona Category */}
+                  <div className="bg-slate-50 p-6 rounded-[28px] border border-slate-100 mb-8">
+                     <span className="text-[10px] font-black uppercase text-amber-600 tracking-[0.3em] block mb-2">Calculated Persona Profile</span>
+                     <h4 className="text-2xl font-black text-slate-900 uppercase tracking-tighter mb-2 italic">
+                       {travelerPersona.title}
+                     </h4>
+                     <p className="text-slate-500 font-medium text-sm leading-relaxed">
+                       {travelerPersona.description}
+                     </p>
+                  </div>
+
+                  {/* Embed Walkthrough Video Player */}
+                  <div className="mb-8">
+                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] block mb-3 text-center">Secure Back-Office Walkthrough</span>
+                    <div className="relative aspect-video w-full rounded-3xl overflow-hidden border-4 border-slate-950/10 shadow-lg bg-black">
+                      <iframe 
+                        src={BACKOFFICE_WALKTHROUGH_VIDEO_URL} 
+                        className="w-full h-full"
+                        loading="lazy" 
+                        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
+
+                  {/* Action Row */}
+                  <div className="flex flex-col space-y-4">
+                     <a 
+                       href={TRAVORIUM_ENROLL_URL} 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       className="w-full py-5 rounded-2xl bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black uppercase tracking-widest text-center transition-all duration-300 flex items-center justify-center space-x-2"
+                     >
+                       <span>Join the team, get a membership</span>
+                       <ArrowUpRight className="w-5 h-5" />
+                     </a>
+                     <div className="p-4 bg-slate-100 rounded-2xl flex items-center justify-center space-x-3">
+                       <MessageSquare className="w-5 h-5 text-amber-600" />
+                       <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">
+                         Questions? Text Roger Reed: <a href={`tel:${ROGER_PHONE}`} className="underline text-amber-600">{ROGER_PHONE}</a>
+                       </span>
+                     </div>
+                  </div>
+
+                  <div className="mt-8 text-center">
+                    <button 
+                      onClick={handleReset} 
+                      className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-950 transition-colors"
+                    >
+                      Reset and Recalculate
+                    </button>
+                  </div>
+
+                </div>
+              )}
+
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+/**
+ * REUSABLE COMPONENTS
+ */
+
+const Header = ({ setView }) => (
+  <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-6 py-6 pointer-events-none">
+    <div className="max-w-7xl mx-auto flex justify-between items-center bg-white/90 backdrop-blur-xl border border-slate-200/50 rounded-[28px] px-6 py-3 shadow-2xl pointer-events-auto">
+      <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setView('home')}>
+        <div className="p-2 bg-yellow-400 rounded-xl group-hover:rotate-12 transition-transform shadow-lg">
+          <Plane className="w-5 h-5 text-slate-950" />
+        </div>
+        <span className="font-black text-slate-950 tracking-tighter text-xl uppercase">TRAVELPRO<span className="text-amber-600 text-2xl italic">X</span></span>
+      </div>
+      <div className="hidden lg:flex items-center space-x-8">
+        <button onClick={() => setView('presentation')} className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-950 transition-colors">Member Perks</button>
+        <button onClick={() => setView('home')} className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-950 transition-colors">Public Search</button>
+        <div className="w-[1px] h-4 bg-slate-200 mx-2" />
+        <button onClick={() => setView('agency')} className="text-[10px] font-black uppercase tracking-widest text-amber-600 hover:text-amber-700 transition-colors px-4 py-2 bg-amber-50 rounded-full border border-amber-100">Promoter Hub</button>
+      </div>
+      <ActionButton variant="primary" noGloss className="py-2.5 px-6 rounded-xl text-[10px] uppercase tracking-widest" onClick={() => setView('agency')}>Partner</ActionButton>
+    </div>
+  </nav>
+);
+
+const HomeView = ({ openWaitlist, setView }) => {
+  return (
+    <div className="bg-white min-h-screen text-slate-900 overflow-x-hidden">
+      {/* HERO SECTION */}
+      <section className="relative min-h-[90vh] md:min-h-screen flex flex-col items-center justify-center pt-32 pb-24 px-6 overflow-hidden">
+        <div className="absolute inset-0 z-0 scale-105">
+          <img src={OFFICIAL_HERO_IMAGE} className="w-full h-full object-cover" alt="Luxury Villa" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-950/20 to-white" />
+        </div>
+
+        <div className="relative z-10 w-full max-w-6xl text-center">
+          <ScrollReveal>
+            <div className="mb-8 flex flex-col items-center space-y-6">
+              <SavingsTicker />
+              <h1 className="text-6xl md:text-[11rem] font-black text-white tracking-tighter leading-[0.75] uppercase drop-shadow-2xl">
+                THE TRAVEL <br/> <span className="text-yellow-400 italic drop-shadow-[0_15px_30px_rgba(0,0,0,0.8)]">CARTEL.</span>
+              </h1>
+              <p className="text-white text-xl md:text-3xl font-medium max-w-4xl mx-auto leading-tight drop-shadow-lg opacity-90">
+                Stop paying retail. Our members access "Unlisted" wholesale rates protected by private travel agreements.
+              </p>
+            </div>
+            
+            <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6 mb-16">
+              <ActionButton variant="primary" className="w-full md:w-auto px-12 py-7 text-lg" onClick={openWaitlist}>
+                Unlock Member Portal
+              </ActionButton>
+              <button 
+                onClick={() => document.getElementById('insights').scrollIntoView({ behavior: 'smooth' })} 
+                className="group text-white font-black text-[11px] uppercase tracking-[0.5em] flex items-center hover:text-yellow-400 transition-colors py-4"
+              >
+                View Comparison <MoveRight className="ml-3 w-5 h-5 group-hover:translate-x-3 transition-transform" />
+              </button>
+            </div>
+          </ScrollReveal>
+
+          {/* DYNAMIC QUIZ INTEGRATED SEARCH ENGINE WIDGET */}
+          <ScrollReveal>
+            <div className="max-w-5xl mx-auto">
+              <InteractiveBookingCard />
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* MEMBER INSIGHTS */}
+      <section id="insights" className="max-w-7xl mx-auto px-6 py-32 bg-white">
+        <ScrollReveal>
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-slate-100 pb-16">
+            <div className="max-w-2xl">
+              <h2 className="text-xs font-black uppercase tracking-[0.5em] text-amber-600 mb-6">Price Comparison</h2>
+              <p className="text-5xl md:text-8xl font-black text-slate-950 tracking-tighter uppercase leading-[0.85] italic">STEP BEHIND THE VELVET ROPE.</p>
+            </div>
+            <p className="text-slate-400 font-bold max-w-xs text-sm leading-relaxed mt-8 md:mt-0">
+              The rates below represent standard public market pricing. Verified members typically see 25-60% reductions.
+            </p>
+          </div>
+        </ScrollReveal>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+          {[
+            { name: "Florida", loc: "Miami Beach", price: "189", tag: "Beachfront" },
+            { name: "New York", loc: "Times Square", price: "245", tag: "Skyline" },
+            { name: "Las Vegas", loc: "The Strip", price: "99", tag: "High Roller" },
+            { name: "Cancun", loc: "All-Inclusive", price: "220", tag: "Paradise" }
+          ].map((dest, i) => (
+            <ScrollReveal key={i}>
+              <div className="group cursor-pointer">
+                <div className="relative h-[540px] rounded-[56px] overflow-hidden mb-8 border-4 border-white shadow-2xl transition-transform duration-700 hover:-translate-y-4">
+                  <img src={DESTINATION_ASSETS[dest.name]} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={dest.name} />
+                  <div className="absolute top-10 left-10"><span className="px-6 py-3 bg-yellow-400 rounded-full text-[10px] font-black text-slate-950 uppercase tracking-widest shadow-xl">{dest.tag}</span></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
+                  <div className="absolute bottom-12 left-10 right-10 text-white translate-y-6 group-hover:translate-y-0 transition-all duration-500">
+                    <ActionButton variant="waitlist" className="w-full py-5 rounded-3xl" onClick={openWaitlist}>Verify Private Rate</ActionButton>
+                  </div>
+                </div>
+                <div className="flex justify-between items-start px-6">
+                  <div>
+                    <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter leading-none mb-2">{dest.name}</h3>
+                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center"><MapPin className="w-3 h-3 mr-2 text-amber-500" /> {dest.loc}</p>
+                  </div>
+                  <div className="text-right">
+                     <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest line-through mb-1">Public: ${parseInt(dest.price) + 120}</p>
+                     <p className="text-2xl font-black text-amber-700 leading-none">${dest.price}</p>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </section>
+
+      {/* VIDEO TESTIMONIAL */}
+      <section className="bg-slate-950 py-32 md:py-48 px-6 overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <ScrollReveal className="text-center">
+            <div className="inline-flex items-center space-x-2 px-4 py-2 mb-8 text-[10px] font-black tracking-[0.4em] uppercase bg-white/10 text-yellow-400 rounded-full border border-white/10">
+              <PlayCircle className="w-4 h-4" />
+              <span>Member Diaries</span>
+            </div>
+            <h2 className="text-6xl md:text-[9rem] font-black text-white tracking-tighter uppercase leading-[0.8] mb-12 drop-shadow-lg">
+              REAL ACCESS. <br/> <span className="text-white/30 italic">REAL SAVINGS.</span>
+            </h2>
+
+            <div className="flex flex-wrap justify-center gap-4 md:gap-12 mb-16">
+              {[
+                "Wholesale Hotel Inventory",
+                "Flight Consolidator Rates",
+                "Luxury Cruise Access",
+                "Zero Commissions"
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-center space-x-3 bg-white/5 border border-white/10 px-6 py-3 rounded-2xl">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                  <span className="text-white/90 font-bold text-sm uppercase tracking-wider">{item}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="relative max-w-5xl mx-auto mb-16 group">
+              <div className="absolute -inset-10 bg-yellow-400/10 blur-[100px] rounded-full animate-pulse" />
+              <div className="relative aspect-video w-full rounded-[40px] md:rounded-[64px] overflow-hidden border-[8px] md:border-[16px] border-white/5 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8)] transition-transform duration-700 group-hover:scale-[1.01]">
+                <iframe 
+                  src={TESTIMONIAL_VIDEO_URL} 
+                  className="w-full h-full"
+                  loading="lazy" 
+                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
+                  allowFullScreen
+                />
+              </div>
+            </div>
+
+            <ActionButton variant="primary" className="mx-auto px-12 py-6 text-lg" onClick={openWaitlist}>
+              Explore Member Life <MoveRight className="ml-3 w-5 h-5" />
+            </ActionButton>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="bg-white pt-32 pb-16 px-6 border-t border-slate-100">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20 mb-24">
+          <div className="lg:col-span-2">
+            <div className="flex items-center space-x-3 mb-8">
+              <div className="p-2 bg-yellow-400 rounded-xl"><Plane className="w-5 h-5 text-slate-950" /></div>
+              <span className="font-black text-slate-950 text-3xl tracking-tighter uppercase">TRAVELPRO<span className="text-amber-600">X</span></span>
+            </div>
+            <p className="text-slate-500 font-medium max-w-md leading-relaxed mb-10 text-lg">
+              Hosting the world's leading private travel ecosystem. We combine global group volume to deliver net-wholesale rates directly to our members.
+            </p>
+          </div>
+          <div>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 mb-8">Navigation</h4>
+            <ul className="space-y-6">
+              <li><button onClick={() => setView('home')} className="text-slate-950 font-black uppercase tracking-widest text-xs hover:text-amber-600 transition-colors">Global Search</button></li>
+              <li><button onClick={() => setView('agency')} className="text-slate-950 font-black uppercase tracking-widest text-xs hover:text-amber-600 transition-colors">Promoter Hub</button></li>
+              <li><button onClick={() => setView('presentation')} className="text-slate-950 font-black uppercase tracking-widest text-xs hover:text-amber-600 transition-colors">Member Rewards & Perks</button></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 mb-8">Status</h4>
+            <div className="bg-green-50 rounded-3xl p-6 border border-green-100">
+               <div className="flex items-center space-x-3 mb-3">
+                 <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+                 <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Portal Online</span>
+               </div>
+               <p className="text-xs font-bold text-slate-600 leading-snug">All global scanning modules are currently operational.</p>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto pt-16 border-t border-slate-50 flex flex-col md:flex-row justify-between items-center space-y-8 md:space-y-0 text-center md:text-left">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em]">
+            © 2026 TRAVEL PRO X & CALLISTA DIGITAL • EST. 2014
+          </p>
         </div>
       </footer>
+    </div>
+  );
+};
 
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-100%); }
-        }
-        @keyframes marquee2 {
-          0% { transform: translateX(100%); }
-          100% { transform: translateX(0); }
-        }
-        .animate-marquee {
-          animation: marquee 35s linear infinite;
-        }
-        .animate-marquee2 {
-          animation: marquee2 35s linear infinite;
-        }
-      ` }} />
+const AgencyView = ({ setView }) => (
+  <div className="bg-slate-50 min-h-screen text-slate-900 overflow-x-hidden">
+    <main className="pt-48 pb-32 px-6 max-w-7xl mx-auto">
+      <ScrollReveal>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-32 items-start mb-32">
+          <div className="relative">
+            <div className="inline-flex items-center space-x-2 px-5 py-2.5 mb-10 text-[10px] font-black tracking-[0.5em] uppercase bg-amber-100 text-amber-700 rounded-full">
+              <Zap className="w-4 h-4" />
+              <span>Premium Promoter Program</span>
+            </div>
+            <h1 className="text-6xl md:text-[8rem] font-black tracking-tighter uppercase leading-[0.85] mb-12">
+              BUILD YOUR <br/> TRAVEL <br/> <span className="text-yellow-500 italic">EMPIRE.</span>
+            </h1>
+            <p className="text-2xl text-slate-600 font-medium leading-relaxed mb-12 max-w-xl">
+              Join our company as a <span className="text-slate-950 font-black">Premium Travel Club Promoter</span> by becoming a Platinum Member and Promoter with <span className="text-amber-600 font-black">Travorium</span>.
+            </p>
+            
+            <div className="space-y-8 mb-16">
+               <div className="flex items-start space-x-6 bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm transition-transform hover:scale-[1.02]">
+                  <div className="bg-amber-50 p-4 rounded-2xl text-amber-600 shrink-0"><Sparkles className="w-8 h-8" /></div>
+                  <div>
+                    <h4 className="text-xl font-black uppercase tracking-tighter mb-2">Up to 80% Off Vacations</h4>
+                    <p className="text-slate-500 font-medium leading-relaxed">Travorium Platinum members receive industry-only vacation benefits and access to wholesale inventory at the deepest possible discounts.</p>
+                  </div>
+               </div>
+               
+               {/* WEB DESIGN OFFER CARD */}
+               <div className="relative pt-16 md:pt-12">
+                 <div className="absolute top-0 right-4 md:-right-8 z-20">
+                    <div className="relative animate-float">
+                      <div className="w-28 h-28 md:w-44 md:h-44 rounded-full border-[4px] md:border-[6px] border-white shadow-2xl overflow-hidden gold-glow">
+                        <img src={ROGER_PROFILE_IMAGE} className="w-full h-full object-cover" alt="Roger Reed" />
+                      </div>
+                      <div className="absolute -bottom-1 right-2 md:-bottom-2 md:right-4 bg-yellow-400 p-2 md:p-3 rounded-2xl shadow-xl border-2 md:border-4 border-white">
+                        <Wand2 className="w-4 h-4 md:w-6 md:h-6 text-slate-950" />
+                      </div>
+                    </div>
+                 </div>
+
+                 <div className="bg-slate-950 p-8 md:p-14 rounded-[48px] md:rounded-[56px] shadow-3xl border-2 border-yellow-400/20 relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-yellow-400/5 to-transparent pointer-events-none" />
+                    
+                    <div className="relative z-10 pr-16 md:pr-0">
+                      <div className="inline-flex items-center space-x-2 px-4 py-1.5 mb-6 text-[10px] font-black tracking-[0.3em] uppercase bg-yellow-400 text-slate-950 rounded-full">
+                        <Award className="w-3.5 h-3.5" />
+                        <span>Exclusive Team Bonus</span>
+                      </div>
+                      
+                      <h3 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-6 leading-none italic">
+                        Bespoke Web <br/> Design <span className="text-yellow-400">Included.</span>
+                      </h3>
+                      
+                      <p className="text-white/80 font-bold text-lg mb-8 leading-relaxed max-w-md">
+                        As your team leader, <span className="text-white">Roger Reed</span> will personally build your professional online presence.
+                      </p>
+
+                      <div className="grid grid-cols-1 gap-4 mb-6">
+                        <div className="flex items-center space-x-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+                          <CheckCircle2 className="w-6 h-6 text-yellow-400 shrink-0" />
+                          <span className="text-white font-black uppercase tracking-widest text-[10px] md:text-xs">16 Years Expert Graphic Design</span>
+                        </div>
+                        <div className="flex items-center space-x-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+                          <CheckCircle2 className="w-6 h-6 text-yellow-400 shrink-0" />
+                          <span className="text-white font-black uppercase tracking-widest text-[10px] md:text-xs">Custom High-Conversion Capture Pages</span>
+                        </div>
+                        <div className="flex items-center space-x-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+                          <CheckCircle2 className="w-6 h-6 text-yellow-400 shrink-0" />
+                          <span className="text-white font-black uppercase tracking-widest text-[10px] md:text-xs">Full Tech System Support</span>
+                        </div>
+                      </div>
+
+                      {/* TEXT CONTACT OPTION */}
+                      <div className="mb-10 p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center space-x-4">
+                        <MessageSquare className="w-6 h-6 text-yellow-400" />
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Questions? Text Roger</span>
+                          <span className="text-lg font-black text-white">{ROGER_PHONE}</span>
+                        </div>
+                      </div>
+
+                      <div className="bg-white/10 rounded-3xl p-6 border-l-8 border-yellow-400">
+                        <p className="text-white/60 text-[10px] md:text-xs uppercase font-black tracking-widest mb-1">Standard Industry Value</p>
+                        <p className="text-2xl md:text-3xl font-black text-white tracking-tighter">$1,000+ <span className="text-yellow-400 line-through text-lg md:text-xl opacity-50 ml-2">COST</span> <span className="text-[10px] bg-white text-slate-950 px-3 py-1 rounded-full ml-3 italic shrink-0 whitespace-nowrap">FREE FOR TEAM</span></p>
+                      </div>
+                    </div>
+                 </div>
+               </div>
+            </div>
+
+            <button onClick={() => setView('home')} className="flex items-center space-x-3 text-slate-400 font-black uppercase tracking-[0.5em] text-[10px] hover:text-slate-950 transition-colors mt-12">
+              <MoveRight className="w-5 h-5 rotate-180" />
+              <span>Back to Member Portal</span>
+            </button>
+          </div>
+
+          <div className="bg-white p-8 md:p-20 rounded-[60px] md:rounded-[80px] border border-slate-200 shadow-[0_64px_128px_-32px_rgba(0,0,0,0.15)] relative lg:sticky lg:top-32 mt-12 lg:mt-0">
+            <div className="relative z-10">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-yellow-400 rounded-3xl flex items-center justify-center text-slate-950 mx-auto mb-10 shadow-xl">
+                <Users className="w-8 h-8 md:w-10 md:h-10" />
+              </div>
+              <h3 className="text-3xl md:text-4xl font-black mb-12 uppercase tracking-tighter text-center italic text-slate-950 underline decoration-amber-500 decoration-8 underline-offset-8 leading-none">Promoter Partnership</h3>
+              
+              <form action="https://app.kit.com/forms/9018899/subscriptions" method="post" data-sv-form="9018899" data-uid="33bdc59b1b" className="space-y-8">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-2 font-bold">Your Full Name</label>
+                    <input name="fields[first_name]" required type="text" placeholder="John Doe / Influencer Name" className="w-full h-16 md:h-18 bg-slate-50 rounded-3xl px-8 outline-none focus:ring-4 ring-yellow-400/20 text-slate-900 font-bold border-2 border-slate-100 transition-all" />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 pl-2 font-bold">Best Contact Email</label>
+                    <input name="email_address" required type="email" placeholder="partner@yourbrand.com" className="w-full h-16 md:h-18 bg-slate-50 rounded-3xl px-8 outline-none focus:ring-4 ring-yellow-400/20 text-slate-900 font-bold border-2 border-slate-100 transition-all" />
+                  </div>
+                  <ActionButton type="submit" variant="secondary" className="w-full py-8 text-xl" onClick={() => setTimeout(() => setView('presentation'), 1500)}>
+                    Register Interest
+                  </ActionButton>
+                  <div className="text-center space-y-4">
+                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-relaxed">
+                      Platinum Travorium Enrollment Review <br/> Bespoke Page Included • travelprox.com
+                    </p>
+                    <div className="flex items-center justify-center space-x-2 text-green-600">
+                      <ShieldCheck className="w-4 h-4" />
+                      <span className="text-[9px] font-black uppercase tracking-widest">Confidential Team Onboarding</span>
+                    </div>
+                  </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </ScrollReveal>
+    </main>
+    <footer className="py-20 border-t border-slate-200 text-center px-6 bg-white">
+        <button onClick={() => setView('home')} className="mb-8 text-slate-400 hover:text-slate-950 transition-colors uppercase font-black text-[10px] tracking-[0.5em]">Return to Global Comparison Portal</button>
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
+          © 2026 TRAVEL PRO X & CALLISTA DIGITAL • EST. 2014
+        </p>
+    </footer>
+  </div>
+);
+
+/**
+ * PRESENTATION VIEW
+ */
+const PresentationView = ({ setView }) => {
+  const currentMonth = new Date().toLocaleString('default', { month: 'long' });
+
+  return (
+    <div className="bg-slate-950 min-h-screen text-white overflow-x-hidden selection:bg-yellow-400 selection:text-slate-950">
+      <main className="pt-24 md:pt-32 pb-32">
+        <ScrollReveal className="text-center px-0">
+          
+          {/* MINIMAL SUBTLE BONUS NOTIFICATION */}
+          <div className="max-w-xl mx-auto px-6 mb-8">
+            <div className="bg-yellow-400/10 border border-yellow-400/20 py-2 px-6 rounded-full inline-flex items-center space-x-3">
+              <Gift className="w-4 h-4 text-yellow-400" />
+              <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-yellow-400">
+                Platinum Exclusive: Enroll in {currentMonth} for a Free Vegas Trip
+              </span>
+            </div>
+          </div>
+
+          <div className="px-6 mb-10 max-w-4xl mx-auto">
+            <h1 className="text-4xl md:text-7xl font-black tracking-tighter uppercase leading-none mb-4 italic">
+              INSIDE THE <span className="text-yellow-400">VAULT.</span>
+            </h1>
+            <p className="text-xs md:text-lg text-white/50 font-bold uppercase tracking-widest leading-relaxed max-w-2xl mx-auto">
+              Private hotel savings and deeply discounted wholesale rates reveal.
+            </p>
+          </div>
+
+          {/* FULL WIDTH MOBILE VIDEO CONTAINER */}
+          <div className="w-full relative group">
+            <div className="absolute -inset-2 bg-yellow-400/5 blur-[100px] rounded-full pointer-events-none" />
+            <div className="max-w-[1400px] mx-auto w-full px-0 md:px-6">
+                <div className="relative aspect-video w-full md:rounded-[40px] overflow-hidden md:border-[12px] border-white/5 shadow-2xl bg-black">
+                <iframe 
+                    src={PERKS_VIDEO_URL} 
+                    className="w-full h-full"
+                    loading="lazy" 
+                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
+                    allowFullScreen
+                />
+                </div>
+            </div>
+          </div>
+
+          {/* FOCUSED CTA AREA */}
+          <div className="px-6 mt-16 max-w-2xl mx-auto">
+            <a 
+              href={TRAVORIUM_ENROLL_URL} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group flex flex-col items-center justify-center bg-white text-slate-950 px-8 py-8 rounded-[40px] text-xl md:text-2xl font-black uppercase tracking-tighter hover:scale-[1.02] transition-all shadow-[0_20px_60px_-15px_rgba(255,255,255,0.15)] w-full"
+            >
+              <div className="flex items-center space-x-4">
+                <span>Join the team, get a membership</span>
+                <div className="bg-slate-950 p-2 rounded-full text-yellow-400 group-hover:rotate-45 transition-transform shrink-0">
+                  <ArrowUpRight className="w-6 h-6 md:w-8 md:h-8" />
+                </div>
+              </div>
+            </a>
+
+            {/* TEXT CONTACT FOR QUESTIONS */}
+            <div className="mt-8 flex flex-col items-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">Have Questions? Text Roger Directly</p>
+              <a href={`tel:${ROGER_PHONE}`} className="text-xl font-black text-yellow-400 hover:text-yellow-500 transition-colors">{ROGER_PHONE}</a>
+            </div>
+            
+            <div className="mt-12 flex justify-center items-center space-x-8 opacity-40">
+                <div className="flex items-center space-x-2">
+                    <ShieldCheck className="w-4 h-4" />
+                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Wholesale Access</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <UserCheck className="w-4 h-4" />
+                    <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest">Direct Enrollment</span>
+                </div>
+            </div>
+
+            <button onClick={() => setView('home')} className="mt-16 text-white/20 hover:text-white font-black uppercase tracking-[0.5em] text-[10px] transition-colors">
+              Return to Search
+            </button>
+          </div>
+        </ScrollReveal>
+      </main>
+    </div>
+  );
+};
+
+/**
+ * APP ENTRY POINT
+ */
+const App = () => {
+  const [view, setView] = useState('home'); 
+  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+
+  // DYNAMIC SCARCITY LOGIC
+  const { spotsLeft } = useMemo(() => {
+    const now = new Date();
+    const dayOfMonth = now.getDate();
+    // Deterministic countdown throughout the month
+    const remaining = Math.max(100 - (dayOfMonth - 1) * 3, 4); 
+    return { spotsLeft: remaining };
+  }, []);
+
+  // Script Loader for Kit
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://f.convertkit.com/ckjs/ck.5.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => { if (document.body.contains(script)) document.body.removeChild(script); }
+  }, []);
+
+  useEffect(() => { window.scrollTo(0, 0); }, [view]);
+
+  return (
+    <div className="font-sans selection:bg-yellow-400 selection:text-slate-950">
+      <style dangerouslySetInnerHTML={{ __html: customStyles }} />
+      
+      <Header setView={setView} />
+      
+      {view === 'home' && (
+        <HomeView 
+          setView={setView}
+          openWaitlist={() => setIsWaitlistOpen(true)}
+        />
+      )}
+
+      {view === 'agency' && (
+        <AgencyView setView={setView} />
+      )}
+
+      {view === 'presentation' && (
+        <PresentationView setView={setView} />
+      )}
+
+      {/* Waitlist Modal */}
+      <WaitlistModal isOpen={isWaitlistOpen} onClose={() => setIsWaitlistOpen(false)} />
+
+      {/* Floating Status Pill */}
+      <div 
+        onClick={() => setIsWaitlistOpen(true)}
+        className="fixed bottom-8 right-8 z-[120] bg-white border border-slate-200/50 p-1.5 rounded-full shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] flex items-center space-x-1 cursor-pointer hover:scale-105 transition-all group"
+      >
+        <div className="bg-yellow-400 px-5 py-3 rounded-full flex items-center space-x-3">
+           <Timer className="w-5 h-5 text-slate-950" />
+           <span className="text-[12px] font-black text-slate-950 uppercase tracking-widest">{spotsLeft} Spots Left</span>
+        </div>
+        <div className="px-4 py-3 hidden md:flex items-center space-x-2">
+           <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Join Waitlist</span>
+           <ChevronRight className="w-4 h-4 text-slate-300 group-hover:translate-x-1 transition-transform" />
+        </div>
+      </div>
     </div>
   );
 };
