@@ -363,7 +363,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                   const isSelected = answers[`q${step}`]?.key === option.key;
                   return (
                     <button
-                      key={option.key}
+                      key={`${currentQuestion.id}-${option.key}`} // Refined key to reset DOM state completely per question (removes carrying-over pre-lit elements)
                       onClick={() => handleOptionSelect(option)}
                       className={`group text-left p-6 rounded-2xl border-2 transition-all duration-300 active:scale-[0.98] flex items-start space-x-4 ${
                         isSelected 
