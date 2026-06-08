@@ -789,8 +789,11 @@ const HomeView = ({ openWaitlist, setView }) => {
             <div className="mb-10 flex flex-col items-center space-y-8">
               <SavingsTicker />
               
-              <h1 className="text-5xl sm:text-7xl md:text-[8rem] lg:text-[10rem] font-black text-white tracking-tighter leading-[0.8] uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
-                THE TRAVEL <br/> <span className="text-amber-400 italic drop-shadow-[0_15px_30px_rgba(0,0,0,0.8)]">QUIZ!!!</span>
+              <h1 className="text-6xl sm:text-8xl md:text-[10rem] lg:text-[12rem] xl:text-[13rem] font-black text-white tracking-tighter leading-[0.8] uppercase drop-shadow-[0_10px_50px_rgba(0,0,0,0.65)]">
+                THE TRAVEL <br/> 
+                <span className="bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 bg-clip-text text-transparent italic drop-shadow-[0_15px_30px_rgba(245,158,11,0.25)]">
+                  QUIZ...
+                </span>
               </h1>
               
               <p className="text-white text-base sm:text-xl md:text-2xl font-bold max-w-3xl mx-auto leading-relaxed drop-shadow-lg opacity-95">
