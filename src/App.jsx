@@ -23,7 +23,7 @@ const C = {
 };
 
 const SAVINGS_FEED = [
-  { user: "Sarah J.", location: "Miami", saved: "$420", time: "1m ago" }, { user: "Michael R.", location: "Cancun", saved: "$890", time: "3m ago" },
+  { user: "Sarah R.", location: "Miami", saved: "$420", time: "1m ago" }, { user: "Michael R.", location: "Cancun", saved: "$890", time: "3m ago" },
   { user: "Elena W.", location: "NYC", saved: "$310", time: "1m ago" }, { user: "David K.", location: "Vegas", saved: "$1,200", time: "8m ago" },
   { user: "Sophia L.", location: "Paris", saved: "$540", time: "12m ago" }, { user: "Marcus T.", location: "Dubai", saved: "$2,100", time: "15m ago" },
   { user: "Julian M.", location: "Bali", saved: "$760", time: "18m ago" }, { user: "Aria V.", location: "London", saved: "$480", time: "21m ago" },
@@ -92,6 +92,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
   const foodFrustration = answers.q4?.value === 'always' || answers.q5?.value === 'high';
   const mainFrustration = answers.q6?.value || 'cramped';
 
+  // Dynamic scenario decision engine to build custom value optimization reports for each profile
   const scenarioData = useMemo(() => {
     if (partySize >= 4 && (accommodationType === 'hotel' || accommodationType === 'suite')) {
       return {
@@ -252,6 +253,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
         )}
 
         <div className="p-6 sm:p-10 md:p-14">
+          {}
           {typeof step === 'number' && (
             <div className="space-y-8 animate-in fade-in-50 duration-500">
               <div className="text-center md:text-left space-y-2">
@@ -308,6 +310,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
             </div>
           )}
 
+          {}
           {step === 'results' && (
             <div className="space-y-8 md:space-y-10 py-2 animate-in zoom-in-95 duration-500">
               
@@ -406,7 +409,7 @@ const WaitlistModal = ({ isOpen, onClose }) => {
           <div className="text-center py-6 animate-in zoom-in-95 duration-500">
             <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center text-green-600 mx-auto mb-6 border border-green-100 shadow-inner"><Check className="w-10 h-10 stroke-[3]" /></div>
             <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter mb-3 leading-none">SLOT REQUESTED.</h3>
-            <p className="text-slate-500 font-bold mb-8 text-sm leading-relaxed max-w-sm mx-auto">We have archived your digital timestamp. A concierge representative will transmit details shortly if an slot clears.</p>
+            <p className="text-slate-500 font-bold mb-8 text-sm leading-relaxed max-sm mx-auto">We have archived your digital timestamp. A concierge representative will transmit details shortly if an slot clears.</p>
             <ActionButton variant="secondary" className="w-full py-4 text-xs" onClick={onClose}>Dismiss Portal</ActionButton>
           </div>
         ) : (
@@ -652,7 +655,7 @@ const HomeView = ({ setView }) => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto pt-10 border-t border-slate-100 text-center md:text-left">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">© 2026 TRAVEL PRO X & CALLISTA DIGITAL • EST. 2014</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">© 2026 TRAVEL PRO X & CALLISTA DIGITAL • EST. 2014</p>
         </div>
       </footer>
     </div>
