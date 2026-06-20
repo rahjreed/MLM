@@ -622,7 +622,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                     variant="primary" 
                     className="w-full sm:w-auto px-10 py-5 text-sm font-black bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-500 hover:to-blue-600 text-white shadow-lg shadow-sky-400/25"
                     onClick={() => {
-                      window.open("https://t.me/+8iWK6Qlh/yBQ1MTkx", "_blank");
+                      window.open("https://t.me/+lweqGFqWXitmNGYx", "_blank");
                     }}
                   >
                     <MessageCircle className="w-5 h-5 mr-2 shrink-0 animate-bounce" />
