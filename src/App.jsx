@@ -44,6 +44,9 @@ import {
   MessageCircle
 } from 'lucide-react';
 
+/**
+ * ASSETS & CONFIG
+ */
 const OFFICIAL_HERO_IMAGE = "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80"; // Premium high-res fallback backup for luxury feel
 const ALTERNATIVE_HERO_IMAGE = "https://images.travelprox.com/splash/villa.png";
 
@@ -546,7 +549,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                       <h4 className="text-lg font-black uppercase tracking-tight">Thanks for checking your match!</h4>
                     </div>
                     <p className="text-slate-600 font-bold text-xs sm:text-sm leading-relaxed">
-                      To help you start saving instantly, click below to automatically copy your discount code and open the HotelTonight platform:
+                      To help you start saving instantly, click below to automatically copy the code <span className="text-amber-600 font-black">ROGREED</span> and open HotelTonight to claim <span className="text-slate-950 font-black">$25 off</span> your next booking of $135+!
                     </p>
                     
                     <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-2xl border border-amber-200 shadow-inner max-w-md">
@@ -928,49 +931,18 @@ const HomeView = ({ openWaitlist, setView }) => {
             </div>
           </ScrollReveal>
 
-          {/* DYNAMIC SCALED SCANNING COMPONENT */}
+          {/* HERO VIDEO SPOTLIGHT (Replacing Booking Engine Form) */}
           <ScrollReveal>
-            <div 
-              onClick={() => setIsQuizOpen(true)}
-              className="max-w-4xl mx-auto bg-white/95 backdrop-blur-2xl rounded-[32px] sm:rounded-[40px] shadow-[0_32px_80px_-16px_rgba(0,0,0,0.4)] border border-white overflow-hidden cursor-pointer group hover:scale-[1.01] transition-all duration-500"
-            >
-              <div className="flex border-b border-slate-100 bg-slate-50/50">
-                {['Hotel Diagnostic Scanner', 'Flight Route Optimizer', 'Cruise Sizer'].map((tab, idx) => (
-                  <div
-                    key={tab}
-                    className={`flex-1 py-5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center transition-all ${
-                      idx === 0 ? 'bg-white text-amber-600 border-b-4 border-amber-500' : 'text-slate-400 group-hover:text-slate-600'
-                    }`}
-                  >
-                    {tab}
-                  </div>
-                ))}
-              </div>
-              <div className="p-6 sm:p-10">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  
-                  <div className="bg-slate-50/80 p-5 rounded-2xl text-left border border-slate-100 group-hover:bg-slate-100/50 transition-colors">
-                    <span className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Primary Target</span>
-                    <div className="flex items-center space-x-3 text-slate-500 font-bold italic text-sm">
-                      <MapPin className="w-5 h-5 text-amber-500 animate-bounce" />
-                      <span>Select Vacation Target Hub</span>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-slate-50/80 p-5 rounded-2xl text-left border border-slate-100 group-hover:bg-slate-100/50 transition-colors">
-                    <span className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Diagnostic Profile</span>
-                    <div className="flex items-center space-x-3 text-slate-500 font-bold italic text-sm">
-                      <Calendar className="w-5 h-5 text-orange-500" />
-                      <span>Input Frequency & Budgets</span>
-                    </div>
-                  </div>
-                  
-                  <ActionButton variant="orange" className="h-full rounded-2xl cursor-pointer" onClick={(e) => { e.stopPropagation(); setIsQuizOpen(true); }}>
-                    <Search className="w-4 h-4 animate-pulse mr-2" />
-                    <span>Run Unlisted Audit</span>
-                  </ActionButton>
-
-                </div>
+            <div className="max-w-4xl mx-auto relative group">
+              <div className="absolute -inset-10 bg-amber-400/10 blur-[100px] rounded-full animate-pulse pointer-events-none" />
+              <div className="relative aspect-video w-full rounded-[32px] sm:rounded-[48px] overflow-hidden border-[6px] sm:border-[12px] border-white/5 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8)] transition-all duration-700 group-hover:scale-[1.005]">
+                <iframe 
+                  src={TESTIMONIAL_VIDEO_URL} 
+                  className="w-full h-full"
+                  loading="lazy" 
+                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
+                  allowFullScreen
+                />
               </div>
             </div>
           </ScrollReveal>
@@ -1061,19 +1033,6 @@ const HomeView = ({ openWaitlist, setView }) => {
                   <span className="text-white/90 font-bold text-xs uppercase tracking-wider">{item}</span>
                 </div>
               ))}
-            </div>
-
-            <div className="relative max-w-4xl mx-auto mb-16 group">
-              <div className="absolute -inset-10 bg-amber-400/10 blur-[100px] rounded-full animate-pulse pointer-events-none" />
-              <div className="relative aspect-video w-full rounded-[32px] sm:rounded-[48px] overflow-hidden border-[6px] sm:border-[12px] border-white/5 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8)] transition-all duration-700 group-hover:scale-[1.005]">
-                <iframe 
-                  src={TESTIMONIAL_VIDEO_URL} 
-                  className="w-full h-full"
-                  loading="lazy" 
-                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
-                  allowFullScreen
-                />
-              </div>
             </div>
 
             <ActionButton variant="primary" className="mx-auto px-12 py-5 text-base tracking-widest" onClick={() => setIsQuizOpen(true)}>
@@ -1475,7 +1434,7 @@ const App = () => {
       {/* Shared Modals */}
       <WaitlistModal isOpen={isWaitlistOpen} onClose={() => setIsWaitlistOpen(false)} />
 
-      {/* Sticky High-Urgency Floating Hotspot */}
+      {/* Sticky High-Urgency Floating Hotspot with wiggle animation */}
       <div 
         onClick={() => setIsWaitlistOpen(true)}
         className="fixed bottom-6 right-6 z-[120] bg-white border border-slate-200/60 p-1.5 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center space-x-1 cursor-pointer hover:scale-105 active:scale-95 transition-all group animate-wiggle"
