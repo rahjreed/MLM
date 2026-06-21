@@ -33,6 +33,7 @@ import {
   Zap,
   Layout,
   UserCheck,
+  Wand2,
   Award,
   Gift,
   Ticket,
@@ -42,7 +43,11 @@ import {
   Copy
 } from 'lucide-react';
 
-const OFFICIAL_HERO_IMAGE = "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80"; // Premium high-res fallback backup for luxury feel
+/**
+ * ASSETS & CONFIG
+ */
+const BRAND_LOGO_URL = "https://images.travelprox.com/notimetoshare/notimetosharelogo.jpg";
+const OFFICIAL_HERO_IMAGE = "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80"; // Fallback luxury background
 const ALTERNATIVE_HERO_IMAGE = "https://images.travelprox.com/splash/villa.png";
 
 const TESTIMONIAL_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/02956ab7-33a5-4f3b-8754-ef763a308f28";
@@ -52,10 +57,10 @@ const DIAGNOSTIC_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/03a4
 const TRAVORIUM_ENROLL_URL = "https://travorium.com/enroll.php?sponsor=376362";
 
 const DESTINATION_ASSETS = {
-  "Florida": "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80", // Miami high res
-  "New York": "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=80", // Times Square high res
-  "Las Vegas": "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80", // Vegas high res
-  "Cancun": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"  // Cancun high res
+  "Florida": "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80", // Miami beachfront
+  "New York": "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=80", // NYC Times Square
+  "Las Vegas": "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80", // Las Vegas Strip
+  "Cancun": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"  // Cancun coast
 };
 
 const SAVINGS_FEED = [
@@ -131,6 +136,7 @@ const customStyles = `
   .gold-glow-hover:hover {
     box-shadow: 0 0 60px -5px rgba(245, 158, 11, 0.45);
   }
+  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
   }
@@ -477,7 +483,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
             </div>
           )}
 
-          {}
+          {/* UNLOCKED SYSTEM RESULTS */}
           {step === 'results' && (
             <div className="p-6 sm:p-10 md:p-14 space-y-8 md:space-y-10 animate-in fade-in duration-500">
               
@@ -643,7 +649,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                     }}
                   >
                     <MessageCircleIcon className="w-5 h-5 mr-2 shrink-0 animate-bounce" />
-                    <span>Join TPX Telegram & Ask Questions</span>
+                    <span>Join NTTS Telegram & Ask Questions</span>
                   </ActionButton>
                   
                   <div className="hidden sm:block w-1.5 h-1.5 rounded-full bg-slate-200" />
@@ -671,9 +677,6 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
   );
 };
 
-/**
- * DAFULT SYSTEM WAITLIST/QUEUE MODAL
- */
 const WaitlistModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle, loading, success
@@ -714,7 +717,7 @@ const WaitlistModal = ({ isOpen, onClose }) => {
             <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter mb-3 leading-none">
               SLOT REQUESTED.
             </h3>
-            <p className="text-slate-500 font-bold mb-8 text-sm leading-relaxed max-w-sm mx-auto">
+            <p className="text-slate-500 font-bold mb-8 text-sm leading-relaxed max-sm-auto mx-auto">
               We have archived your digital timestamp. A concierge representative will transmit details shortly if a slot clears.
             </p>
             <ActionButton variant="secondary" className="w-full py-4 text-xs" onClick={onClose}>
@@ -730,7 +733,7 @@ const WaitlistModal = ({ isOpen, onClose }) => {
               UNLISTED RATES <br/> ARE PROTECTED.
             </h3>
             <p className="text-slate-500 font-medium mb-8 leading-relaxed text-xs sm:text-sm">
-              To guarantee system integrity, private group booking options require verified member approval. Join the queue to receive real-time availability updates.
+              To guarantee system integrity, private wholesale booking options require verified clearance. Join the queue to receive real-time availability updates.
             </p>
             
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -751,7 +754,7 @@ const WaitlistModal = ({ isOpen, onClose }) => {
                </ActionButton>
                <div className="flex items-center justify-center space-x-2 mt-6">
                   <ShieldCheck className="w-4 h-4 text-green-500" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Secured by Travel Pro X Vault</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Secured by No Time To Share Vault</span>
                </div>
             </form>
           </div>
@@ -776,7 +779,7 @@ const SavingsTicker = () => {
       {/* Dynamic Pill Container */}
       <div className="bg-slate-950/90 backdrop-blur-md border border-white/10 rounded-full px-6 py-3 flex items-center space-x-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-500">
         <div className="flex -space-x-2">
-          <div className="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-[9px] font-black text-slate-950 border border-slate-900 shadow">TPX</div>
+          <div className="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-[9px] font-black text-slate-950 border border-slate-900 shadow">NTTS</div>
         </div>
         <p className="text-white text-[11px] font-bold tracking-wide">
           <span className="text-amber-400 font-black">{SAVINGS_FEED[index].user}</span> saved <span className="text-emerald-400 font-black">{SAVINGS_FEED[index].saved}</span> in <span className="text-white/90 font-black">{SAVINGS_FEED[index].location}</span>
@@ -801,17 +804,25 @@ const Header = ({ setView, activeView, onScanProfile }) => {
     <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-6 py-6 pointer-events-none">
       <div className="max-w-7xl mx-auto flex justify-between items-center bg-white/95 backdrop-blur-xl border border-slate-200/60 rounded-[28px] px-6 py-4 shadow-2xl pointer-events-auto relative">
         
-        {/* Brand */}
+        {/* Brand Logo & Fallback */}
         <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => { setView('home'); setIsOpen(false); }}>
-          <div className="p-2.5 bg-slate-950 rounded-xl group-hover:rotate-12 transition-transform shadow-lg shadow-amber-500/10">
-            <Plane className="w-5 h-5 text-amber-400" />
+          <div className="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl">
+            <img 
+              src={BRAND_LOGO_URL} 
+              alt="No Time To Share Logo" 
+              className="h-8 md:h-10 object-contain rounded-lg"
+              onError={(e) => {
+                // If logo is blocked/missing, fall back gracefully to premium text markup
+                e.target.style.display = 'none';
+              }}
+            />
+            <span className="font-black text-white tracking-tighter text-base md:text-lg uppercase px-1">
+              NO TIME TO SHARE
+            </span>
           </div>
-          <span className="font-black text-slate-950 tracking-tighter text-xl uppercase">
-            TRAVELPRO<span className="text-amber-500 text-2xl italic leading-none">X</span>
-          </span>
         </div>
 
-        {/* Desktop Links - Note "Member Perks" restricted as requested */}
+        {/* Desktop Links */}
         <div className="hidden lg:flex items-center space-x-8">
           <button 
             onClick={() => setView('home')} 
@@ -819,14 +830,14 @@ const Header = ({ setView, activeView, onScanProfile }) => {
               activeView === 'home' ? 'text-amber-500' : 'text-slate-500 hover:text-slate-950'
             }`}
           >
-            Core Portal
+            Wholesale Core Portal
           </button>
         </div>
 
-        {/* Desktop CTA - Drives them directly to the Diagnostic Quiz */}
+        {/* Desktop CTA */}
         <div className="hidden lg:block">
           <ActionButton variant="primary" noGloss className="py-2.5 px-6 rounded-xl text-[10px] uppercase tracking-widest animate-wiggle" onClick={onScanProfile}>
-            Verify Special Rate
+            Verify Direct Access Rate
           </ActionButton>
         </div>
 
@@ -842,11 +853,11 @@ const Header = ({ setView, activeView, onScanProfile }) => {
               onClick={() => { setView('home'); setIsOpen(false); }} 
               className="text-left font-black uppercase tracking-wider text-xs py-2 text-slate-800 hover:text-amber-500"
             >
-              Core Search Portal
+              Wholesale Access Portal
             </button>
             <hr className="border-slate-100" />
             <ActionButton variant="primary" noGloss className="py-3 px-6 rounded-xl text-[11px] uppercase tracking-wider w-full animate-wiggle" onClick={() => { onScanProfile(); setIsOpen(false); }}>
-              Verify Special Rate
+              Verify Direct Access Rate
             </ActionButton>
           </div>
         )}
@@ -881,19 +892,19 @@ const HomeView = ({ setView, onScanProfile }) => {
             <div className="mb-10 flex flex-col items-center space-y-8">
               <SavingsTicker />
               
-              <h1 className="text-6xl sm:text-8xl md:text-[10rem] lg:text-[12rem] xl:text-[13rem] font-black text-white tracking-tighter leading-[0.8] uppercase drop-shadow-[0_10px_50px_rgba(0,0,0,0.65)]">
-                THE TRAVEL <br/> 
+              <h1 className="text-4xl sm:text-6xl md:text-[6.5rem] lg:text-[7.5rem] xl:text-[8.5rem] font-black text-white tracking-tighter leading-[0.95] uppercase drop-shadow-[0_10px_50px_rgba(0,0,0,0.65)]">
+                NO TIME <br/> 
                 <span className="bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 bg-clip-text text-transparent italic drop-shadow-[0_15px_30px_rgba(245,158,11,0.25)]">
-                  QUIZ...
+                  TO SHARE
                 </span>
               </h1>
               
-              <p className="text-white text-base sm:text-xl md:text-2xl font-bold max-w-3xl mx-auto leading-relaxed drop-shadow-lg opacity-95">
-                Stop paying retail brokers. Our private club members access "Unlisted" wholesale contracts locked down by verified travel networks.
+              <p className="text-white text-base sm:text-xl md:text-2xl font-bold max-w-3xl mx-auto leading-relaxed drop-shadow-lg opacity-95 uppercase tracking-wide">
+                Bypass timeshare sales & high retail booking margins. Connect directly to unlisted wholesale booking inventory.
               </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20 max-w-md sm:max-w-none mx-auto">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 max-w-md sm:max-w-none mx-auto">
               <ActionButton variant="primary" className="w-full sm:w-auto px-12 py-6 text-base tracking-widest" onClick={onScanProfile}>
                 Scan Travel Profile
               </ActionButton>
@@ -909,7 +920,7 @@ const HomeView = ({ setView, onScanProfile }) => {
             </div>
           </ScrollReveal>
 
-          {/* HERO VIDEO SPOTLIGHT (Right under Hero in place of the Scanner) */}
+          {/* DYNAMIC TOP SPOTLIGHT VIDEO PANEL - Replaces old diagnostic card form */}
           <ScrollReveal>
             <div className="max-w-4xl mx-auto relative group">
               <div className="absolute -inset-10 bg-amber-400/10 blur-[100px] rounded-full animate-pulse pointer-events-none" />
@@ -932,22 +943,22 @@ const HomeView = ({ setView, onScanProfile }) => {
         <ScrollReveal>
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-slate-100 pb-12 gap-8">
             <div className="max-w-2xl">
-              <span className="text-xs font-black uppercase tracking-[0.5em] text-amber-600 block mb-3">Pricing Variance Index</span>
+              <span className="text-xs font-black uppercase tracking-[0.5em] text-amber-600 block mb-3">Direct Contract Variance Index</span>
               <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-slate-950 tracking-tighter uppercase leading-[0.85] italic">
-                STEP BEHIND THE VELVET ROPE.
+                DIRECT UNLISTED CONTRACTS.
               </h2>
             </div>
             <p className="text-slate-500 font-bold max-w-xs text-sm leading-relaxed">
-              Public indexes reflect standard retail brokerage margins. Cleared members unlock 25% to 60% system reductions across all nodes.
+              Skip timeshare pitches and booking broker commissions. Access unlisted wholesale rates directly across verified networks.
             </p>
           </div>
         </ScrollReveal>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {[
-            { name: "Florida", loc: "Miami Beach", price: "189", tag: "Beachfront VIP" },
-            { name: "New York", loc: "Times Square Luxury", price: "245", tag: "Penthouse Suite" },
-            { name: "Las Vegas", loc: "The Strip Premium", price: "99", tag: "High Roller" },
+            { name: "Florida", loc: "Miami Beach", price: "189", tag: "Beachfront Direct" },
+            { name: "New York", loc: "Times Square Premium", price: "245", tag: "Executive Suite" },
+            { name: "Las Vegas", loc: "The Strip Wholesale", price: "99", tag: "VIP Resort Access" },
             { name: "Cancun", loc: "Tropical All-Inclusive", price: "220", tag: "Paradise Cove" }
           ].map((dest, i) => (
             <ScrollReveal key={i}>
@@ -973,7 +984,7 @@ const HomeView = ({ setView, onScanProfile }) => {
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest line-through mb-0.5">Retail: ${parseInt(dest.price) + 120}</p>
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest line-through mb-0.5">Retail Booking: ${parseInt(dest.price) + 120}</p>
                      <p className="text-xl sm:text-2xl font-black text-amber-600 leading-none">${dest.price}/n</p>
                   </div>
                 </div>
@@ -993,15 +1004,15 @@ const HomeView = ({ setView, onScanProfile }) => {
             </div>
             
             <h2 className="text-4xl sm:text-6xl md:text-8xl font-black text-white tracking-tighter uppercase leading-[0.9] mb-12">
-              RAW MEMBER FEED. <br/> <span className="text-white/30 italic">UNCOMPENSATED PROOF.</span>
+              RAW CLIENT CONTRACT FEED. <br/> <span className="text-white/30 italic">UNBIASED CONTRACT PROOF.</span>
             </h2>
 
             <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mb-16">
               {[
-                "Net-Wholesale Hotel Inventory",
-                "Flight Consolidator Clearances",
-                "Deep Cruise Access Keys",
-                "Zero Retail Surcharges"
+                "Wholesale Contract Rates",
+                "Direct Pipeline API Connections",
+                "Timeshare Pitch Bypasses",
+                "Zero Broker Commissions"
               ].map((item, idx) => (
                 <div key={idx} className="flex items-center space-x-3 bg-white/5 border border-white/10 px-5 py-3 rounded-2xl shadow-inner">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
@@ -1022,13 +1033,18 @@ const HomeView = ({ setView, onScanProfile }) => {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16 mb-20">
           <div className="lg:col-span-2">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="p-2.5 bg-slate-950 rounded-xl">
-                <Plane className="w-5 h-5 text-amber-400" />
+              <div className="flex items-center space-x-2 bg-slate-950 p-2.5 rounded-xl">
+                <img 
+                  src={BRAND_LOGO_URL} 
+                  alt="No Time To Share Logo" 
+                  className="h-8 object-contain rounded-lg"
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+                <span className="font-black text-white tracking-tighter text-sm uppercase">NO TIME TO SHARE</span>
               </div>
-              <span className="font-black text-slate-950 text-2xl tracking-tighter uppercase">TRAVELPRO<span className="text-amber-500">X</span></span>
             </div>
             <p className="text-slate-500 font-medium max-w-md leading-relaxed mb-8 text-base">
-              Operating a global wholesale allocation framework. By amalgamating active group volume, we deliver direct manufacturer rates bypass commissions.
+              Connecting consumers directly to verified unlisted wholesale inventory nodes. By aggregating active market volume, we deliver direct broker bypass solutions.
             </p>
           </div>
           
@@ -1049,14 +1065,14 @@ const HomeView = ({ setView, onScanProfile }) => {
                  </span>
                  <span className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Scanning Nodes Online</span>
                </div>
-               <p className="text-[11px] font-bold text-slate-600 leading-snug">Global distribution network and travel APIs operational.</p>
+               <p className="text-[11px] font-bold text-slate-600 leading-snug">Global distribution network and wholesale APIs operational.</p>
             </div>
           </div>
         </div>
         
         <div className="max-w-7xl mx-auto pt-10 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
-            © 2026 TRAVEL PRO X & CALLISTA DIGITAL • EST. 2014
+            © 2026 NO TIME TO SHARE • EST. 2014
           </p>
         </div>
       </footer>
@@ -1077,7 +1093,7 @@ const PresentationView = ({ setView }) => {
             <div className="bg-amber-400/10 border border-amber-400/20 py-2 px-5 rounded-full inline-flex items-center space-x-2.5 shadow-lg">
               <Gift className="w-4 h-4 text-amber-400 animate-pulse" />
               <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-wider text-amber-300">
-                Exclusive Deal: Activate membership this {currentMonth} to unlock your bonus Las Vegas Escape Voucher!
+                Platinum Exclusive: Initialize direct wholesale clearance this {currentMonth} to unlock your bonus Las Vegas Escape Voucher!
               </span>
             </div>
           </div>
@@ -1119,8 +1135,8 @@ const PresentationView = ({ setView }) => {
               
               <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-6 relative z-10">
                 <div className="text-center sm:text-left space-y-1">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 block">Direct Activation Portal</span>
-                  <span className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-950 block">Activate Wholesale Member Account</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 block">Direct Wholesale Activation</span>
+                  <span className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-950 block">Setup Direct Account Clearance</span>
                 </div>
                 <div className="bg-slate-950 p-3 sm:p-4 rounded-full text-amber-400 group-hover:rotate-45 transition-transform shrink-0 shadow-lg shadow-amber-500/10">
                   <ArrowUpRight className="w-6 h-6 sm:w-8 sm:h-8" />
@@ -1135,7 +1151,7 @@ const PresentationView = ({ setView }) => {
                 </div>
                 <div className="flex items-center space-x-2">
                     <UserCheck className="w-4 h-4 text-amber-400" />
-                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Instant Activation Priority</span>
+                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Instant Booking Priority</span>
                 </div>
             </div>
 
@@ -1149,7 +1165,7 @@ const PresentationView = ({ setView }) => {
 
       <footer className="py-16 border-t border-white/5 text-center px-4">
           <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest text-center">
-            © 2026 TRAVEL PRO X & CALLISTA DIGITAL • EST. 2014
+            © 2026 NO TIME TO SHARE • EST. 2014
           </p>
       </footer>
     </div>
@@ -1229,7 +1245,7 @@ const App = () => {
            <span className="text-[11px] font-black text-white uppercase tracking-widest">{spotsLeft} Vacancies Left</span>
         </div>
         <div className="px-3.5 py-3 hidden md:flex items-center space-x-1.5">
-           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Secure Seat</span>
+           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Secure Clearance</span>
            <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
