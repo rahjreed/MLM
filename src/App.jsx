@@ -33,20 +33,15 @@ import {
   Zap,
   Layout,
   UserCheck,
-  Wand2,
   Award,
   Gift,
   Ticket,
   Check,
   Volume2,
   Menu,
-  Copy,
-  MessageCircle
+  Copy
 } from 'lucide-react';
 
-/**
- * ASSETS & CONFIG
- */
 const OFFICIAL_HERO_IMAGE = "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80"; // Premium high-res fallback backup for luxury feel
 const ALTERNATIVE_HERO_IMAGE = "https://images.travelprox.com/splash/villa.png";
 
@@ -54,7 +49,6 @@ const TESTIMONIAL_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/029
 const PERKS_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/43d40616-b9b4-4efa-b54f-22d08d420e09";
 const DIAGNOSTIC_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/03a48a31-4610-4d41-b4fc-72f8f4a84af2";
 
-const ROGER_PROFILE_IMAGE = "https://images.travelprox.com/callista/rahj.png";
 const TRAVORIUM_ENROLL_URL = "https://travorium.com/enroll.php?sponsor=376362";
 
 const DESTINATION_ASSETS = {
@@ -137,7 +131,6 @@ const customStyles = `
   .gold-glow-hover:hover {
     box-shadow: 0 0 60px -5px rgba(245, 158, 11, 0.45);
   }
-  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
   }
@@ -218,7 +211,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Automatic reset state when modal opens to prevent deadlock loops
+  // Automatic reset when modal opens to ensure clean states
   useEffect(() => {
     if (isOpen) {
       setStep(1);
@@ -258,7 +251,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
     }
   ], []);
 
-  // Safe boundary fallback array index queries
+  // Safe boundary check for current question rendering
   const currentQuestion = useMemo(() => {
     if (typeof step === 'number' && step >= 1 && step <= QUESTIONS.length) {
       return QUESTIONS[step - 1];
@@ -320,7 +313,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
     }, 1000);
   };
 
-  // Evaluate matches without consumer markup bias
+  // Upfront logic evaluation
   const isMatch = useMemo(() => {
     const q1Val = answers.q1?.value;
     const q2Val = answers.q2?.value;
@@ -416,7 +409,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                 <div className="aspect-video w-full bg-slate-200 rounded-[32px]"></div>
               </div>
 
-              {/* Clean Foreground Lead Gate Overlay (Friction-Free Wording) */}
+              {/* Clean Foreground Lead Gate Overlay */}
               <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6 md:p-8">
                 <div className="bg-white rounded-[32px] sm:rounded-[40px] max-w-xl w-full p-6 sm:p-10 shadow-[0_24px_64px_rgba(0,0,0,0.25)] border border-slate-100 text-center space-y-8 animate-in zoom-in-95 duration-500">
                   {isSubmitting ? (
@@ -484,7 +477,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
             </div>
           )}
 
-          {/* UNLOCKED SYSTEM RESULTS */}
+          {}
           {step === 'results' && (
             <div className="p-6 sm:p-10 md:p-14 space-y-8 md:space-y-10 animate-in fade-in duration-500">
               
@@ -628,7 +621,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                       window.open("https://t.me/+lweqGFqWXitmNGYx", "_blank");
                     }}
                   >
-                    <MessageCircle className="w-5 h-5 mr-2 shrink-0 animate-bounce" />
+                    <MessageCircleIcon className="w-5 h-5 mr-2 shrink-0 animate-bounce" />
                     <span>Join TPX Telegram & Ask Questions</span>
                   </ActionButton>
                   <button 
@@ -820,21 +813,12 @@ const Header = ({ setView, activeView }) => {
           >
             Core Portal
           </button>
-          <div className="w-[1px] h-4 bg-slate-200" />
-          <button 
-            onClick={() => setView('agency')} 
-            className={`text-[10px] font-black uppercase tracking-widest transition-all px-4 py-2 bg-amber-50/50 hover:bg-amber-100/50 rounded-full border border-amber-200/40 ${
-              activeView === 'agency' ? 'text-amber-600 bg-amber-100/50' : 'text-slate-500 hover:text-slate-950'
-            }`}
-          >
-            Promoter Hub
-          </button>
         </div>
 
         {/* Desktop CTA */}
         <div className="hidden lg:block">
-          <ActionButton variant="primary" noGloss className="py-2.5 px-6 rounded-xl text-[10px] uppercase tracking-widest" onClick={() => setView('agency')}>
-            Partner Club
+          <ActionButton variant="primary" noGloss className="py-2.5 px-6 rounded-xl text-[10px] uppercase tracking-widest" onClick={() => setView('presentation')}>
+            Enter Perks Vault
           </ActionButton>
         </div>
 
@@ -858,15 +842,9 @@ const Header = ({ setView, activeView }) => {
             >
               Core Search Portal
             </button>
-            <button 
-              onClick={() => { setView('agency'); setIsOpen(false); }} 
-              className="text-left font-black uppercase tracking-wider text-xs py-2 text-slate-800 hover:text-amber-500"
-            >
-              Promoter Hub
-            </button>
             <hr className="border-slate-100" />
-            <ActionButton variant="primary" noGloss className="py-3 px-6 rounded-xl text-[11px] uppercase tracking-wider w-full" onClick={() => { setView('agency'); setIsOpen(false); }}>
-              Partner Program
+            <ActionButton variant="primary" noGloss className="py-3 px-6 rounded-xl text-[11px] uppercase tracking-wider w-full" onClick={() => { setView('presentation'); setIsOpen(false); }}>
+              Enter Vault
             </ActionButton>
           </div>
         )}
@@ -931,7 +909,7 @@ const HomeView = ({ openWaitlist, setView }) => {
             </div>
           </ScrollReveal>
 
-          {/* HERO VIDEO SPOTLIGHT (Replacing Booking Engine Form) */}
+          {/* HERO VIDEO SPOTLIGHT (Right under Hero) */}
           <ScrollReveal>
             <div className="max-w-4xl mx-auto relative group">
               <div className="absolute -inset-10 bg-amber-400/10 blur-[100px] rounded-full animate-pulse pointer-events-none" />
@@ -1008,7 +986,7 @@ const HomeView = ({ openWaitlist, setView }) => {
         </div>
       </section>
 
-      {/* DOCUMENTED MEMBER DIARIES */}
+      {}
       <section className="bg-slate-950 py-24 sm:py-36 px-4 sm:px-6 overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <ScrollReveal className="text-center">
@@ -1061,7 +1039,6 @@ const HomeView = ({ openWaitlist, setView }) => {
             <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-6">Internal Navigation</h4>
             <ul className="space-y-4">
               <li><button onClick={() => setView('home')} className="text-slate-950 font-black uppercase tracking-widest text-xs hover:text-amber-600 transition-colors">Global Core Portal</button></li>
-              <li><button onClick={() => setView('agency')} className="text-slate-950 font-black uppercase tracking-widest text-xs hover:text-amber-600 transition-colors">Promoter Network</button></li>
               <li><button onClick={() => setView('presentation')} className="text-slate-950 font-black uppercase tracking-widest text-xs hover:text-amber-600 transition-colors">VIP Benefits Vault</button></li>
             </ul>
           </div>
@@ -1091,206 +1068,6 @@ const HomeView = ({ openWaitlist, setView }) => {
   );
 };
 
-const AgencyView = ({ setView }) => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [isSaved, setIsSaved] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSaved(true);
-
-    try {
-      const formData = new FormData();
-      formData.append('fields[first_name]', name);
-      formData.append('email_address', email);
-      
-      await fetch("https://app.kit.com/forms/9018899/subscriptions", {
-        method: "POST",
-        body: formData,
-        mode: 'no-cors'
-      });
-    } catch (err) {
-      // safe fallback
-    }
-
-    setTimeout(() => {
-      setView('presentation');
-    }, 1500);
-  };
-
-  return (
-    <div className="bg-slate-50 min-h-screen text-slate-900 overflow-x-hidden">
-      <main className="pt-40 pb-24 px-4 sm:px-6 max-w-7xl mx-auto">
-        <ScrollReveal>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-start mb-24">
-            
-            {/* Core Info Columns */}
-            <div className="relative lg:col-span-7">
-              <div className="inline-flex items-center space-x-2.5 px-4 py-2 mb-8 text-[10px] font-black tracking-[0.5em] uppercase bg-amber-100 text-amber-700 rounded-full border border-amber-200">
-                <Zap className="w-3.5 h-3.5" />
-                <span>Platinum Club Promoter</span>
-              </div>
-              
-              <h1 className="text-4xl sm:text-6xl md:text-[6.5rem] font-black tracking-tighter uppercase leading-[0.85] mb-10 text-slate-950">
-                GENERATE A <br/> TRAVEL <br/> <span className="text-amber-500 italic">EMPIRE.</span>
-              </h1>
-              
-              <p className="text-lg sm:text-2xl text-slate-600 font-medium leading-relaxed mb-10 max-w-xl">
-                Partner directly with our team as a <span className="text-slate-950 font-black">Platinum Travel Club Promoter</span>. Power your business via <span className="text-amber-600 font-black">Travorium</span>.
-              </p>
-              
-              <div className="space-y-6 mb-12">
-                 <div className="flex items-start space-x-5 bg-white p-6 sm:p-8 rounded-[32px] border border-slate-200/50 shadow-sm transition-all hover:scale-[1.01]">
-                    <div className="bg-amber-50 p-4 rounded-2xl text-amber-500 shrink-0 border border-amber-100">
-                      <Sparkles className="w-6 h-6 animate-pulse" />
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-black uppercase tracking-tight text-slate-950 mb-1.5">Industry Rates up to 80% Off</h4>
-                      <p className="text-slate-500 text-sm font-semibold leading-relaxed">Platinum members bypass consumer brokers entirely, unlocking net wholesale rates on private inventories.</p>
-                    </div>
-                 </div>
-                 
-                 {/* WEB SYSTEM BONUS ACCENT CARD */}
-                 <div className="relative pt-10">
-                   <div className="absolute top-0 right-4 sm:right-6 z-20">
-                      <div className="relative animate-float">
-                        <div className="w-24 h-24 sm:w-36 sm:h-36 rounded-full border-4 sm:border-[6px] border-white shadow-2xl overflow-hidden gold-glow">
-                          <img src={ROGER_PROFILE_IMAGE} className="w-full h-full object-cover" alt="Roger Profile" />
-                        </div>
-                        <div className="absolute -bottom-1 right-1 bg-amber-400 p-2 rounded-xl shadow-lg border-2 border-white">
-                          <Wand2 className="w-4 h-4 text-slate-950" />
-                        </div>
-                      </div>
-                   </div>
-
-                   <div className="bg-slate-950 p-8 sm:p-12 rounded-[40px] sm:rounded-[48px] shadow-3xl border-2 border-amber-500/10 relative overflow-hidden group">
-                      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />
-                      
-                      <div className="relative z-10 pr-20 sm:pr-24 lg:pr-0">
-                        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 mb-5 text-[9px] font-black tracking-[0.3em] uppercase bg-amber-400 text-slate-950 rounded-full border border-yellow-300">
-                          <Award className="w-3.5 h-3.5" />
-                          <span>Direct Sponsor Action Pack</span>
-                        </div>
-                        
-                        <h3 className="text-2xl sm:text-4xl font-black text-white uppercase tracking-tighter mb-4 leading-none italic">
-                          Bespoke Pages <br/> <span className="text-amber-400">Custom Styled.</span>
-                        </h3>
-                        
-                        <p className="text-slate-300 font-bold text-sm sm:text-base mb-6 leading-relaxed max-w-sm">
-                          As your designated pilot, <span className="text-white font-black">Roger Reed</span> will handcraft and deliver your high-converting online capture ecosystem.
-                        </p>
-
-                        <div className="grid grid-cols-1 gap-3 mb-8">
-                          {[
-                            "16-Year Veteran Web Architect Team",
-                            "High-Conversion Custom Funnels Built For You",
-                            "Direct Technical Configuration & Support"
-                          ].map((feat, index) => (
-                            <div key={index} className="flex items-center space-x-3 bg-white/5 p-3 rounded-xl border border-white/10">
-                              <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
-                              <span className="text-white font-black uppercase tracking-widest text-[9px] sm:text-[10px]">{feat}</span>
-                            </div>
-                          ))}
-                        </div>
-
-                        <div className="bg-white/10 rounded-2xl p-4 sm:p-5 border-l-4 border-amber-400">
-                          <p className="text-slate-400 text-[9px] uppercase font-black tracking-widest">Estimated Value Matrix</p>
-                          <p className="text-lg sm:text-2xl font-black text-white tracking-tight">
-                            $1,000+ <span className="text-amber-400 line-through text-xs sm:text-sm opacity-50 ml-1">RETAIL VALUE</span> 
-                            <span className="text-[9px] bg-white text-slate-950 px-2.5 py-1 rounded-full ml-3 italic shrink-0 font-bold">SPONSORED NO FEE</span>
-                          </p>
-                        </div>
-                      </div>
-                   </div>
-                 </div>
-              </div>
-
-              <button onClick={() => setView('home')} className="inline-flex items-center space-x-2 text-slate-400 font-black uppercase tracking-[0.3em] text-[9px] hover:text-slate-950 transition-colors mt-4">
-                <MoveRight className="w-4 h-4 rotate-180" />
-                <span>Return to Public Audit Vault</span>
-              </button>
-            </div>
-
-            {/* Sticky Application Form Column */}
-            <div className="lg:col-span-5 lg:sticky lg:top-36 mt-12 lg:mt-0">
-              <div className="bg-white p-6 sm:p-10 md:p-14 rounded-[40px] border border-slate-200/85 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] relative overflow-hidden">
-                <div className="relative z-10">
-                  <div className="w-16 h-16 bg-slate-950 rounded-2xl flex items-center justify-center text-amber-400 mx-auto mb-6 shadow-xl">
-                    <Users className="w-7 h-7" />
-                  </div>
-                  
-                  <h3 className="text-2xl sm:text-3xl font-black mb-8 uppercase tracking-tighter text-center italic text-slate-950 leading-none">
-                    PROMOTER INTAKE
-                  </h3>
-                  
-                  {isSaved ? (
-                    <div className="text-center py-12 animate-in zoom-in-95 duration-500">
-                      <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center text-green-500 mx-auto mb-4 border border-green-100 shadow-inner animate-bounce">
-                        <Check className="w-8 h-8 stroke-[3]" />
-                      </div>
-                      <h4 className="text-xl font-black text-slate-950 uppercase tracking-tighter mb-2">Request Processed!</h4>
-                      <p className="text-slate-400 text-xs font-semibold max-w-xs mx-auto leading-relaxed">
-                        Routing session directly to the Premium Perks presentation module...
-                      </p>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="space-y-2">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 pl-1">Full Legal Name</label>
-                        <input 
-                          required 
-                          type="text" 
-                          placeholder="John Doe" 
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          className="w-full h-14 bg-slate-50 rounded-2xl px-5 outline-none focus:ring-4 ring-amber-400/10 text-slate-900 font-bold border-2 border-slate-100 focus:border-amber-400 focus:bg-white transition-all text-sm" 
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 pl-1">Confidential Email</label>
-                        <input 
-                          required 
-                          type="email" 
-                          placeholder="partner@yourbrand.com" 
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="w-full h-14 bg-slate-50 rounded-2xl px-5 outline-none focus:ring-4 ring-amber-400/10 text-slate-900 font-bold border-2 border-slate-100 focus:border-amber-400 focus:bg-white transition-all text-sm" 
-                        />
-                      </div>
-                      <ActionButton type="submit" variant="secondary" className="w-full py-5 text-sm tracking-wider font-black">
-                        Submit Secure Application
-                      </ActionButton>
-                      
-                      <div className="text-center space-y-4 pt-2">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">
-                          Platinum Travorium Protocol Verification • travelprox.com
-                        </p>
-                        <div className="flex items-center justify-center space-x-1.5 text-emerald-600">
-                          <ShieldCheck className="w-4 h-4" />
-                          <span className="text-[9px] font-black uppercase tracking-widest">Confidential Sponsor Queue</span>
-                        </div>
-                      </div>
-                    </form>
-                  )}
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </ScrollReveal>
-      </main>
-
-      <footer className="py-16 border-t border-slate-200 text-center px-4 bg-white">
-        <button onClick={() => setView('home')} className="mb-6 text-slate-400 hover:text-slate-950 transition-colors uppercase font-black text-[9px] tracking-[0.4em]">Return to Core Comparison Nodes</button>
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-          © 2026 TRAVEL PRO X & CALLISTA DIGITAL • EST. 2014
-        </p>
-      </footer>
-    </div>
-  );
-};
-
 const PresentationView = ({ setView }) => {
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });
 
@@ -1304,7 +1081,7 @@ const PresentationView = ({ setView }) => {
             <div className="bg-amber-400/10 border border-amber-400/20 py-2 px-5 rounded-full inline-flex items-center space-x-2.5 shadow-lg">
               <Gift className="w-4 h-4 text-amber-400 animate-pulse" />
               <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-wider text-amber-300">
-                Platinum Exclusive: Lock in Membership this {currentMonth} for a Vegas Escape Voucher
+                Exclusive Deal: Activate membership this {currentMonth} to unlock your bonus Las Vegas Escape Voucher!
               </span>
             </div>
           </div>
@@ -1346,8 +1123,8 @@ const PresentationView = ({ setView }) => {
               
               <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-6 relative z-10">
                 <div className="text-center sm:text-left space-y-1">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 block">Travorium Platinum Enrollment</span>
-                  <span className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-950 block">Join Team & Initialize Account</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 block">Direct Activation Portal</span>
+                  <span className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-950 block">Activate Wholesale Member Account</span>
                 </div>
                 <div className="bg-slate-950 p-3 sm:p-4 rounded-full text-amber-400 group-hover:rotate-45 transition-transform shrink-0 shadow-lg shadow-amber-500/10">
                   <ArrowUpRight className="w-6 h-6 sm:w-8 sm:h-8" />
@@ -1362,7 +1139,7 @@ const PresentationView = ({ setView }) => {
                 </div>
                 <div className="flex items-center space-x-2">
                     <UserCheck className="w-4 h-4 text-amber-400" />
-                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Direct Placement Priority</span>
+                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Instant Activation Priority</span>
                 </div>
             </div>
 
@@ -1382,6 +1159,20 @@ const PresentationView = ({ setView }) => {
     </div>
   );
 };
+
+const MessageCircleIcon = ({ className = "" }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2.5" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.38 0 0 1 8 8v.5z" />
+  </svg>
+);
 
 const App = () => {
   const [view, setView] = useState('home'); 
@@ -1423,10 +1214,6 @@ const App = () => {
         />
       )}
 
-      {view === 'agency' && (
-        <AgencyView setView={setView} />
-      )}
-
       {view === 'presentation' && (
         <PresentationView setView={setView} />
       )}
@@ -1434,7 +1221,7 @@ const App = () => {
       {/* Shared Modals */}
       <WaitlistModal isOpen={isWaitlistOpen} onClose={() => setIsWaitlistOpen(false)} />
 
-      {/* Sticky High-Urgency Floating Hotspot with wiggle animation */}
+      {/* Sticky High-Urgency Floating Hotspot */}
       <div 
         onClick={() => setIsWaitlistOpen(true)}
         className="fixed bottom-6 right-6 z-[120] bg-white border border-slate-200/60 p-1.5 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center space-x-1 cursor-pointer hover:scale-105 active:scale-95 transition-all group animate-wiggle"
@@ -1452,4 +1239,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default App;  
