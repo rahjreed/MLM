@@ -206,8 +206,8 @@ const ActionButton = ({ onClick, children, className = "", variant = "primary", 
 };
 
 const TravelerQuiz = ({ isOpen, onClose, setView }) => {
-  const [step, setStep] = useState(1); // 1, 2, 3, 'gated', 'results'
-  const [answers, setAnswers] = useState({ q1: null, q2: null, q3: null });
+  const [step, setStep] = useState(1); // 1, 2, 3, 4, 'gated', 'results'
+  const [answers, setAnswers] = useState({ q1: null, q2: null, q3: null, q4: null });
   const [leadName, setLeadName] = useState('');
   const [leadEmail, setLeadEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -218,7 +218,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
   useEffect(() => {
     if (isOpen) {
       setStep(1);
-      setAnswers({ q1: null, q2: null, q3: null });
+      setAnswers({ q1: null, q2: null, q3: null, q4: null });
       setLeadName('');
       setLeadEmail('');
       setIsTransitioning(false);
@@ -228,28 +228,44 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
   const QUESTIONS = useMemo(() => [
     {
       id: 'q1',
-      title: "How often do you vacation?",
+      title: "What does your typical vacation crew look like?",
+      subtitle: "Travel Group Dynamics (Filtering for Space Needs)",
       options: [
-        { key: 'A', text: "Multiple times a year", value: "multiple" },
-        { key: 'B', text: "Once a year", value: "once" },
-        { key: 'C', text: "Every 2+ years", value: "rarely" }
+        { key: 'A', text: "Just me, or traveling as a couple.", score: 1 },
+        { key: 'B', text: "Family travel with kids, or multi-generational groups.", score: 3 },
+        { key: 'C', text: "Group trips with friends or extended family.", score: 2 }
       ]
     },
     {
       id: 'q2',
-      title: "What's your travel style?",
+      title: "When booking a place to stay, what is your baseline standard?",
+      subtitle: "Accommodation Standards (Filtering for Quality Preference)",
       options: [
-        { key: 'A', text: "Quick 2-3 night road trips", value: "short" },
-        { key: 'B', text: "8-day, 7-night resort stays", value: "resort" },
-        { key: 'C', text: "I want to take 8-day resort trips if I could find a better price", value: "aspirational" }
+        { key: 'A', text: "I just need a clean bed—standard roadside hotels or budget motels are fine.", score: 0, isQualifyOut: true },
+        { key: 'B', text: "Standard mid-tier hotels or random Airbnb rentals.", score: 1 },
+        { key: 'C', text: "4- and 5-star premium resorts with full amenities (pools, space, prime locations).", score: 3 }
       ]
     },
     {
       id: 'q3',
-      title: "How do you prefer to budget for travel?",
+      title: "Combined, how many total nights does your household spend on vacation per year?",
+      subtitle: "Annual Travel Footprint (Filtering for Volume)",
       options: [
-        { key: 'A', text: "Pay a big chunk upfront", value: "upfront" },
-        { key: 'B', text: "Set aside $135 a month", value: "monthly" }
+        { key: 'A', text: "1 to 4 nights (Quick weekend trips only).", score: 0 },
+        { key: 'B', text: "5 to 7 nights (Typically one solid week-long trip).", score: 2 },
+        { key: 'C', text: "8 to 14 nights (A major annual trip plus a few extended stays).", score: 3 },
+        { key: 'D', text: "15+ nights (We travel frequently throughout the year).", score: 4 }
+      ]
+    },
+    {
+      id: 'q4',
+      title: "On a typical week-long vacation, what does your household normally spend on lodging alone?",
+      subtitle: "Current Financial Footprint (Filtering for Spend)",
+      options: [
+        { key: 'A', text: "Under $1,000", score: 0 },
+        { key: 'B', text: "$1,000 to $2,500", score: 1 },
+        { key: 'C', text: "$2,500 to $5,000", score: 3 },
+        { key: 'D', text: "$5,000+", score: 4 }
       ]
     }
   ], []);
@@ -269,7 +285,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
     setAnswers(prev => ({ ...prev, [`q${step}`]: option }));
 
     setTimeout(() => {
-      if (step < 3) {
+      if (step < 4) {
         setStep(prev => prev + 1);
       } else {
         setStep('gated');
@@ -316,15 +332,25 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
     }, 1000);
   };
 
-  // Match condition logic: Travels often (multiple or once) AND enjoys resort stays (resort or aspirational)
-  const isMatch = useMemo(() => {
-    const q1Val = answers.q1?.value;
-    const q2Val = answers.q2?.value;
-    
-    const travelsOften = q1Val === 'multiple' || q1Val === 'once';
-    const prefersResort = q2Val === 'resort' || q2Val === 'aspirational';
-    
-    return travelsOften && prefersResort;
+  const evaluationResult = useMemo(() => {
+    const scoreQ1 = answers.q1?.score || 0;
+    const scoreQ2 = answers.q2?.score || 0;
+    const scoreQ3 = answers.q3?.score || 0;
+    const scoreQ4 = answers.q4?.score || 0;
+
+    const totalPoints = scoreQ1 + scoreQ2 + scoreQ3 + scoreQ4;
+    const isInstantQualifyOut = answers.q2?.isQualifyOut === true;
+
+    let path = 'A'; // Default Rejection (0-4 pts)
+    if (isInstantQualifyOut) {
+      path = 'A';
+    } else if (totalPoints >= 8) {
+      path = 'B'; // Direct Contract Match (8+ pts)
+    } else if (totalPoints >= 5 && totalPoints <= 7) {
+      path = 'C'; // Hybrid Match (5-7 pts)
+    }
+
+    return { totalPoints, path, isInstantQualifyOut };
   }, [answers]);
 
   if (!isOpen) return null;
@@ -352,8 +378,8 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
         {/* Dynamic Progress Bar */}
         {typeof step === 'number' && (
           <div className="w-full bg-slate-100 h-2 relative overflow-hidden">
-            <div className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-orange-500 to-amber-500 transition-all duration-300" style={{ width: `${(step / 3) * 100}%` }} />
-            <div className="absolute top-0 bottom-0 w-20 bg-white/40 skew-x-12 animate-scan" style={{ left: `${((step / 3) * 100) - 10}%` }} />
+            <div className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-orange-500 to-amber-500 transition-all duration-300" style={{ width: `${(step / 4) * 100}%` }} />
+            <div className="absolute top-0 bottom-0 w-20 bg-white/40 skew-x-12 animate-scan" style={{ left: `${((step / 4) * 100) - 10}%` }} />
           </div>
         )}
 
@@ -362,7 +388,8 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
           {typeof step === 'number' && currentQuestion && (
             <div className="p-6 sm:p-10 md:p-14 space-y-8 animate-in fade-in-50 duration-500">
               <div className="text-center md:text-left space-y-2">
-                <span className="inline-block text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-200/50 px-3 py-1 rounded-full uppercase tracking-[0.4em]">Section {step} of 3</span>
+                <span className="inline-block text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-200/50 px-3 py-1 rounded-full uppercase tracking-[0.4em]">Section {step} of 4</span>
+                <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">{currentQuestion.subtitle}</span>
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 uppercase tracking-tighter leading-tight mt-2">
                   {currentQuestion.title}
                 </h2>
@@ -481,36 +508,82 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
           )}
 
           {/* UNLOCKED SYSTEM RESULTS */}
+          {}
           {step === 'results' && (
             <div className="p-6 sm:p-10 md:p-14 space-y-8 md:space-y-10 animate-in fade-in duration-500">
               
-              {isMatch ? (
-                /* PATH A - MEMBERSHIP MATCH */
+              {evaluationResult.path === 'A' && (
+                /* PATH A - RETAIL OPTIMIZED HIGH INTEGRITY REJECTION */
+                <div className="space-y-8 animate-in zoom-in-95 duration-500">
+                  <div className="bg-orange-50 border-2 sm:border-4 border-orange-500/80 rounded-2xl sm:rounded-3xl p-6 text-center shadow-lg relative overflow-hidden">
+                    <div className="absolute top-0 left-0 bottom-0 w-2 bg-orange-600" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-800">FITNESS STATUS: RETAIL OPTIMIZED</span>
+                    <h3 className="text-xl sm:text-2xl md:text-3.5xl font-black text-orange-950 tracking-tighter uppercase leading-tight mt-1">
+                      Assessment Complete: Maintain Current Booking Strategy
+                    </h3>
+                  </div>
+
+                  <div className="bg-white border-2 border-slate-200/60 text-slate-900 rounded-3xl p-6 sm:p-8 space-y-4">
+                    <p className="text-slate-700 font-semibold text-sm sm:text-base leading-relaxed">
+                      Based on your vacation footprint, our private wholesale network is not a good financial fit for your household. Because you typically favor short weekend stays or budget-focused accommodations, standard public platforms like Expedia or Booking.com will actually yield the lowest net cost for you.
+                    </p>
+                    <p className="text-slate-600 font-bold text-xs sm:text-sm leading-relaxed">
+                      We refuse to sell access to platforms that people won't fully optimize. We recommend continuing with your current booking method to keep your overhead low. Thank you for running the math with us.
+                    </p>
+                  </div>
+
+                  {/* Tailored Reward Gift Box */}
+                  <div className="bg-amber-50 border-2 border-amber-400/30 rounded-3xl p-6 sm:p-8 space-y-4">
+                    <div className="flex items-center space-x-3 text-amber-700">
+                      <Gift className="w-6 h-6 animate-pulse shrink-0" />
+                      <h4 className="text-lg font-black uppercase tracking-tight">Your Free Reward is Claimed!</h4>
+                    </div>
+                    <p className="text-slate-600 font-bold text-xs sm:text-sm leading-relaxed">
+                      Because we want to help you save anyway, use code <span className="text-amber-600 font-black">ROGREED</span> on the HotelTonight app to get <span className="text-slate-950 font-black">$25 off</span> your next booking of $135+!
+                    </p>
+                    
+                    <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-2xl border border-amber-200 shadow-inner max-w-md">
+                      <div className="flex-1 text-center sm:text-left">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">HotelTonight Code</span>
+                        <p className="text-2xl font-black text-slate-950 tracking-widest font-mono">ROGREED</p>
+                      </div>
+                      <button 
+                        onClick={handleRewardClick}
+                        className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black uppercase text-[10px] tracking-widest px-5 py-3.5 rounded-xl hover:from-teal-600 hover:to-emerald-500 transition-all flex items-center justify-center space-x-2 shrink-0 shadow-lg shadow-emerald-500/20 active:scale-95"
+                      >
+                        {copied ? <Check className="w-4 h-4 text-white" /> : <ArrowUpRight className="w-4 h-4 text-white" />}
+                        <span>{copied ? 'Copied! Opening HT' : 'Use on HotelTonight'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {evaluationResult.path === 'B' && (
+                /* PATH B - THE QUALIFIED GREEN LIGHT */
                 <div className="space-y-8 animate-in zoom-in-95 duration-500">
                   <div className="bg-emerald-50 border-2 sm:border-4 border-emerald-500/80 rounded-2xl sm:rounded-3xl p-6 text-center shadow-lg relative overflow-hidden">
                     <div className="absolute top-0 left-0 bottom-0 w-2 bg-emerald-600" />
                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-800">FITNESS REPORT SUCCESS</span>
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-950 tracking-tighter uppercase leading-tight mt-1">
-                      🎉 PERFECT FIT MATCH!
+                    <h3 className="text-xl sm:text-2xl md:text-3.5xl font-black text-emerald-950 tracking-tighter uppercase leading-tight mt-1">
+                      Assessment Complete: Private Wholesale Match Verified
                     </h3>
-                    <p className="text-emerald-700 font-bold text-xs sm:text-sm mt-2 max-w-2xl mx-auto leading-relaxed">
-                      Because you travel at least once a year and enjoy high-value 8-day resort stays, the wholesale math is structured perfectly to yield major net-positive savings on your vacations.
-                    </p>
                   </div>
 
                   <div className="bg-slate-950 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 flex flex-col lg:flex-row items-center justify-between gap-6 relative overflow-hidden">
                     <div className="absolute -top-12 -right-12 w-64 h-64 bg-amber-500/10 blur-[80px] rounded-full pointer-events-none" />
                     <div className="text-center lg:text-left space-y-2 relative z-10 w-full lg:w-auto">
-                      <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">Membership Style Profile</span>
+                      <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">Authorized Account Profile</span>
                       <h4 className="text-2xl sm:text-3xl font-black text-white tracking-tighter uppercase italic leading-none mt-2">
-                        The Strategic Voyager
+                        The Institutional Voyager
                       </h4>
                       <p className="text-slate-400 font-medium text-xs sm:text-sm lg:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed mt-1">
-                        By skipping standard booking middle-men, you're positioned to lock in luxury resort inventory for just $135/month—yielding immediate four-figure pricing advantages.
+                        "Your results show a severe Vacation Waste Variance. Because your household prioritizes multi-day, 4-to-5-star resort environments for family or group travel, you are currently paying an estimated 40% to 60% markup by using public retail booking engines.
+                        You do not need to alter how you travel; you simply need to change the door you walk through. Your profile qualifies for direct, contract-free access to unused institutional resort inventory."
                       </p>
                     </div>
                     <div className="bg-gradient-to-br from-amber-400 to-amber-500 p-5 md:p-6 rounded-2xl sm:rounded-3xl text-slate-950 font-black text-center shrink-0 w-full sm:w-auto min-w-[220px] shadow-2xl relative z-10 border border-amber-300">
-                      <span className="block text-[10px] uppercase tracking-widest opacity-85">Target Value Match</span>
+                      <span className="block text-[10px] uppercase tracking-widest opacity-85">Vacation Index Level</span>
                       <span className="text-2xl sm:text-3xl block mt-1 tracking-tight">HIGH-MATCH</span>
                     </div>
                   </div>
@@ -525,7 +598,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                       </div>
                     </div>
                     <p className="text-slate-500 font-semibold text-xs sm:text-sm leading-relaxed max-w-2xl">
-                      Watch the quick back-office video walkthrough below to see exactly how our membership math lets you secure those major 8-day resort stays for a fraction of retail booking rates:
+                      Watch the quick back-office video walkthrough below to see exactly how our wholesale math lets you secure major 8-day resort stays for a fraction of retail booking rates:
                     </p>
                     <div className="relative aspect-video w-full rounded-2xl md:rounded-[32px] overflow-hidden border-4 md:border-8 border-slate-950 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.8)] bg-black gold-glow animate-in slide-in-from-bottom-6 duration-700">
                       <iframe 
@@ -537,24 +610,23 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                       />
                     </div>
 
-                    {/* NEW GATED PERKS VAULT ACCESS ACTION BUTTON */}
+                    {/* REDIRECT ACTION BOX */}
                     <div className="bg-amber-400/10 border-2 border-amber-400/20 p-5 rounded-2xl sm:rounded-3xl mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                       <div className="space-y-1 text-center sm:text-left">
-                        <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block">Deep-Dive Access Node</span>
+                        <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block">Direct Action Required</span>
                         <p className="text-slate-900 font-bold text-xs sm:text-sm leading-snug">
-                          Need a little more understanding? Explore the confidential wholesale membership perks and visual ledger.
+                          We have routed your qualification credentials to our private booking engine, Travel Pro X. Click below to view live, contract-free wholesale rates for 1,300+ sq ft premium resort villas.
                         </p>
                       </div>
                       <ActionButton 
                         variant="primary" 
-                        className="py-3 px-6 text-xs w-full sm:w-auto uppercase tracking-wider shrink-0" 
+                        className="py-4 px-8 text-xs uppercase tracking-wider shrink-0 w-full sm:w-auto" 
                         onClick={() => {
                           onClose();
                           setView('presentation');
                         }}
                       >
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Explore Member Perks
+                        Access Wholesale Inventory via Travel Pro X
                       </ActionButton>
                     </div>
                   </div>
@@ -584,38 +656,75 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                     </div>
                   </div>
                 </div>
-              ) : (
-                /* PATH B - MEMBERSHIP NO MATCH */
+              )}
+
+              {evaluationResult.path === 'C' && (
+                /* PATH C - HYBRID / CONDITIONAL MATCH */
                 <div className="space-y-8 animate-in zoom-in-95 duration-500">
-                  <div className="bg-orange-50 border-2 sm:border-4 border-orange-500/80 rounded-2xl sm:rounded-3xl p-6 text-center shadow-lg relative overflow-hidden">
-                    <div className="absolute top-0 left-0 bottom-0 w-2 bg-orange-600" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-800">FITNESS STATUS: UNMATCHED</span>
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-orange-950 tracking-tighter uppercase leading-tight mt-1">
-                      🛑 HONEST TAKE: NOT A FIT RIGHT NOW
+                  <div className="bg-sky-50 border-2 sm:border-4 border-sky-500/80 rounded-2xl sm:rounded-3xl p-6 text-center shadow-lg relative overflow-hidden">
+                    <div className="absolute top-0 left-0 bottom-0 w-2 bg-sky-600" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-sky-800">FITNESS STATUS: CONDITIONAL ACCESS</span>
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-sky-950 tracking-tighter uppercase leading-tight mt-1">
+                      Assessment Complete: Conditional Access Granted
                     </h3>
-                    <p className="text-orange-700 font-bold text-xs sm:text-sm mt-2 max-w-2xl mx-auto leading-relaxed">
-                      Based on your custom travel habits, we do not recommend joining our membership model at this point in time.
-                    </p>
                   </div>
 
-                  <div className="bg-slate-50 border-2 border-slate-200/60 text-slate-900 rounded-3xl p-6 sm:p-8 space-y-4">
-                    <h4 className="text-xl font-black text-slate-950 uppercase tracking-tight">Our Absolute Transparency Guarantee</h4>
-                    <p className="text-slate-600 font-semibold text-sm sm:text-base leading-relaxed">
-                      Because you travel every 2+ years or strictly prefer quick weekend road trips, the wholesale membership subscription model would not yield enough direct savings to offset your recurring monthly commitment. 
+                  <div className="bg-slate-950 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 flex flex-col lg:flex-row items-center justify-between gap-6 relative overflow-hidden">
+                    <div className="absolute -top-12 -right-12 w-64 h-64 bg-sky-500/10 blur-[80px] rounded-full pointer-events-none" />
+                    <div className="text-center lg:text-left space-y-2 relative z-10 w-full lg:w-auto">
+                      <span className="text-[10px] font-black text-sky-400 uppercase tracking-widest bg-sky-400/10 px-3 py-1 rounded-full border border-sky-400/20">Conditional Clearance Assigned</span>
+                      <p className="text-slate-400 font-medium text-xs sm:text-sm lg:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed mt-1">
+                        While your household travel volume doesn't fully justify enterprise-level annual wholesale commits, your quality standard demonstrates clear leakage. To prevent you from paying retail markups, we have conditionally cleared your email for custom temporary entry.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Behind the scenes video link button for more understanding */}
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-2 border-b border-slate-100 pb-3">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">SECURE SYSTEM VIDEO ANALYSIS</span>
+                    </div>
+                    <p className="text-slate-500 font-semibold text-xs sm:text-sm leading-relaxed max-w-2xl">
+                      Review the custom trial options walkthrough to understand how direct rates differ from retail platforms before navigating:
                     </p>
-                    <p className="text-slate-500 font-bold text-xs sm:text-sm leading-relaxed">
-                      We believe in zero artificial pressure or hard retail up-selling. If our membership does not put real capital back in your pocket, we will never advise you to purchase it.
-                    </p>
+                    <div className="relative aspect-video w-full rounded-2xl md:rounded-[32px] overflow-hidden border-4 md:border-8 border-slate-950 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.8)] bg-black gold-glow animate-in slide-in-from-bottom-6 duration-700">
+                      <iframe 
+                        src={DIAGNOSTIC_VIDEO_URL} 
+                        className="w-full h-full"
+                        loading="lazy" 
+                        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
+                        allowFullScreen
+                      />
+                    </div>
+
+                    <div className="bg-amber-400/10 border-2 border-amber-400/20 p-5 rounded-2xl sm:rounded-3xl mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="space-y-1 text-center sm:text-left">
+                        <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block">Review Complete Perks Vault</span>
+                        <p className="text-slate-900 font-bold text-xs sm:text-sm leading-snug">
+                          Need a little more understanding? Explore the confidential wholesale direct access perks and rate ledger.
+                        </p>
+                      </div>
+                      <ActionButton 
+                        variant="primary" 
+                        className="py-3 px-6 text-xs w-full sm:w-auto uppercase tracking-wider shrink-0" 
+                        onClick={() => {
+                          onClose();
+                          setView('presentation');
+                        }}
+                      >
+                        Explore Direct Perks
+                      </ActionButton>
+                    </div>
                   </div>
 
                   {/* Tailored Reward Gift Box */}
                   <div className="bg-amber-50 border-2 border-amber-400/30 rounded-3xl p-6 sm:p-8 space-y-4">
                     <div className="flex items-center space-x-3 text-amber-700">
                       <Gift className="w-6 h-6 animate-pulse shrink-0" />
-                      <h4 className="text-lg font-black uppercase tracking-tight">Your Free Reward is Claimed!</h4>
+                      <h4 className="text-lg font-black uppercase tracking-tight">Claimed: Quick Stay Travel Reward</h4>
                     </div>
                     <p className="text-slate-600 font-bold text-xs sm:text-sm leading-relaxed">
-                      Because we want to help you save on your trips anyway, click below to automatically copy the code <span className="text-amber-600 font-black">ROGREED</span> and open HotelTonight to claim <span className="text-slate-950 font-black">$25 off</span> your next booking of $135+!
+                      To help you start saving instantly, click below to automatically copy the code <span className="text-amber-600 font-black">ROGREED</span> and open HotelTonight to claim <span className="text-slate-950 font-black">$25 off</span> your next booking of $135+!
                     </p>
                     
                     <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-2xl border border-amber-200 shadow-inner max-w-md">
@@ -636,6 +745,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
               )}
 
               {/* Reset/Done Buttons */}
+              {}
               <div className="text-center space-y-4 pt-4">
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
                   <ActionButton 
@@ -645,7 +755,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                       window.open("https://t.me/+lweqGFqWXitmNGYx", "_blank");
                     }}
                   >
-                    <MessageCircleIcon className="w-5 h-5 mr-2 shrink-0 animate-bounce" />
+                    <MessageCircleIcon className="w-5 h-5 mr-2 shrink-0" />
                     <span>Join NTTS Telegram & Ask Questions</span>
                   </ActionButton>
                   
@@ -653,7 +763,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                   <button 
                     onClick={() => {
                       setStep(1);
-                      setAnswers({ q1: null, q2: null, q3: null });
+                      setAnswers({ q1: null, q2: null, q3: null, q4: null });
                     }}
                     className="text-slate-400 hover:text-slate-950 font-black uppercase text-[10px] tracking-widest py-2 transition-colors"
                   >
@@ -674,6 +784,9 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
   );
 };
 
+/**
+ * PREMIUM PRIVATE WAITLIST MODAL
+ */
 const WaitlistModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle, loading, success
@@ -714,7 +827,7 @@ const WaitlistModal = ({ isOpen, onClose }) => {
             <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter mb-3 leading-none">
               SLOT REQUESTED.
             </h3>
-            <p className="text-slate-500 font-bold mb-8 text-sm leading-relaxed max-sm-auto mx-auto">
+            <p className="text-slate-500 font-bold mb-8 text-sm leading-relaxed max-w-sm mx-auto">
               We have archived your digital timestamp. A concierge representative will transmit details shortly if a slot clears.
             </p>
             <ActionButton variant="secondary" className="w-full py-4 text-xs" onClick={onClose}>
@@ -761,6 +874,9 @@ const WaitlistModal = ({ isOpen, onClose }) => {
   );
 };
 
+/**
+ * HIGH-FREQUENCY SOCIAL PROOF TICKER
+ */
 const SavingsTicker = () => {
   const [index, setIndex] = useState(0);
 
@@ -794,6 +910,9 @@ const SavingsTicker = () => {
   );
 };
 
+/**
+ * FLUID RESPONSIVE GLASS SYSTEM HEADER
+ */
 const Header = ({ setView, activeView, onScanProfile }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -835,7 +954,7 @@ const Header = ({ setView, activeView, onScanProfile }) => {
 
         {/* Desktop CTA */}
         <div className="hidden lg:block">
-          <ActionButton variant="primary" noGloss className="py-2.5 px-6 rounded-xl text-[10px] uppercase tracking-widest animate-wiggle" onClick={onScanProfile}>
+          <ActionButton variant="primary" noGloss className="py-2.5 px-6 rounded-xl text-[10px] uppercase tracking-widest" onClick={onScanProfile}>
             Verify Direct Access Rate
           </ActionButton>
         </div>
@@ -855,7 +974,7 @@ const Header = ({ setView, activeView, onScanProfile }) => {
               Wholesale Access Portal
             </button>
             <hr className="border-slate-100" />
-            <ActionButton variant="primary" noGloss className="py-3 px-6 rounded-xl text-[11px] uppercase tracking-wider w-full animate-wiggle" onClick={() => { onScanProfile(); setIsOpen(false); }}>
+            <ActionButton variant="primary" noGloss className="py-3 px-6 rounded-xl text-[11px] uppercase tracking-wider w-full" onClick={() => { onScanProfile(); setIsOpen(false); }}>
               Verify Direct Access Rate
             </ActionButton>
           </div>
@@ -866,11 +985,15 @@ const Header = ({ setView, activeView, onScanProfile }) => {
   );
 };
 
+/**
+ * HOME VIEW COMPONENT
+ */
 const HomeView = ({ setView, onScanProfile }) => {
   return (
     <div className="bg-white min-h-screen text-slate-900 overflow-x-hidden">
       
       {/* HERO SECTION */}
+      {}
       <section className="relative min-h-[95vh] md:min-h-screen flex flex-col items-center justify-center pt-32 pb-24 px-4 sm:px-6 overflow-hidden">
         
         {/* Animated Visual Canvas Backdrop */}
@@ -1000,11 +1123,11 @@ const HomeView = ({ setView, onScanProfile }) => {
           <ScrollReveal className="text-center">
             <div className="inline-flex items-center space-x-2.5 px-5 py-2.5 mb-8 text-[10px] font-black tracking-[0.4em] uppercase bg-white/5 text-amber-400 rounded-full border border-white/10">
               <PlayCircle className="w-4 h-4 animate-pulse" />
-              <span>Real Live Walkthrough Diaries</span>
+              <span>Raw Client Contract Feed</span>
             </div>
             
             <h2 className="text-4xl sm:text-6xl md:text-8xl font-black text-white tracking-tighter uppercase leading-[0.9] mb-12">
-              RAW CLIENT CONTRACT FEED. <br/> <span className="text-white/30 italic">UNBIASED CONTRACT PROOF.</span>
+              REAL CLIENT PORTAL DATA. <br/> <span className="text-white/30 italic">UNBIASED VERIFIED PROOF.</span>
             </h2>
 
             <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mb-16">
@@ -1065,7 +1188,7 @@ const HomeView = ({ setView, onScanProfile }) => {
                  </span>
                  <span className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Scanning Nodes Online</span>
                </div>
-               <p className="text-[11px] font-bold text-slate-600 leading-snug">Global distribution network and wholesale APIs operational.</p>
+               <p className="text-[11px] font-bold text-slate-600 leading-snug">Global distribution network and wholesale Direct Contract APIs operational.</p>
             </div>
           </div>
         </div>
@@ -1080,6 +1203,9 @@ const HomeView = ({ setView, onScanProfile }) => {
   );
 };
 
+/**
+ * PRESENTATION VAULT VIEW COMPONENT (Unlisted wholesale benefits & walkthrough presentation)
+ */
 const PresentationView = ({ setView }) => {
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });
 
@@ -1123,7 +1249,7 @@ const PresentationView = ({ setView }) => {
             </div>
           </div>
 
-          {/* DYNAMIC SPONSOR REDIRECT PANEL */}
+          {/* DYNAMIC DIRECT ACTIVATION REDIRECT PANEL */}
           <div className="px-4 max-w-3xl mx-auto">
             <a 
               href={TRAVORIUM_ENROLL_URL} 
@@ -1147,7 +1273,7 @@ const PresentationView = ({ setView }) => {
             <div className="mt-10 flex justify-center items-center space-x-8 opacity-50">
                 <div className="flex items-center space-x-2">
                     <ShieldCheck className="w-4 h-4 text-amber-400" />
-                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Wholesale Contracts Secured</span>
+                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Wholesale Direct Contracts Secured</span>
                 </div>
                 <div className="flex items-center space-x-2">
                     <UserCheck className="w-4 h-4 text-amber-400" />
@@ -1186,6 +1312,9 @@ const MessageCircleIcon = ({ className = "" }) => (
   </svg>
 );
 
+/**
+ * MASTER SYSTEM ENTRY
+ */
 const App = () => {
   const [view, setView] = useState('home'); 
   const [isQuizOpen, setIsQuizOpen] = useState(false);
