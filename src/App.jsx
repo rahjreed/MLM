@@ -43,9 +43,6 @@ import {
   Copy
 } from 'lucide-react';
 
-/**
- * ASSETS & CONFIG
- */
 const BRAND_LOGO_URL = "https://images.travelprox.com/notimetoshare/notimetosharelogo.jpg";
 const OFFICIAL_HERO_IMAGE = "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80"; // Fallback luxury background
 const ALTERNATIVE_HERO_IMAGE = "https://images.travelprox.com/splash/villa.png";
@@ -217,7 +214,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Automatic reset when modal opens to ensure clean states
+  // Automatic reset side-effect when modal is opened to prevent dead ends or state carrying over
   useEffect(() => {
     if (isOpen) {
       setStep(1);
@@ -257,7 +254,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
     }
   ], []);
 
-  // Safe boundary check for current question rendering
+  // Guaranteed boundary check for active index rendering to protect against race conditions
   const currentQuestion = useMemo(() => {
     if (typeof step === 'number' && step >= 1 && step <= QUESTIONS.length) {
       return QUESTIONS[step - 1];
@@ -319,7 +316,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
     }, 1000);
   };
 
-  // Upfront logic evaluation
+  // Match condition logic: Travels often (multiple or once) AND enjoys resort stays (resort or aspirational)
   const isMatch = useMemo(() => {
     const q1Val = answers.q1?.value;
     const q2Val = answers.q2?.value;
@@ -804,20 +801,22 @@ const Header = ({ setView, activeView, onScanProfile }) => {
     <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-6 py-6 pointer-events-none">
       <div className="max-w-7xl mx-auto flex justify-between items-center bg-white/95 backdrop-blur-xl border border-slate-200/60 rounded-[28px] px-6 py-4 shadow-2xl pointer-events-auto relative">
         
-        {/* Brand Logo & Fallback */}
-        <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => { setView('home'); setIsOpen(false); }}>
-          <div className="flex items-center space-x-2 bg-slate-950 p-2 rounded-xl">
-            <img 
-              src={BRAND_LOGO_URL} 
-              alt="No Time To Share Logo" 
-              className="h-8 md:h-10 object-contain rounded-lg"
-              onError={(e) => {
-                // If logo is blocked/missing, fall back gracefully to premium text markup
-                e.target.style.display = 'none';
-              }}
-            />
-            <span className="font-black text-white tracking-tighter text-base md:text-lg uppercase px-1">
+        {/* Brand Container - Spacious, Separated, Non-crammed logo layout */}
+        <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => { setView('home'); setIsOpen(false); }}>
+          <img 
+            src={BRAND_LOGO_URL} 
+            alt="No Time To Share" 
+            className="h-10 md:h-12 w-auto object-contain rounded-xl shadow-md border border-slate-200/60 transition-transform duration-300 group-hover:scale-105"
+            onError={(e) => {
+              e.target.style.display = 'none';
+            }}
+          />
+          <div className="flex flex-col justify-center border-l-2 border-slate-200 pl-4 py-0.5">
+            <span className="font-black text-slate-950 tracking-tighter text-sm md:text-lg uppercase leading-none">
               NO TIME TO SHARE
+            </span>
+            <span className="text-[9px] font-black text-amber-500 uppercase tracking-[0.25em] mt-1 leading-none">
+              WHOLESALE DIRECT
             </span>
           </div>
         </div>
@@ -892,10 +891,11 @@ const HomeView = ({ setView, onScanProfile }) => {
             <div className="mb-10 flex flex-col items-center space-y-8">
               <SavingsTicker />
               
-              <h1 className="text-4xl sm:text-6xl md:text-[6.5rem] lg:text-[7.5rem] xl:text-[8.5rem] font-black text-white tracking-tighter leading-[0.95] uppercase drop-shadow-[0_10px_50px_rgba(0,0,0,0.65)]">
-                NO TIME <br/> 
+              {/* Responsive Hero Header - Tiny scale issue fixed */}
+              <h1 className="text-5xl sm:text-7xl md:text-[9rem] lg:text-[10.5rem] xl:text-[12rem] font-black text-white tracking-tighter leading-[0.95] uppercase drop-shadow-[0_10px_50px_rgba(0,0,0,0.65)]">
+                THE TRAVEL <br/> 
                 <span className="bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 bg-clip-text text-transparent italic drop-shadow-[0_15px_30px_rgba(245,158,11,0.25)]">
-                  TO SHARE
+                  QUIZ...
                 </span>
               </h1>
               
@@ -920,7 +920,7 @@ const HomeView = ({ setView, onScanProfile }) => {
             </div>
           </ScrollReveal>
 
-          {/* DYNAMIC TOP SPOTLIGHT VIDEO PANEL - Replaces old diagnostic card form */}
+          {/* DYNAMIC TOP SPOTLIGHT VIDEO PANEL - Replaced scanner block */}
           <ScrollReveal>
             <div className="max-w-4xl mx-auto relative group">
               <div className="absolute -inset-10 bg-amber-400/10 blur-[100px] rounded-full animate-pulse pointer-events-none" />
@@ -1245,7 +1245,7 @@ const App = () => {
            <span className="text-[11px] font-black text-white uppercase tracking-widest">{spotsLeft} Vacancies Left</span>
         </div>
         <div className="px-3.5 py-3 hidden md:flex items-center space-x-1.5">
-           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Secure Clearance</span>
+           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Secure Seat</span>
            <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
