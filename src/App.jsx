@@ -533,6 +533,27 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                         allowFullScreen
                       />
                     </div>
+
+                    {/* NEW GATED PERKS VAULT ACCESS ACTION BUTTON */}
+                    <div className="bg-amber-400/10 border-2 border-amber-400/20 p-5 rounded-2xl sm:rounded-3xl mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="space-y-1 text-center sm:text-left">
+                        <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block">Deep-Dive Access Node</span>
+                        <p className="text-slate-900 font-bold text-xs sm:text-sm leading-snug">
+                          Need a little more understanding? Explore the confidential wholesale membership perks and visual ledger.
+                        </p>
+                      </div>
+                      <ActionButton 
+                        variant="primary" 
+                        className="py-3 px-6 text-xs w-full sm:w-auto uppercase tracking-wider shrink-0" 
+                        onClick={() => {
+                          onClose();
+                          setView('presentation');
+                        }}
+                      >
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Explore Member Perks
+                      </ActionButton>
+                    </div>
                   </div>
 
                   {/* Tailored Reward Gift Box */}
@@ -624,15 +645,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
                     <MessageCircleIcon className="w-5 h-5 mr-2 shrink-0 animate-bounce" />
                     <span>Join TPX Telegram & Ask Questions</span>
                   </ActionButton>
-                  <button 
-                    onClick={() => {
-                      onClose();
-                      setView('presentation');
-                    }}
-                    className="text-slate-500 hover:text-slate-950 font-black uppercase text-[10px] tracking-widest py-2 hover:underline transition-colors"
-                  >
-                    Explore Premium Perks
-                  </button>
+                  
                   <div className="hidden sm:block w-1.5 h-1.5 rounded-full bg-slate-200" />
                   <button 
                     onClick={() => {
@@ -658,6 +671,9 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
   );
 };
 
+/**
+ * DAFULT SYSTEM WAITLIST/QUEUE MODAL
+ */
 const WaitlistModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // idle, loading, success
@@ -778,7 +794,7 @@ const SavingsTicker = () => {
   );
 };
 
-const Header = ({ setView, activeView }) => {
+const Header = ({ setView, activeView, onScanProfile }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -795,16 +811,8 @@ const Header = ({ setView, activeView }) => {
           </span>
         </div>
 
-        {/* Desktop Links */}
+        {/* Desktop Links - Note "Member Perks" restricted as requested */}
         <div className="hidden lg:flex items-center space-x-8">
-          <button 
-            onClick={() => setView('presentation')} 
-            className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
-              activeView === 'presentation' ? 'text-amber-500' : 'text-slate-500 hover:text-slate-950'
-            }`}
-          >
-            Member Perks
-          </button>
           <button 
             onClick={() => setView('home')} 
             className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
@@ -815,10 +823,10 @@ const Header = ({ setView, activeView }) => {
           </button>
         </div>
 
-        {/* Desktop CTA */}
+        {/* Desktop CTA - Drives them directly to the Diagnostic Quiz */}
         <div className="hidden lg:block">
-          <ActionButton variant="primary" noGloss className="py-2.5 px-6 rounded-xl text-[10px] uppercase tracking-widest" onClick={() => setView('presentation')}>
-            Enter Perks Vault
+          <ActionButton variant="primary" noGloss className="py-2.5 px-6 rounded-xl text-[10px] uppercase tracking-widest animate-wiggle" onClick={onScanProfile}>
+            Verify Special Rate
           </ActionButton>
         </div>
 
@@ -831,20 +839,14 @@ const Header = ({ setView, activeView }) => {
         {isOpen && (
           <div className="absolute top-[90px] left-0 right-0 bg-white/95 backdrop-blur-2xl border border-slate-200/80 rounded-3xl p-6 shadow-2xl flex flex-col space-y-4 animate-in fade-in slide-in-from-top-4 duration-200 pointer-events-auto">
             <button 
-              onClick={() => { setView('presentation'); setIsOpen(false); }} 
-              className="text-left font-black uppercase tracking-wider text-xs py-2 text-slate-800 hover:text-amber-500"
-            >
-              Member Perks & Vault
-            </button>
-            <button 
               onClick={() => { setView('home'); setIsOpen(false); }} 
               className="text-left font-black uppercase tracking-wider text-xs py-2 text-slate-800 hover:text-amber-500"
             >
               Core Search Portal
             </button>
             <hr className="border-slate-100" />
-            <ActionButton variant="primary" noGloss className="py-3 px-6 rounded-xl text-[11px] uppercase tracking-wider w-full" onClick={() => { setView('presentation'); setIsOpen(false); }}>
-              Enter Vault
+            <ActionButton variant="primary" noGloss className="py-3 px-6 rounded-xl text-[11px] uppercase tracking-wider w-full animate-wiggle" onClick={() => { onScanProfile(); setIsOpen(false); }}>
+              Verify Special Rate
             </ActionButton>
           </div>
         )}
@@ -854,9 +856,7 @@ const Header = ({ setView, activeView }) => {
   );
 };
 
-const HomeView = ({ openWaitlist, setView }) => {
-  const [isQuizOpen, setIsQuizOpen] = useState(false);
-
+const HomeView = ({ setView, onScanProfile }) => {
   return (
     <div className="bg-white min-h-screen text-slate-900 overflow-x-hidden">
       
@@ -894,7 +894,7 @@ const HomeView = ({ openWaitlist, setView }) => {
             </div>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20 max-w-md sm:max-w-none mx-auto">
-              <ActionButton variant="primary" className="w-full sm:w-auto px-12 py-6 text-base tracking-widest" onClick={() => setIsQuizOpen(true)}>
+              <ActionButton variant="primary" className="w-full sm:w-auto px-12 py-6 text-base tracking-widest" onClick={onScanProfile}>
                 Scan Travel Profile
               </ActionButton>
               <button 
@@ -909,7 +909,7 @@ const HomeView = ({ openWaitlist, setView }) => {
             </div>
           </ScrollReveal>
 
-          {/* HERO VIDEO SPOTLIGHT (Right under Hero) */}
+          {/* HERO VIDEO SPOTLIGHT (Right under Hero in place of the Scanner) */}
           <ScrollReveal>
             <div className="max-w-4xl mx-auto relative group">
               <div className="absolute -inset-10 bg-amber-400/10 blur-[100px] rounded-full animate-pulse pointer-events-none" />
@@ -926,9 +926,6 @@ const HomeView = ({ openWaitlist, setView }) => {
           </ScrollReveal>
         </div>
       </section>
-
-      {/* RETAIL AUDIT COMPLEMENT (MODAL CONTAINER TRIGGER) */}
-      <TravelerQuiz isOpen={isQuizOpen} onClose={() => setIsQuizOpen(false)} setView={setView} />
 
       {/* MEMBER COMPARATIVE INTEL */}
       <section id="insights" className="max-w-7xl mx-auto px-4 sm:px-6 py-24 sm:py-32 bg-white">
@@ -964,7 +961,7 @@ const HomeView = ({ openWaitlist, setView }) => {
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
                   <div className="absolute bottom-8 left-8 right-8 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                    <ActionButton variant="waitlist" className="w-full py-4 rounded-2xl" onClick={() => setIsQuizOpen(true)}>Verify Special Rate</ActionButton>
+                    <ActionButton variant="waitlist" className="w-full py-4 rounded-2xl" onClick={onScanProfile}>Verify Special Rate</ActionButton>
                   </div>
                 </div>
                 
@@ -986,7 +983,7 @@ const HomeView = ({ openWaitlist, setView }) => {
         </div>
       </section>
 
-      {}
+      {/* RAW SOCIAL PROOF FEED */}
       <section className="bg-slate-950 py-24 sm:py-36 px-4 sm:px-6 overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <ScrollReveal className="text-center">
@@ -1013,7 +1010,7 @@ const HomeView = ({ openWaitlist, setView }) => {
               ))}
             </div>
 
-            <ActionButton variant="primary" className="mx-auto px-12 py-5 text-base tracking-widest" onClick={() => setIsQuizOpen(true)}>
+            <ActionButton variant="primary" className="mx-auto px-12 py-5 text-base tracking-widest animate-wiggle" onClick={onScanProfile}>
               Start Live Verification Process <MoveRight className="ml-3 w-5 h-5" />
             </ActionButton>
           </ScrollReveal>
@@ -1039,7 +1036,6 @@ const HomeView = ({ openWaitlist, setView }) => {
             <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-6">Internal Navigation</h4>
             <ul className="space-y-4">
               <li><button onClick={() => setView('home')} className="text-slate-950 font-black uppercase tracking-widest text-xs hover:text-amber-600 transition-colors">Global Core Portal</button></li>
-              <li><button onClick={() => setView('presentation')} className="text-slate-950 font-black uppercase tracking-widest text-xs hover:text-amber-600 transition-colors">VIP Benefits Vault</button></li>
             </ul>
           </div>
           
@@ -1176,6 +1172,7 @@ const MessageCircleIcon = ({ className = "" }) => (
 
 const App = () => {
   const [view, setView] = useState('home'); 
+  const [isQuizOpen, setIsQuizOpen] = useState(false);
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
 
   // Dynamic Scarcity Module
@@ -1204,13 +1201,13 @@ const App = () => {
       <style dangerouslySetInnerHTML={{ __html: customStyles }} />
       
       {/* Header Nodes */}
-      <Header setView={setView} activeView={view} />
+      <Header setView={setView} activeView={view} onScanProfile={() => setIsQuizOpen(true)} />
       
       {/* Routing Nodes */}
       {view === 'home' && (
         <HomeView 
           setView={setView}
-          openWaitlist={() => setIsWaitlistOpen(true)}
+          onScanProfile={() => setIsQuizOpen(true)}
         />
       )}
 
@@ -1219,6 +1216,7 @@ const App = () => {
       )}
 
       {/* Shared Modals */}
+      <TravelerQuiz isOpen={isQuizOpen} onClose={() => setIsQuizOpen(false)} setView={setView} />
       <WaitlistModal isOpen={isWaitlistOpen} onClose={() => setIsWaitlistOpen(false)} />
 
       {/* Sticky High-Urgency Floating Hotspot */}
@@ -1239,4 +1237,4 @@ const App = () => {
   );
 };
 
-export default App;  
+export default App;
