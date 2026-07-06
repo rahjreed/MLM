@@ -1,9 +1,9 @@
- import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 
 const BRAND_LOGO_URL = "https://images.travelprox.com/notimetoshare/notimetosharelogo.jpg";
 const HERO_BACKGROUND_IMAGE = "https://travorium.com/resort-on-top-2.jpg";
 
-// Video Asset Libraries
+// Video Asset Links
 const ORLANDO_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/1f0a8468-ea19-477a-8d6c-c3dcaf68df9d";
 const WELCOME_TRAVORIUM_URL = "https://player.mediadelivery.net/embed/587199/1d1b9589-cdc8-4408-a563-750df53f0e67";
 const HOW_IT_WORKS_URL = "https://player.mediadelivery.net/embed/587199/599f364c-36e1-4607-9993-b57e0c5906d1";
@@ -857,25 +857,36 @@ export default function App() {
 
               <div className="space-y-4">
                 <h1 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter text-white leading-[0.95]">
-                  The Hidden Cost of <br />
-                  <span className="bg-gradient-to-r from-[#FFC000] via-[#FFE28C] to-white bg-clip-text text-transparent">Retail Travel Portals</span>
+                  Are You Paying Double For Vacations <br />
+                  <span className="bg-gradient-to-r from-[#FFC000] via-[#FFE28C] to-white bg-clip-text text-transparent">Without Realizing It?</span>
                 </h1>
-                <p className="text-slate-200 text-sm sm:text-base md:text-lg font-bold leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                  Most travelers believe travel portals like Expedia, Booking.com, or Priceline find them the absolute lowest price. That is a calculated retail illusion.
-                </p>
-                <p className="text-slate-300/90 text-xs sm:text-sm leading-relaxed max-w-2xl mx-auto lg:mx-0 font-semibold">
-                  Under standard retail listing agreements, public platforms are contractually bound to apply substantial consumer-facing markups (frequently <span className="text-[#FFC000] font-bold">50% to 70%</span>) to cover advertising, marketing, and affiliate distribution structures. Standard public bookings directly fund these platforms' billion-dollar corporate budgets.
-                </p>
               </div>
 
-              <div className="pt-2">
-                <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-start space-x-3 text-left max-w-xl mx-auto lg:mx-0 shadow-sm backdrop-blur-sm">
-                  <Icon name="shieldCheck" className="w-5 h-5 text-[#FFC000] shrink-0 mt-0.5" />
-                  <p className="text-xs text-slate-300 font-semibold leading-relaxed">
-                    <strong className="text-[#FFE28C]">The Public Markup Rules:</strong> Hotels are legally prohibited from displaying deep discount rates publicly. As a result, standard consumer bookings carry massive premium markups simply due to public channel regulations.
+              {/* Elegant Inline Orlando Video proof right after headline */}
+              <div className="bg-white rounded-3xl p-4 border border-slate-100 shadow-2xl relative overflow-hidden group text-left my-4">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#EBF3FF] rounded-full filter blur-xl" />
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                  <span className="text-[10px] font-black text-[#002F6C] tracking-widest font-mono uppercase">Direct Proof: Orlando Trip</span>
+                  <span className="text-[9px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded font-black uppercase tracking-wider">Verified Stay</span>
+                </div>
+                <div className="space-y-3 pt-3">
+                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-md bg-slate-950 border border-slate-200">
+                    <iframe 
+                      src={ORLANDO_VIDEO_URL} 
+                      className="w-full h-full absolute inset-0 border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowFullScreen
+                    />
+                  </div>
+                  <p className="text-xs text-slate-600 font-semibold leading-relaxed">
+                    Watch how we paid <strong className="text-[#002F6C]">just over $300</strong> for an 8-day stay in a massive 1,300 sq. ft. resort villa!
                   </p>
                 </div>
               </div>
+
+              <p className="text-slate-200 text-sm sm:text-base md:text-lg font-bold leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                Most people pay twice as much for the exact same hotel rooms, suites, and resorts. We use a private member travel marketplace that's unavailable on public booking sites. This lets you skip normal markups and get direct, real prices.
+              </p>
 
               <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                 <ActionButton 
@@ -892,31 +903,24 @@ export default function App() {
               </div>
             </div>
 
-            {/* Elegant Right-Hand Column displaying our Orlando Video proof with direct inline embed & surrounding overlays */}
             <div className="lg:col-span-6">
               <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-2xl relative overflow-hidden group text-left">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-[#EBF3FF] rounded-full filter blur-xl" />
                 
                 <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                  <span className="text-[10px] font-black text-[#002F6C] tracking-widest font-mono uppercase">Direct Proof: latest Trip</span>
-                  <span className="text-[9px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded font-black uppercase tracking-wider">Verified Stay</span>
+                  <span className="text-[10px] font-black text-[#002F6C] tracking-widest font-mono uppercase">Private Sourcing</span>
+                  <Icon name="lock" className="w-5 h-5 text-[#002F6C]" />
                 </div>
 
                 <div className="space-y-4 pt-4">
-                  {/* High Quality Inline Video Player Container */}
-                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-md bg-slate-950 border border-slate-200">
-                    <iframe 
-                      src={ORLANDO_VIDEO_URL} 
-                      className="w-full h-full absolute inset-0 border-0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                      allowFullScreen
-                    />
-                  </div>
+                  <p className="text-sm text-slate-600 font-semibold leading-relaxed">
+                    Standard sites are legally forced to hide low prices from the public. Our private system bypasses these rules entirely, letting you book standard resort suites at direct wholesale cost.
+                  </p>
 
                   <div className="p-4 bg-[#EBF3FF] rounded-xl border border-[#002F6C]/10 text-left space-y-1">
-                    <span className="text-[10px] font-black uppercase text-[#002F6C] block leading-none">Orlando Wholesale Cost File</span>
+                    <span className="text-[10px] font-black uppercase text-[#002F6C] block leading-none">Market Legitimacy File</span>
                     <p className="text-xs text-slate-600 font-semibold leading-relaxed">
-                      Watch how we paid <strong className="text-[#002F6C]">a little over $300</strong> for 8 days and 7 nights at the largest resort in the world! See direct screen recording logs of our actual member pricing checkout in the video player above.
+                      We connect your search parameters directly into real-time vacation inventories with no extra retail markups.
                     </p>
                   </div>
                 </div>
@@ -927,6 +931,7 @@ export default function App() {
         </div>
       </section>
 
+      {}
       {/* Evaluation Zone featuring our 1-Minute Diagnostic & Live Ticker */}
       <section id="diagnostic-portal" className="py-20 bg-[#F5F7FA] relative z-10 overflow-hidden border-b border-slate-150">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#EBF3FF] rounded-full filter blur-[120px] pointer-events-none" />
@@ -963,10 +968,10 @@ export default function App() {
               <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-[#002F6C] font-mono">PORTAL REGISTRATION ENTRY</span>
             </div>
             <h2 className="text-3xl sm:text-5xl md:text-5xl font-black uppercase tracking-tighter text-[#002F6C] leading-none">
-              See If You Can Get Cheap Rates & <br />Claim $25 Travel Credit
+              Find out how much money you're wasting on travel
             </h2>
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-xl mx-auto font-semibold">
-              Because direct wholesale rate tables cannot be published to the open public, you must run our brief 60-second check to verify your travel profile style and activate your gateway access keys.
+              See if you're overpaying for travel and unlock a $25 travel credit if you qualify. Take our short check to find out.
             </p>
           </div>
 
@@ -975,7 +980,7 @@ export default function App() {
             <div className="p-4 bg-white border border-slate-150 rounded-2xl space-y-1 shadow-sm">
               <span className="block text-[#002F6C] font-black text-sm tracking-widest font-mono">01. PROFILE</span>
               <span className="block text-slate-800 text-xs font-bold uppercase leading-tight">Verify Volume Compatibility</span>
-              <p className="text-[10px] text-slate-500 leading-normal">Ensures your vacation style fits direct wholesale connections.</p>
+              <p className="text-[10px] text-slate-500 leading-normal">Ensures your vacation style fits direct private marketplace connections.</p>
             </div>
             <div className="p-4 bg-white border border-slate-150 rounded-2xl space-y-1 shadow-sm">
               <span className="block text-[#002F6C] font-black text-sm tracking-widest font-mono">02. REWARD</span>
@@ -1002,6 +1007,7 @@ export default function App() {
         </div>
       </section>
 
+      {}
       {/* Private Sourcing Direct-to-Consumer Narrative */}
       <section id="private-directory" className="py-20 md:py-32 bg-white border-b border-slate-100 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -1072,10 +1078,10 @@ export default function App() {
                   <span className="bg-gradient-to-r from-[#002F6C] to-[#0052C2] bg-clip-text text-transparent">Direct-to-Consumer</span>
                 </h2>
                 <p className="text-slate-600 text-sm sm:text-base md:text-lg font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                  Bypass commercial travel websites. Gain direct access to raw travel wholesaler inventories with rates up to <strong className="text-[#002F6C]">70% lower</strong> on vetted 4 and 5-star properties globally.
+                  Bypass standard booking pages entirely. This direct pipeline passes raw costs straight to verified profiles, letting you get travel for up to 70% less.
                 </p>
                 <p className="text-slate-500 text-xs sm:text-sm leading-relaxed max-w-2xl mx-auto lg:mx-0 font-medium">
-                  We integrate closed-loop rate channels, powered by Travorium partner databases. Because these settings are held under secure private member portal classifications, we can pass raw costs straight to verified members, circumventing standard commercial retail indexing laws.
+                  We integrate closed-loop rate channels. Because these settings are held under secure private directory classifications, we can pass raw costs straight to verified users without inflating any base-rate costs.
                 </p>
               </ScrollReveal>
 
@@ -1083,7 +1089,7 @@ export default function App() {
                 <div className="p-4 bg-white border border-slate-100 rounded-2xl flex items-start space-x-3 text-left max-w-xl mx-auto lg:mx-0 shadow-sm">
                   <Icon name="shieldCheck" className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                   <p className="text-xs text-slate-600 font-semibold leading-relaxed">
-                    <strong className="text-slate-800">The Sourcing System:</strong> Closed-portal validation permits hotels to offload excess rooms quietly. Our members enjoy full property benefits without incurring standard booking markups.
+                    <strong className="text-slate-800">The Sourcing System:</strong> Closed-portal validation permits hotels to offload excess rooms quietly. You get full property benefits without incurring booking markup fees.
                   </p>
                 </div>
               </ScrollReveal>
@@ -1107,6 +1113,7 @@ export default function App() {
         </div>
       </section>
 
+      {}
       {/* Audited Pricing Real-Time Sourcing Table */}
       <section id="comparisons" className="py-20 md:py-32 bg-white border-b border-slate-100 relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1120,7 +1127,7 @@ export default function App() {
               Identical Properties. Identical Dates. <br />Different Price Universes.
             </h2>
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto font-medium">
-              We audited actual rates live on public retail channels against our private wholesale directory for identical guest dates and suite configurations.
+              We audited actual rates live on public booking sites against our private directory for identical guest dates and suite configurations.
             </p>
             
             {/* Interactive Location Tab selector */}
@@ -1185,7 +1192,7 @@ export default function App() {
                   <div className="bg-[#EBF3FF] p-5 rounded-2xl border border-[#002F6C]/10 flex flex-col justify-between relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-2 h-2 bg-[#FFC000] rounded-bl-xl" />
                     <div className="space-y-1">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-[#002F6C] block">Wholesale Sourced API</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-[#002F6C] block">Private Marketplace Sourced</span>
                       <span className="text-xs font-black text-[#002F6C] uppercase tracking-tight block">No Time To Share Directory</span>
                     </div>
                     <div className="pt-6">
@@ -1222,7 +1229,7 @@ export default function App() {
                     variant="primary" 
                     className="w-full text-xs py-4 text-[#002F6C]"
                   >
-                    <span>Find Out What You Can Save</span>
+                    <span>See If You Can Get Cheap Rates</span>
                     <Icon name="arrowUpRight" className="w-4 h-4 shrink-0" />
                   </ActionButton>
                 </div>
@@ -1235,6 +1242,7 @@ export default function App() {
         </div>
       </section>
 
+      {}
       {/* Global Brand Footer */}
       <footer className="bg-[#001D45] py-12 relative z-10 text-slate-400 text-left border-t border-slate-800 font-sans">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1249,7 +1257,7 @@ export default function App() {
               />
               <div>
                 <span className="text-xs font-black text-white tracking-widest uppercase block">NO TIME TO SHARE</span>
-                <span className="text-[9px] font-semibold text-slate-300 block leading-none">Private Wholesale Travel Broker</span>
+                <span className="text-[9px] font-semibold text-slate-300 block leading-none">Private Sourcing Travel Broker</span>
               </div>
             </div>
 
