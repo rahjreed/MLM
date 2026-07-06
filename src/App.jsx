@@ -827,7 +827,7 @@ export default function App() {
     return () => { document.head.removeChild(styleTag); };
   }, []);
 
-  // Scroll listener to activate minimized header transitions
+  // Scroll listener to activate minimized header transitions and handle fixed sticky changes
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 30) {
@@ -845,11 +845,10 @@ export default function App() {
   }, [selectedDestination]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-[#FFC000] selection:text-[#002F6C] antialiased overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-[#FFC000] selection:text-[#002F6C] antialiased">
       
-      {/* Brand Nav Header matching the "No Time To Share" Blue & Gold Logo */}
-      {}
-      <nav className={`sticky top-0 z-50 border-b border-white/10 transition-all duration-300 ${
+      {/* Brand Nav Header matching the "No Time To Share" Blue & Gold Logo - Bulletproof Fixed Positioning */}
+      <nav className={`fixed top-0 left-0 right-0 w-full z-50 border-b border-white/10 transition-all duration-300 ${
         scrolled 
           ? 'bg-[#001D45]/95 backdrop-blur-md py-2 shadow-lg' 
           : 'bg-[#002F6C] py-4 shadow-md'
@@ -920,9 +919,8 @@ export default function App() {
         )}
       </nav>
 
-      {/* Hero Section: Sourcing & Pricing Leak Exposure */}
-      {}
-      <section id="rates-mismatch" className="relative py-20 md:py-28 bg-[#002F6C] overflow-hidden border-b border-slate-100">
+      {/* Hero Section: Sourcing & Pricing Leak Exposure - Height Offset Added to support Fixed Header */}
+      <section id="rates-mismatch" className="relative pt-32 pb-20 md:pt-44 md:pb-28 bg-[#002F6C] overflow-hidden border-b border-slate-100">
         {/* Underlay textured background image */}
         <div className="absolute inset-0 opacity-15 bg-cover bg-center pointer-events-none z-0" style={{ backgroundImage: `url(${HERO_BACKGROUND_IMAGE})` }} />
         {/* Soft, deep Royal Blue overlay for crisp text readability */}
@@ -934,7 +932,7 @@ export default function App() {
             <div className="lg:col-span-6 space-y-6 md:space-y-8 text-center lg:text-left">
               <div className="inline-flex items-center space-x-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full shadow-sm backdrop-blur-sm">
                 <Icon name="info" className="w-4 h-4 text-[#FFC000]" />
-                <span className="text-[10px] sm:text-xs font-black text-[#FFE28C] tracking-widest uppercase font-mono font-bold">HIGH COST OF RETAIL TRAVEL</span>
+                <span className="text-[10px] sm:text-xs font-black text-[#FFE28C] tracking-widest uppercase font-mono mt-0.5">HIGH COST OF RETAIL TRAVEL</span>
               </div>
 
               <div className="space-y-4">
@@ -1014,7 +1012,6 @@ export default function App() {
       </section>
 
       {/* Ticker integration within the evaluation scanner panel */}
-      {}
       <section id="diagnostic-portal" className="py-20 bg-[#F5F7FA] relative z-10 overflow-hidden border-b border-slate-150">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#EBF3FF] rounded-full filter blur-[120px] pointer-events-none" />
         
@@ -1323,7 +1320,6 @@ export default function App() {
       </section>
 
       {/* Global Footer */}
-      {}
       <footer className="bg-[#001D45] py-12 relative z-10 text-slate-400 text-left border-t border-slate-800 font-sans">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between border-b border-slate-800 pb-8 gap-6">
