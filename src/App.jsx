@@ -1,86 +1,73 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { 
-  Globe,
-  Camera,
-  Star, 
-  ShieldCheck,
-  Clock,
-  Plane,
-  Palmtree,
-  MapPin,
-  Sun,
-  Search,
-  Calendar,
-  Users,
-  Building2,
-  ArrowUpRight,
-  Info,
-  Navigation,
-  Ship,
-  TrendingUp,
-  MoveRight,
-  Key,
-  Code,
-  Lock,
-  X,
-  AlertCircle,
-  Timer,
-  PlayCircle,
-  CheckCircle2,
-  ChevronRight,
-  Flame,
-  Sparkles,
-  Zap,
-  Layout,
-  UserCheck,
-  Wand2,
-  Award,
-  Gift,
-  Ticket,
-  Check,
-  Volume2,
-  Menu,
-  Copy
-} from 'lucide-react';
+ import React, { useState, useEffect, useRef, useMemo } from 'react';
 
 const BRAND_LOGO_URL = "https://images.travelprox.com/notimetoshare/notimetosharelogo.jpg";
-const OFFICIAL_HERO_IMAGE = "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80"; // Fallback luxury background
-const ALTERNATIVE_HERO_IMAGE = "https://images.travelprox.com/splash/villa.png";
+const HERO_BACKGROUND_IMAGE = "https://travorium.com/resort-on-top-2.jpg";
 
-const TESTIMONIAL_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/02956ab7-33a5-4f3b-8754-ef763a308f28";
-const PERKS_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/43d40616-b9b4-4efa-b54f-22d08d420e09";
-const DIAGNOSTIC_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/03a48a31-4610-4d41-b4fc-72f8f4a84af2";
+// Video Asset Libraries
+const ORLANDO_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/1f0a8468-ea19-477a-8d6c-c3dcaf68df9d";
+const WELCOME_TRAVORIUM_URL = "https://player.mediadelivery.net/embed/587199/1d1b9589-cdc8-4408-a563-750df53f0e67";
+const HOW_IT_WORKS_URL = "https://player.mediadelivery.net/embed/587199/599f364c-36e1-4607-9993-b57e0c5906d1";
+const HOW_TO_SIGN_UP_URL = "https://player.mediadelivery.net/embed/587199/eb1faa2b-68e5-4735-9fcb-978afd03f6a1";
 
 const TRAVORIUM_ENROLL_URL = "https://travorium.com/enroll.php?sponsor=376362";
 
-const DESTINATION_ASSETS = {
-  "Florida": "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80", // Miami beachfront
-  "New York": "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=80", // NYC Times Square
-  "Las Vegas": "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80", // Las Vegas Strip
-  "Cancun": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80"  // Cancun coast
+// Audited hotel data tables
+const COMPARATIVE_DATA = {
+  "Cancun": {
+    name: "Secrets The Vine Cancun - All Inclusive",
+    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+    roomType: "Deluxe Ocean View Double (All-Inclusive)",
+    dates: "Oct 12 - Oct 19 (7 Nights, 2 Adults)",
+    retailPrice: 3420,
+    wholesalePrice: 1680,
+    retailSource: "Expedia.com",
+    savingsPct: "51%",
+    perks: ["Free Premium Drinks", "No Extra Resort Fees", "All Meals Included", "Private Balcony with Beach View"]
+  },
+  "Florida": {
+    name: "1 Hotel South Beach, Miami",
+    image: "https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80",
+    roomType: "King Bed Retreat Studio",
+    dates: "Nov 04 - Nov 11 (7 Nights, 2 Adults)",
+    retailPrice: 5120,
+    wholesalePrice: 2490,
+    retailSource: "Booking.com",
+    savingsPct: "51%",
+    perks: ["Perfect Ocean View", "Free Welcome Drink", "Valet Parking Discount", "Rooftop Pool Access"]
+  },
+  "New York": {
+    name: "The Plaza Hotel, Fifth Avenue",
+    image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=800&q=80",
+    roomType: "Plaza King Luxury Suite",
+    dates: "Dec 08 - Dec 13 (5 Nights, 2 Adults)",
+    retailPrice: 6200,
+    wholesalePrice: 3100,
+    retailSource: "Hotels.com",
+    savingsPct: "50%",
+    perks: ["Personal Butler Service", "Free Hot Breakfast", "Free Spa Cash Credit", "Late Checkout Included"]
+  },
+  "Las Vegas": {
+    name: "The Venetian Resort Las Vegas",
+    image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80",
+    roomType: "Luxury King Suite (Strip View)",
+    dates: "Sep 18 - Sep 23 (5 Nights, 2 Adults)",
+    retailPrice: 1980,
+    wholesalePrice: 820,
+    retailSource: "Priceline.com",
+    savingsPct: "58%",
+    perks: ["No Resort Fees", "Free Room Upgrade If Available", "Free Valet Parking", "$100 Free Spa Cash"]
+  }
 };
 
 const SAVINGS_FEED = [
   { user: "Sarah J.", location: "Miami", saved: "$420", time: "1m ago" },
   { user: "Michael R.", location: "Cancun", saved: "$890", time: "3m ago" },
-  { user: "Elena W.", location: "NYC", saved: "$310", time: "1m ago" },
+  { user: "Elena W.", location: "NYC", saved: "$310", time: "5m ago" },
   { user: "David K.", location: "Vegas", saved: "$1,200", time: "8m ago" },
   { user: "Sophia L.", location: "Paris", saved: "$540", time: "12m ago" },
   { user: "Marcus T.", location: "Dubai", saved: "$2,100", time: "15m ago" },
   { user: "Julian M.", location: "Bali", saved: "$760", time: "18m ago" },
-  { user: "Aria V.", location: "London", saved: "$480", time: "21m ago" },
-  { user: "Chloe B.", location: "Rome", saved: "$390", time: "24m ago" },
-  { user: "Nathan S.", location: "Santorini", saved: "$1,150", time: "26m ago" },
-  { user: "Isabella G.", location: "Mykonos", saved: "$920", time: "29m ago" },
-  { user: "Liam P.", location: "Aspen", saved: "$630", time: "31m ago" },
-  { user: "Olivia H.", location: "Tulum", saved: "$410", time: "33m ago" },
-  { user: "Ethan W.", location: "Barcelona", saved: "$580", time: "35m ago" },
-  { user: "Mia C.", location: "Maldives", saved: "$2,450", time: "38m ago" },
-  { user: "Noah F.", location: "Amalfi", saved: "$1,340", time: "40m ago" },
-  { user: "Ava R.", location: "Ibiza", saved: "$720", time: "42m ago" },
-  { user: "Lucas D.", location: "Cabo", saved: "$850", time: "45m ago" },
-  { user: "Emma S.", location: "Zurich", saved: "$610", time: "47m ago" },
-  { user: "James K.", location: "Tokyo", saved: "$1,080", time: "50m ago" },
+  { user: "Aria V.", location: "London", saved: "$480", time: "21m ago" }
 ];
 
 const customStyles = `
@@ -90,11 +77,11 @@ const customStyles = `
     100% { transform: translateX(150%) skewX(-25deg); }
   }
   .animate-gloss {
-    animation: gloss-sweep 4s ease-in-out infinite;
+    animation: gloss-sweep 4.5s ease-in-out infinite;
   }
   @keyframes float {
     0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-10px) rotate(1deg); }
+    50% { transform: translateY(-6px) rotate(0.5deg); }
   }
   .animate-float {
     animation: float 6s ease-in-out infinite;
@@ -106,45 +93,156 @@ const customStyles = `
   .animate-scan {
     animation: scanline 3s linear infinite;
   }
-  @keyframes wiggle {
-    0%, 80%, 100% { transform: scale(1) rotate(0deg); }
-    82% { transform: scale(1.02) rotate(-3deg); }
-    84% { transform: scale(1.02) rotate(3deg); }
-    86% { transform: scale(1.02) rotate(-3deg); }
-    88% { transform: scale(1.02) rotate(3deg); }
-    90% { transform: scale(1) rotate(0deg); }
-  }
-  .animate-wiggle {
-    animation: wiggle 3.2s ease-in-out infinite;
-  }
   .glass-card {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 47, 108, 0.08);
+    box-shadow: 0 10px 30px -5px rgba(0, 47, 108, 0.08);
   }
-  .glass-card-dark {
-    background: rgba(15, 23, 42, 0.85);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+  .glow-blue {
+    box-shadow: 0 0 40px -5px rgba(0, 47, 108, 0.12);
   }
-  .gold-glow {
-    box-shadow: 0 0 50px -5px rgba(245, 158, 11, 0.25);
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
   }
-  .gold-glow-hover:hover {
-    box-shadow: 0 0 60px -5px rgba(245, 158, 11, 0.45);
-  }
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #0f172a;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #f59e0b;
-    border-radius: 4px;
+  .animate-marquee {
+    animation: marquee 35s linear infinite;
   }
 `;
+
+const Icon = ({ name, className = "w-5 h-5", ...props }) => {
+  const icons = {
+    flame: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+      </svg>
+    ),
+    zap: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+      </svg>
+    ),
+    shieldCheck: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <path d="m9 11 2 2 4-4" />
+      </svg>
+    ),
+    x: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
+      </svg>
+    ),
+    alertTriangle: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+        <line x1="12" y1="9" x2="12" y2="13" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    ),
+    info: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="16" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12.01" y2="8" />
+      </svg>
+    ),
+    moveRight: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <line x1="5" y1="12" x2="19" y2="12" />
+        <polyline points="12 5 19 12 12 19" />
+      </svg>
+    ),
+    alertCircle: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    ),
+    lock: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+    ),
+    globe: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <circle cx="12" cy="12" r="10" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+      </svg>
+    ),
+    sparkles: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+      </svg>
+    ),
+    mapPin: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
+    ),
+    checkCircle: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+      </svg>
+    ),
+    check: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    ),
+    arrowUpRight: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <line x1="7" y1="17" x2="17" y2="7" />
+        <polyline points="7 7 17 7 17 17" />
+      </svg>
+    ),
+    chevronRight: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <polyline points="9 18 15 12 9 6" />
+      </svg>
+    ),
+    menu: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    ),
+    gift: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <polyline points="20 12 20 22 4 22 4 12" />
+        <rect x="2" y="7" width="20" height="5" />
+        <line x1="12" y1="22" x2="12" y2="7" />
+        <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
+        <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
+      </svg>
+    ),
+    copy: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+      </svg>
+    ),
+    plane: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <path d="M21 16V8a2 2 0 0 0-2-2h-3.5l-4-4H9.5l1.5 4H7.5L5.5 4H3.5l1 4h-2a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h2l-1 4h2l2-2h3.5l-1.5 4h2l4-4H19a2 2 0 0 0 2-2z" />
+      </svg>
+    ),
+    play: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>
+        <polygon points="5 3 19 12 5 21 5 3" />
+      </svg>
+    )
+  };
+  return icons[name] || null;
+};
 
 const ScrollReveal = ({ children, className = "" }) => {
   const ref = useRef(null);
@@ -167,7 +265,7 @@ const ScrollReveal = ({ children, className = "" }) => {
     <div 
       ref={ref} 
       className={`transition-all duration-1000 ease-out ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       } ${className}`}
     >
       {children}
@@ -177,21 +275,20 @@ const ScrollReveal = ({ children, className = "" }) => {
 
 const ActionButton = ({ onClick, children, className = "", variant = "primary", noGloss = false, type = "button", disabled = false }) => {
   const styles = {
-    primary: "bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-500 hover:to-yellow-500 text-slate-950 font-black tracking-widest shadow-[0_4px_20px_rgba(245,158,11,0.3)] hover:shadow-[0_4px_25px_rgba(245,158,11,0.5)] border border-yellow-300/30", 
-    secondary: "bg-slate-950 hover:bg-black text-white border border-slate-800",
-    waitlist: "bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg shadow-orange-950/20",
-    orange: "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg shadow-orange-500/20",
-    outline: "bg-transparent border-2 border-slate-200 text-slate-700 hover:border-amber-500 hover:text-amber-600 hover:bg-amber-50/50"
+    primary: "bg-gradient-to-r from-[#FFC000] via-[#FFD043] to-[#FFB200] hover:from-[#FFB200] hover:to-[#FFA000] text-[#002F6C] font-black tracking-wider shadow-[0_4px_25px_rgba(255,192,0,0.35)] border border-[#FFE28C]/30", 
+    secondary: "bg-[#002F6C] hover:bg-[#001D45] text-white shadow-lg shadow-[#002f6c]/15 border border-[#002F6C]/10",
+    accent: "bg-[#FF5A5F] hover:bg-[#E04B50] text-white shadow-lg shadow-[#FF5A5F]/20",
+    outline: "bg-transparent border-2 border-[#002F6C] text-[#002F6C] hover:bg-[#002F6C]/5 hover:text-[#001D45]"
   };
 
-  const showGloss = !noGloss && (variant === 'primary' || variant === 'waitlist' || variant === 'orange');
+  const showGloss = !noGloss && (variant === 'primary' || variant === 'accent');
 
   return (
     <button 
       type={type}
       disabled={disabled}
       onClick={onClick} 
-      className={`relative overflow-hidden px-8 py-4 rounded-2xl font-black uppercase tracking-wider transition-all duration-300 active:scale-95 disabled:opacity-55 disabled:pointer-events-none flex items-center justify-center space-x-2 ${styles[variant]} ${className}`}
+      className={`relative overflow-hidden px-8 py-4 rounded-2xl font-black uppercase tracking-wider transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center space-x-2 ${styles[variant]} ${className}`}
     >
       {showGloss && (
         <div className="absolute inset-0 pointer-events-none">
@@ -205,8 +302,9 @@ const ActionButton = ({ onClick, children, className = "", variant = "primary", 
   );
 };
 
-const TravelerQuiz = ({ isOpen, onClose, setView }) => {
+const TravelerQuiz = ({ isOpen, onClose, setVideoModal }) => {
   const [step, setStep] = useState(1); // 1, 2, 3, 4, 'gated', 'results'
+  const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [answers, setAnswers] = useState({ q1: null, q2: null, q3: null, q4: null });
   const [leadName, setLeadName] = useState('');
   const [leadEmail, setLeadEmail] = useState('');
@@ -214,10 +312,10 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Automatic reset side-effect when modal is opened to prevent dead ends or state carrying over
   useEffect(() => {
     if (isOpen) {
       setStep(1);
+      setShowMoreInfo(false);
       setAnswers({ q1: null, q2: null, q3: null, q4: null });
       setLeadName('');
       setLeadEmail('');
@@ -228,49 +326,48 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
   const QUESTIONS = useMemo(() => [
     {
       id: 'q1',
-      title: "What does your typical vacation crew look like?",
-      subtitle: "Travel Group Dynamics (Filtering for Space Needs)",
+      title: "Who do you usually go on vacation with?",
+      subtitle: "Travel Group (Helps us find the right room sizes)",
       options: [
-        { key: 'A', text: "Just me, or traveling as a couple.", score: 1 },
-        { key: 'B', text: "Family travel with kids, or multi-generational groups.", score: 3 },
-        { key: 'C', text: "Group trips with friends or extended family.", score: 2 }
+        { key: 'A', text: "Just myself, or as a couple.", score: 1 },
+        { key: 'B', text: "With kids, parents, or grandparents.", score: 3 },
+        { key: 'C', text: "With a group of friends or cousins.", score: 2 }
       ]
     },
     {
       id: 'q2',
-      title: "When booking a place to stay, what is your baseline standard?",
-      subtitle: "Accommodation Standards (Filtering for Quality Preference)",
+      title: "What is your must-have standard for a hotel?",
+      subtitle: "Hotel Quality (Helps us match your style)",
       options: [
-        { key: 'A', text: "I just need a clean bed—standard roadside hotels or budget motels are fine.", score: 0, isQualifyOut: true },
-        { key: 'B', text: "Standard mid-tier hotels or random Airbnb rentals.", score: 1 },
-        { key: 'C', text: "4- and 5-star premium resorts with full amenities (pools, space, prime locations).", score: 3 }
+        { key: 'A', text: "Just a clean, cheap bed. Basic road motels are totally fine.", score: 0, isQualifyOut: true },
+        { key: 'B', text: "Normal middle-tier hotels or standard house rentals.", score: 1 },
+        { key: 'C', text: "Elite 4- and 5-star luxury resorts with pools and great views.", score: 3 }
       ]
     },
     {
       id: 'q3',
-      title: "Combined, how many total nights does your household spend on vacation per year?",
-      subtitle: "Annual Travel Footprint (Filtering for Volume)",
+      title: "How many total nights does your house spend on vacation each year?",
+      subtitle: "Yearly Travel Volume (Helps calculate bulk discounts)",
       options: [
-        { key: 'A', text: "1 to 4 nights (Quick weekend trips only).", score: 0 },
-        { key: 'B', text: "5 to 7 nights (Typically one solid week-long trip).", score: 2 },
-        { key: 'C', text: "8 to 14 nights (A major annual trip plus a few extended stays).", score: 3 },
-        { key: 'D', text: "15+ nights (We travel frequently throughout the year).", score: 4 }
+        { key: 'A', text: "1 to 4 nights (Just quick weekend trips).", score: 0 },
+        { key: 'B', text: "5 to 7 nights (About one solid week-long vacation).", score: 2 },
+        { key: 'C', text: "8 to 14 nights (One big trip plus a few small getaways).", score: 3 },
+        { key: 'D', text: "15 nights or more (We are on the road very often).", score: 4 }
       ]
     },
     {
       id: 'q4',
-      title: "On a typical week-long vacation, what does your household normally spend on lodging alone?",
-      subtitle: "Current Financial Footprint (Filtering for Spend)",
+      title: "On a normal 1-week trip, how much do you spend on rooms alone?",
+      subtitle: "Current Lodging Budget (Helps map markup relief)",
       options: [
-        { key: 'A', text: "Under $1,000", score: 0 },
+        { key: 'A', text: "Less than $1,000", score: 0 },
         { key: 'B', text: "$1,000 to $2,500", score: 1 },
         { key: 'C', text: "$2,500 to $5,000", score: 3 },
-        { key: 'D', text: "$5,000+", score: 4 }
+        { key: 'D', text: "Over $5,000", score: 4 }
       ]
     }
   ], []);
 
-  // Guaranteed boundary check for active index rendering to protect against race conditions
   const currentQuestion = useMemo(() => {
     if (typeof step === 'number' && step >= 1 && step <= QUESTIONS.length) {
       return QUESTIONS[step - 1];
@@ -318,7 +415,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
     }, 1200);
   };
 
-  const handleRewardClick = () => {
+  const handleRewardCopyAction = () => {
     const el = document.createElement('textarea');
     el.value = 'ROGREED';
     document.body.appendChild(el);
@@ -328,7 +425,7 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
     setCopied(true);
     setTimeout(() => {
       setCopied(false);
-      window.open("https://www.hoteltonight.com", "_blank");
+      window.open("https://t.me/+lweqGFqWXitmNGYx", "_blank");
     }, 1000);
   };
 
@@ -341,13 +438,13 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
     const totalPoints = scoreQ1 + scoreQ2 + scoreQ3 + scoreQ4;
     const isInstantQualifyOut = answers.q2?.isQualifyOut === true;
 
-    let path = 'A'; // Default Rejection (0-4 pts)
+    let path = 'A'; 
     if (isInstantQualifyOut) {
       path = 'A';
     } else if (totalPoints >= 8) {
-      path = 'B'; // Direct Contract Match (8+ pts)
+      path = 'B'; 
     } else if (totalPoints >= 5 && totalPoints <= 7) {
-      path = 'C'; // Hybrid Match (5-7 pts)
+      path = 'C'; 
     }
 
     return { totalPoints, path, isInstantQualifyOut };
@@ -356,67 +453,67 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex justify-center items-start overflow-y-auto bg-slate-950/95 backdrop-blur-xl p-3 sm:p-6 md:p-8 py-8 sm:py-16 animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-4xl rounded-[32px] sm:rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] border border-slate-200 overflow-hidden relative my-auto animate-in zoom-in-95 duration-300">
+    <div className="fixed inset-0 z-[200] flex justify-center items-start overflow-y-auto bg-slate-900/60 backdrop-blur-md p-3 sm:p-6 md:p-8 py-8 sm:py-16 animate-in fade-in duration-300">
+      <div className="bg-white w-full max-w-3xl rounded-3xl shadow-2xl border border-slate-100 overflow-hidden relative my-auto animate-in zoom-in-95 duration-300">
         
-        {/* Header / Brand Band */}
-        <div className="flex justify-between items-center px-6 md:px-12 py-5 md:py-6 border-b border-slate-100 bg-slate-50/50">
-          <div className="flex items-center space-x-3">
-            <div className="p-1.5 bg-amber-500 rounded-lg text-white">
-              <Plane className="w-4 h-4 animate-pulse" />
+        {/* Header Band */}
+        <div className="flex justify-between items-center px-6 md:px-12 py-5 border-b border-slate-100 bg-[#EBF3FF]/60">
+          <div className="flex items-center space-x-3 text-left">
+            <div className="p-1.5 bg-[#002F6C] rounded-lg text-white">
+              <Icon name="shieldCheck" className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 block leading-none">Diagnostic Vault</span>
-              <span className="text-xs font-black text-slate-800 uppercase tracking-widest mt-0.5 block font-mono">FITNESS ALGORITHM v3.0</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#002F6C]/80 block leading-none">Eligibility Check</span>
+              <span className="text-xs font-black text-slate-800 uppercase tracking-widest mt-0.5 block font-mono">RATE MATCHING SYSTEM</span>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-200/60 rounded-full transition-colors">
-            <X className="w-6 h-6 text-slate-500" />
+            <Icon name="x" className="w-6 h-6 text-slate-500" />
           </button>
         </div>
 
-        {/* Dynamic Progress Bar */}
+        {/* Progress bar */}
         {typeof step === 'number' && (
           <div className="w-full bg-slate-100 h-2 relative overflow-hidden">
-            <div className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-orange-500 to-amber-500 transition-all duration-300" style={{ width: `${(step / 4) * 100}%` }} />
+            <div className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-[#002F6C] to-[#0052C2] transition-all duration-300" style={{ width: `${(step / 4) * 100}%` }} />
             <div className="absolute top-0 bottom-0 w-20 bg-white/40 skew-x-12 animate-scan" style={{ left: `${((step / 4) * 100) - 10}%` }} />
           </div>
         )}
 
-        <div className="relative">
-          {/* MULTIPLE CHOICE STEP SYSTEM */}
+        <div className="relative text-left font-sans text-slate-800">
+          {/* Multiple choice section */}
           {typeof step === 'number' && currentQuestion && (
-            <div className="p-6 sm:p-10 md:p-14 space-y-8 animate-in fade-in-50 duration-500">
-              <div className="text-center md:text-left space-y-2">
-                <span className="inline-block text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-200/50 px-3 py-1 rounded-full uppercase tracking-[0.4em]">Section {step} of 4</span>
-                <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1">{currentQuestion.subtitle}</span>
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-950 uppercase tracking-tighter leading-tight mt-2">
+            <div className="p-6 sm:p-10 md:p-12 space-y-8 animate-in fade-in duration-300">
+              <div className="space-y-2">
+                <span className="inline-block text-[10px] font-black text-[#002F6C] bg-[#EBF3FF] border border-[#002F6C]/20 px-3 py-1 rounded-full uppercase tracking-[0.3em]">Section {step} of 4</span>
+                <span className="block text-[11px] font-bold text-[#002F6C]/70 uppercase tracking-widest mt-1">{currentQuestion.subtitle}</span>
+                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase tracking-tight leading-tight mt-1">
                   {currentQuestion.title}
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 pt-2">
-                {currentQuestion.options && currentQuestion.options.map((option) => {
+              <div className="grid grid-cols-1 gap-3 pt-2">
+                {currentQuestion.options.map((option) => {
                   const isSelected = answers[`q${step}`]?.key === option.key;
                   return (
                     <button
                       key={`${currentQuestion.id}-${option.key}`}
                       onClick={() => handleOptionSelect(option)}
                       disabled={isTransitioning}
-                      className={`group text-left p-6 rounded-2xl border-2 transition-all duration-300 active:scale-[0.98] flex items-start space-x-4 ${
+                      className={`group text-left p-5 rounded-2xl border-2 transition-all duration-300 active:scale-[0.99] flex items-start space-x-4 ${
                         isSelected 
-                          ? 'border-amber-500 bg-amber-50/50 text-slate-950 shadow-lg shadow-amber-500/5' 
-                          : 'border-slate-100 bg-slate-50/70 hover:border-amber-400 hover:bg-white text-slate-700 hover:shadow-md'
+                          ? 'border-[#002F6C] bg-[#EBF3FF]/40 text-slate-900 shadow-sm' 
+                          : 'border-slate-100 bg-slate-50/70 hover:border-[#002F6C]/30 hover:bg-white text-slate-700 hover:shadow-sm'
                       }`}
                     >
-                      <span className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shrink-0 transition-all ${
+                      <span className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-xs shrink-0 transition-all ${
                         isSelected 
-                          ? 'bg-slate-950 text-white scale-110' 
-                          : 'bg-white border border-slate-200 text-slate-400 group-hover:bg-amber-400 group-hover:text-slate-950'
+                          ? 'bg-[#002F6C] text-white' 
+                          : 'bg-white border border-slate-200 text-slate-400 group-hover:bg-[#002F6C] group-hover:text-white'
                       }`}>
                         {option.key}
                       </span>
-                      <span className="font-bold text-sm md:text-base pt-0.5 leading-snug">
+                      <span className="font-bold text-sm md:text-base leading-snug">
                         {option.text}
                       </span>
                     </button>
@@ -426,78 +523,72 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
             </div>
           )}
 
-          {/* GATED VIEW WITH COMPLETE BLUR OVERLAY */}
+          {/* Gated Lead Capture layout */}
           {step === 'gated' && (
-            <div className="relative min-h-[500px]">
-              
-              {/* Blurred Background Mock Result Layout */}
-              <div className="p-6 sm:p-10 md:p-14 space-y-10 filter blur-xl select-none pointer-events-none opacity-40">
+            <div className="relative min-h-[450px]">
+              <div className="p-8 space-y-8 filter blur-lg select-none pointer-events-none opacity-20">
                 <div className="bg-red-50 border-4 border-red-500/80 rounded-3xl p-6 text-center">
-                  <h3 className="text-2xl font-black text-red-700 uppercase">SYSTEM DIAGNOSTIC COMPLETE</h3>
+                  <h3 className="text-2xl font-black text-red-700">PROFILE CHECK SYSTEM DONE</h3>
                 </div>
                 <div className="bg-slate-950 p-8 rounded-3xl h-44"></div>
-                <div className="aspect-video w-full bg-slate-200 rounded-[32px]"></div>
               </div>
 
-              {/* Clean Foreground Lead Gate Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6 md:p-8">
-                <div className="bg-white rounded-[32px] sm:rounded-[40px] max-w-xl w-full p-6 sm:p-10 shadow-[0_24px_64px_rgba(0,0,0,0.25)] border border-slate-100 text-center space-y-8 animate-in zoom-in-95 duration-500">
+              <div className="absolute inset-0 flex items-center justify-center p-4">
+                <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-center space-y-6">
                   {isSubmitting ? (
                     <div className="flex flex-col items-center justify-center space-y-6 py-12">
                       <div className="relative">
-                        <div className="w-16 h-16 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
-                        <Plane className="w-6 h-6 text-amber-500 absolute inset-0 m-auto animate-pulse" />
+                        <div className="w-16 h-16 border-4 border-[#002F6C] border-t-transparent rounded-full animate-spin" />
+                        <Icon name="plane" className="w-6 h-6 text-[#002F6C] absolute inset-0 m-auto animate-pulse" />
                       </div>
-                      <div className="space-y-2">
-                        <span className="block text-[11px] font-black uppercase tracking-[0.3em] text-amber-600 animate-pulse">CALCULATING TRAVEL PORTAL FIT</span>
-                        <span className="block text-slate-400 font-bold text-xs uppercase tracking-widest">Compiling membership value index...</span>
+                      <div className="space-y-1">
+                        <span className="block text-[10px] font-black uppercase tracking-[0.3em] text-[#002F6C] animate-pulse">GENERATING WHOLESALE CONTRACT TOKEN</span>
+                        <span className="block text-slate-400 font-bold text-xs uppercase tracking-widest">Cross-referencing active rates databases...</span>
                       </div>
                     </div>
                   ) : (
                     <>
-                      <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 mx-auto border border-amber-100 shadow-inner animate-float">
-                        <Gift className="w-8 h-8" />
+                      <div className="w-14 h-14 bg-[#EBF3FF] rounded-2xl flex items-center justify-center text-[#002F6C] mx-auto border border-[#002F6C]/10">
+                        <Icon name="gift" className="w-7 h-7" />
                       </div>
-                      <div className="space-y-3">
-                        <span className="inline-block text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100/50 px-3.5 py-1 rounded-full uppercase tracking-widest">
-                          🎁 Instantly Claim $25 Travel Reward
+                      <div className="space-y-2">
+                        <span className="inline-block text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100/50 px-3 py-1 rounded-full uppercase tracking-wider">
+                          🎁 Guaranteed $25 Reward Unlocked
                         </span>
-                        <h2 className="text-2xl sm:text-3.5xl font-black text-slate-950 uppercase tracking-tighter leading-tight">
-                          Your custom travel math breakdown is ready!
-                        </h2>
-                        <p className="text-slate-500 font-medium text-xs sm:text-sm leading-relaxed max-w-md mx-auto">
-                          Enter your email below to instantly unlock your travel match report and claim your free $25 reward.
+                        <h3 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">
+                          See Your Rate Matching Score
+                        </h3>
+                        <p className="text-slate-500 font-medium text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+                          Enter your details below to calculate your customized wholesale savings score and claim your $25 HotelTonight reward voucher code.
                         </p>
                       </div>
 
-                      <form onSubmit={handleLeadSubmit} className="space-y-4 text-left">
-                        <div className="space-y-3">
-                          <div className="space-y-1">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 pl-1">Full Legal Name</label>
-                            <input 
-                              required
-                              type="text" 
-                              placeholder="First & Last Name" 
-                              value={leadName}
-                              onChange={(e) => setLeadName(e.target.value)}
-                              className="w-full h-12 bg-slate-50 rounded-xl px-4 outline-none border-2 border-slate-100 focus:border-amber-400 focus:bg-white text-slate-900 font-bold text-sm transition-all" 
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 pl-1">Confidential Delivery Email</label>
-                            <input 
-                              required
-                              type="email" 
-                              placeholder="name@domain.com" 
-                              value={leadEmail}
-                              onChange={(e) => setLeadEmail(e.target.value)}
-                              className="w-full h-12 bg-slate-50 rounded-xl px-4 outline-none border-2 border-slate-100 focus:border-amber-400 focus:bg-white text-slate-900 font-bold text-sm transition-all" 
-                            />
-                          </div>
+                      <form onSubmit={handleLeadSubmit} className="space-y-3 max-w-md mx-auto text-left">
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-[#002F6C] tracking-wider mb-1">First & Last Name</label>
+                          <input 
+                            type="text" 
+                            required 
+                            value={leadName}
+                            onChange={(e) => setLeadName(e.target.value)}
+                            placeholder="John Doe" 
+                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#002F6C] font-semibold text-sm bg-slate-50"
+                          />
                         </div>
-                        
-                        <ActionButton type="submit" variant="orange" className="w-full py-4 text-xs sm:text-sm uppercase font-black tracking-widest">
-                          See My Results & Claim Reward
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-[#002F6C] tracking-wider mb-1">Primary Email Address</label>
+                          <input 
+                            type="email" 
+                            required 
+                            value={leadEmail}
+                            onChange={(e) => setLeadEmail(e.target.value)}
+                            placeholder="john@example.com" 
+                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#002F6C] font-semibold text-sm bg-slate-50"
+                          />
+                        </div>
+                        <ActionButton type="submit" variant="primary" className="w-full py-3.5 text-xs mt-2 text-[#002F6C]">
+                          <span>Show Me My Score & $25 Gift</span>
+                          <Icon name="arrowUpRight" className="w-4 h-4" />
                         </ActionButton>
                       </form>
                     </>
@@ -507,275 +598,151 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
             </div>
           )}
 
-          {/* UNLOCKED SYSTEM RESULTS */}
-          {}
+          {/* Quiz results layouts */}
           {step === 'results' && (
-            <div className="p-6 sm:p-10 md:p-14 space-y-8 md:space-y-10 animate-in fade-in duration-500">
-              
-              {evaluationResult.path === 'A' && (
-                /* PATH A - RETAIL OPTIMIZED HIGH INTEGRITY REJECTION */
-                <div className="space-y-8 animate-in zoom-in-95 duration-500">
-                  <div className="bg-orange-50 border-2 sm:border-4 border-orange-500/80 rounded-2xl sm:rounded-3xl p-6 text-center shadow-lg relative overflow-hidden">
-                    <div className="absolute top-0 left-0 bottom-0 w-2 bg-orange-600" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-orange-800">FITNESS STATUS: RETAIL OPTIMIZED</span>
-                    <h3 className="text-xl sm:text-2xl md:text-3.5xl font-black text-orange-950 tracking-tighter uppercase leading-tight mt-1">
-                      Assessment Complete: Maintain Current Booking Strategy
-                    </h3>
+            <div className="p-6 sm:p-10 md:p-12 space-y-6">
+              {evaluationResult.path === 'A' ? (
+                /* Celebration Denial State (They Still Won!) */
+                <div className="space-y-6 max-w-lg mx-auto text-center">
+                  <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 mx-auto border border-emerald-200 shadow-md animate-bounce">
+                    <Icon name="gift" className="w-8 h-8" />
                   </div>
-
-                  <div className="bg-white border-2 border-slate-200/60 text-slate-900 rounded-3xl p-6 sm:p-8 space-y-4">
-                    <p className="text-slate-700 font-semibold text-sm sm:text-base leading-relaxed">
-                      Based on your vacation footprint, our private wholesale network is not a good financial fit for your household. Because you typically favor short weekend stays or budget-focused accommodations, standard public platforms like Expedia or Booking.com will actually yield the lowest net cost for you.
-                    </p>
-                    <p className="text-slate-600 font-bold text-xs sm:text-sm leading-relaxed">
-                      We refuse to sell access to platforms that people won't fully optimize. We recommend continuing with your current booking method to keep your overhead low. Thank you for running the math with us.
+                  <div className="space-y-1">
+                    <span className="text-xs font-black uppercase tracking-[0.25em] text-emerald-600 block">🎉 GOOD NEWS — YOU STILL WON!</span>
+                    <h3 className="text-2xl sm:text-3xl font-black text-slate-900 uppercase">Your $25 Reward Is Ready</h3>
+                    <p className="text-slate-500 font-medium text-xs sm:text-sm leading-relaxed max-w-md mx-auto">
+                      Your answers show you don't travel quite enough yet to need our full wholesale club rates. But don't worry! As a thank you for your time, we are still giving you a free $25 HotelTonight gift voucher!
                     </p>
                   </div>
 
-                  {/* Tailored Reward Gift Box */}
-                  <div className="bg-amber-50 border-2 border-amber-400/30 rounded-3xl p-6 sm:p-8 space-y-4">
-                    <div className="flex items-center space-x-3 text-amber-700">
-                      <Gift className="w-6 h-6 animate-pulse shrink-0" />
-                      <h4 className="text-lg font-black uppercase tracking-tight">Your Free Reward is Claimed!</h4>
-                    </div>
-                    <p className="text-slate-600 font-bold text-xs sm:text-sm leading-relaxed">
-                      Because we want to help you save anyway, use code <span className="text-amber-600 font-black">ROGREED</span> on the HotelTonight app to get <span className="text-slate-950 font-black">$25 off</span> your next booking of $135+!
-                    </p>
-                    
-                    <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-2xl border border-amber-200 shadow-inner max-w-md">
-                      <div className="flex-1 text-center sm:text-left">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">HotelTonight Code</span>
-                        <p className="text-2xl font-black text-slate-950 tracking-widest font-mono">ROGREED</p>
+                  {/* Redesigned Prominent Voucher Claim Box */}
+                  <div className="bg-gradient-to-br from-[#EBF3FF] via-[#F3F8FF] to-emerald-50/40 border-2 border-emerald-400 rounded-3xl p-6 text-left space-y-4 shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full filter blur-xl" />
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-[9px] font-black uppercase text-[#002F6C] block leading-none">FREE REWARD COMPLETED</span>
+                        <span className="text-sm font-black text-slate-800">HotelTonight $25 Voucher</span>
                       </div>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full font-black animate-pulse">ACTIVE</span>
+                    </div>
+                    
+                    <p className="text-xs text-slate-600 font-semibold leading-relaxed">
+                      Copy the custom voucher below and apply it inside your booking settings for an instant $25 credit on your next trip!
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                      <div className="bg-white border-2 border-slate-200 px-4 py-3 rounded-2xl font-mono text-base font-black text-slate-800 tracking-wider flex-grow flex items-center justify-between">
+                        <span>ROGREED</span>
+                        <button onClick={handleRewardCopyAction} className="text-slate-400 hover:text-[#002F6C] transition-colors">
+                          {copied ? <Icon name="check" className="w-5 h-5 text-emerald-500" /> : <Icon name="copy" className="w-5 h-5" />}
+                        </button>
+                      </div>
+                      
                       <button 
-                        onClick={handleRewardClick}
-                        className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black uppercase text-[10px] tracking-widest px-5 py-3.5 rounded-xl hover:from-teal-600 hover:to-emerald-500 transition-all flex items-center justify-center space-x-2 shrink-0 shadow-lg shadow-emerald-500/20 active:scale-95"
+                        onClick={handleRewardCopyAction} 
+                        className="relative overflow-hidden bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:to-teal-600 text-white font-black text-xs uppercase tracking-widest px-6 py-4 rounded-2xl shadow-[0_4px_20px_rgba(16,185,129,0.3)] transition-all active:scale-95 flex items-center justify-center space-x-2 shrink-0 border border-emerald-400/20"
                       >
-                        {copied ? <Check className="w-4 h-4 text-white" /> : <ArrowUpRight className="w-4 h-4 text-white" />}
-                        <span>{copied ? 'Copied! Opening HT' : 'Use on HotelTonight'}</span>
+                        <div className="absolute inset-0 pointer-events-none">
+                          <div className="w-[40%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent animate-gloss" />
+                        </div>
+                        <span className="relative z-10 flex items-center space-x-1.5">
+                          <span>{copied ? "Copied!" : "Claim My $25 Gift"}</span>
+                          <Icon name="arrowUpRight" className="w-4 h-4" />
+                        </span>
                       </button>
                     </div>
                   </div>
-                </div>
-              )}
-
-              {evaluationResult.path === 'B' && (
-                /* PATH B - THE QUALIFIED GREEN LIGHT */
-                <div className="space-y-8 animate-in zoom-in-95 duration-500">
-                  <div className="bg-emerald-50 border-2 sm:border-4 border-emerald-500/80 rounded-2xl sm:rounded-3xl p-6 text-center shadow-lg relative overflow-hidden">
-                    <div className="absolute top-0 left-0 bottom-0 w-2 bg-emerald-600" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-800">FITNESS REPORT SUCCESS</span>
-                    <h3 className="text-xl sm:text-2xl md:text-3.5xl font-black text-emerald-950 tracking-tighter uppercase leading-tight mt-1">
-                      Assessment Complete: Private Wholesale Match Verified
-                    </h3>
-                  </div>
-
-                  <div className="bg-slate-950 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 flex flex-col lg:flex-row items-center justify-between gap-6 relative overflow-hidden">
-                    <div className="absolute -top-12 -right-12 w-64 h-64 bg-amber-500/10 blur-[80px] rounded-full pointer-events-none" />
-                    <div className="text-center lg:text-left space-y-2 relative z-10 w-full lg:w-auto">
-                      <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">Authorized Account Profile</span>
-                      <h4 className="text-2xl sm:text-3xl font-black text-white tracking-tighter uppercase italic leading-none mt-2">
-                        The Institutional Voyager
-                      </h4>
-                      <p className="text-slate-400 font-medium text-xs sm:text-sm lg:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed mt-1">
-                        "Your results show a severe Vacation Waste Variance. Because your household prioritizes multi-day, 4-to-5-star resort environments for family or group travel, you are currently paying an estimated 40% to 60% markup by using public retail booking engines.
-                        You do not need to alter how you travel; you simply need to change the door you walk through. Your profile qualifies for direct, contract-free access to unused institutional resort inventory."
-                      </p>
-                    </div>
-                    <div className="bg-gradient-to-br from-amber-400 to-amber-500 p-5 md:p-6 rounded-2xl sm:rounded-3xl text-slate-950 font-black text-center shrink-0 w-full sm:w-auto min-w-[220px] shadow-2xl relative z-10 border border-amber-300">
-                      <span className="block text-[10px] uppercase tracking-widest opacity-85">Vacation Index Level</span>
-                      <span className="text-2xl sm:text-3xl block mt-1 tracking-tight">HIGH-MATCH</span>
-                    </div>
-                  </div>
-
-                  {/* Mathematical System Walkthrough Video */}
-                  <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-2 border-b border-slate-100 pb-3">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">SECURE SYSTEM VIDEO ANALYSIS</span>
-                      <div className="flex items-center space-x-2 bg-green-50 text-green-700 px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase border border-green-100">
-                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping" />
-                        <span>Walkthrough Initialized</span>
-                      </div>
-                    </div>
-                    <p className="text-slate-500 font-semibold text-xs sm:text-sm leading-relaxed max-w-2xl">
-                      Watch the quick back-office video walkthrough below to see exactly how our wholesale math lets you secure major 8-day resort stays for a fraction of retail booking rates:
-                    </p>
-                    <div className="relative aspect-video w-full rounded-2xl md:rounded-[32px] overflow-hidden border-4 md:border-8 border-slate-950 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.8)] bg-black gold-glow animate-in slide-in-from-bottom-6 duration-700">
-                      <iframe 
-                        src={DIAGNOSTIC_VIDEO_URL} 
-                        className="w-full h-full"
-                        loading="lazy" 
-                        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
-                        allowFullScreen
-                      />
-                    </div>
-
-                    {/* REDIRECT ACTION BOX */}
-                    <div className="bg-amber-400/10 border-2 border-amber-400/20 p-5 rounded-2xl sm:rounded-3xl mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                      <div className="space-y-1 text-center sm:text-left">
-                        <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block">Direct Action Required</span>
-                        <p className="text-slate-900 font-bold text-xs sm:text-sm leading-snug">
-                          We have routed your qualification credentials to our private booking engine, Travel Pro X. Click below to view live, contract-free wholesale rates for 1,300+ sq ft premium resort villas.
-                        </p>
-                      </div>
-                      <ActionButton 
-                        variant="primary" 
-                        className="py-4 px-8 text-xs uppercase tracking-wider shrink-0 w-full sm:w-auto" 
-                        onClick={() => {
-                          onClose();
-                          setView('presentation');
-                        }}
-                      >
-                        Access Wholesale Inventory via Travel Pro X
-                      </ActionButton>
-                    </div>
-                  </div>
-
-                  {/* Tailored Reward Gift Box */}
-                  <div className="bg-amber-50 border-2 border-amber-400/30 rounded-3xl p-6 sm:p-8 space-y-4">
-                    <div className="flex items-center space-x-3 text-amber-700">
-                      <Gift className="w-6 h-6 animate-pulse shrink-0" />
-                      <h4 className="text-lg font-black uppercase tracking-tight">Thanks for checking your match!</h4>
-                    </div>
-                    <p className="text-slate-600 font-bold text-xs sm:text-sm leading-relaxed">
-                      To help you start saving instantly, click below to automatically copy the code <span className="text-amber-600 font-black">ROGREED</span> and open HotelTonight to claim <span className="text-slate-950 font-black">$25 off</span> your next booking of $135+!
-                    </p>
-                    
-                    <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-2xl border border-amber-200 shadow-inner max-w-md">
-                      <div className="flex-1 text-center sm:text-left">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">HotelTonight Code</span>
-                        <p className="text-2xl font-black text-slate-950 tracking-widest font-mono">ROGREED</p>
-                      </div>
-                      <button 
-                        onClick={handleRewardClick}
-                        className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black uppercase text-[10px] tracking-widest px-5 py-3.5 rounded-xl hover:from-teal-600 hover:to-emerald-500 transition-all flex items-center justify-center space-x-2 shrink-0 shadow-lg shadow-emerald-500/20 active:scale-95"
-                      >
-                        {copied ? <Check className="w-4 h-4 text-white" /> : <ArrowUpRight className="w-4 h-4 text-white" />}
-                        <span>{copied ? 'Copied! Opening HT' : 'Use on HotelTonight'}</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {evaluationResult.path === 'C' && (
-                /* PATH C - HYBRID / CONDITIONAL MATCH */
-                <div className="space-y-8 animate-in zoom-in-95 duration-500">
-                  <div className="bg-sky-50 border-2 sm:border-4 border-sky-500/80 rounded-2xl sm:rounded-3xl p-6 text-center shadow-lg relative overflow-hidden">
-                    <div className="absolute top-0 left-0 bottom-0 w-2 bg-sky-600" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-sky-800">FITNESS STATUS: CONDITIONAL ACCESS</span>
-                    <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-sky-950 tracking-tighter uppercase leading-tight mt-1">
-                      Assessment Complete: Conditional Access Granted
-                    </h3>
-                  </div>
-
-                  <div className="bg-slate-950 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 flex flex-col lg:flex-row items-center justify-between gap-6 relative overflow-hidden">
-                    <div className="absolute -top-12 -right-12 w-64 h-64 bg-sky-500/10 blur-[80px] rounded-full pointer-events-none" />
-                    <div className="text-center lg:text-left space-y-2 relative z-10 w-full lg:w-auto">
-                      <span className="text-[10px] font-black text-sky-400 uppercase tracking-widest bg-sky-400/10 px-3 py-1 rounded-full border border-sky-400/20">Conditional Clearance Assigned</span>
-                      <p className="text-slate-400 font-medium text-xs sm:text-sm lg:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed mt-1">
-                        While your household travel volume doesn't fully justify enterprise-level annual wholesale commits, your quality standard demonstrates clear leakage. To prevent you from paying retail markups, we have conditionally cleared your email for custom temporary entry.
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Behind the scenes video link button for more understanding */}
-                  <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-2 border-b border-slate-100 pb-3">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">SECURE SYSTEM VIDEO ANALYSIS</span>
-                    </div>
-                    <p className="text-slate-500 font-semibold text-xs sm:text-sm leading-relaxed max-w-2xl">
-                      Review the custom trial options walkthrough to understand how direct rates differ from retail platforms before navigating:
-                    </p>
-                    <div className="relative aspect-video w-full rounded-2xl md:rounded-[32px] overflow-hidden border-4 md:border-8 border-slate-950 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.8)] bg-black gold-glow animate-in slide-in-from-bottom-6 duration-700">
-                      <iframe 
-                        src={DIAGNOSTIC_VIDEO_URL} 
-                        className="w-full h-full"
-                        loading="lazy" 
-                        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
-                        allowFullScreen
-                      />
-                    </div>
-
-                    <div className="bg-amber-400/10 border-2 border-amber-400/20 p-5 rounded-2xl sm:rounded-3xl mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                      <div className="space-y-1 text-center sm:text-left">
-                        <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block">Review Complete Perks Vault</span>
-                        <p className="text-slate-900 font-bold text-xs sm:text-sm leading-snug">
-                          Need a little more understanding? Explore the confidential wholesale direct access perks and rate ledger.
-                        </p>
-                      </div>
-                      <ActionButton 
-                        variant="primary" 
-                        className="py-3 px-6 text-xs w-full sm:w-auto uppercase tracking-wider shrink-0" 
-                        onClick={() => {
-                          onClose();
-                          setView('presentation');
-                        }}
-                      >
-                        Explore Direct Perks
-                      </ActionButton>
-                    </div>
-                  </div>
-
-                  {/* Tailored Reward Gift Box */}
-                  <div className="bg-amber-50 border-2 border-amber-400/30 rounded-3xl p-6 sm:p-8 space-y-4">
-                    <div className="flex items-center space-x-3 text-amber-700">
-                      <Gift className="w-6 h-6 animate-pulse shrink-0" />
-                      <h4 className="text-lg font-black uppercase tracking-tight">Claimed: Quick Stay Travel Reward</h4>
-                    </div>
-                    <p className="text-slate-600 font-bold text-xs sm:text-sm leading-relaxed">
-                      To help you start saving instantly, click below to automatically copy the code <span className="text-amber-600 font-black">ROGREED</span> and open HotelTonight to claim <span className="text-slate-950 font-black">$25 off</span> your next booking of $135+!
-                    </p>
-                    
-                    <div className="flex flex-col sm:flex-row items-center gap-4 bg-white p-4 rounded-2xl border border-amber-200 shadow-inner max-w-md">
-                      <div className="flex-1 text-center sm:text-left">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">HotelTonight Code</span>
-                        <p className="text-2xl font-black text-slate-950 tracking-widest font-mono">ROGREED</p>
-                      </div>
-                      <button 
-                        onClick={handleRewardClick}
-                        className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black uppercase text-[10px] tracking-widest px-5 py-3.5 rounded-xl hover:from-teal-600 hover:to-emerald-500 transition-all flex items-center justify-center space-x-2 shrink-0 shadow-lg shadow-emerald-500/20 active:scale-95"
-                      >
-                        {copied ? <Check className="w-4 h-4 text-white" /> : <ArrowUpRight className="w-4 h-4 text-white" />}
-                        <span>{copied ? 'Copied! Opening HT' : 'Use on HotelTonight'}</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Reset/Done Buttons */}
-              {}
-              <div className="text-center space-y-4 pt-4">
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
-                  <ActionButton 
-                    variant="primary" 
-                    className="w-full sm:w-auto px-10 py-5 text-sm font-black bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-500 hover:to-blue-600 text-white shadow-lg shadow-sky-400/25"
-                    onClick={() => {
-                      window.open("https://t.me/+lweqGFqWXitmNGYx", "_blank");
-                    }}
-                  >
-                    <MessageCircleIcon className="w-5 h-5 mr-2 shrink-0" />
-                    <span>Join NTTS Telegram & Ask Questions</span>
-                  </ActionButton>
                   
-                  <div className="hidden sm:block w-1.5 h-1.5 rounded-full bg-slate-200" />
-                  <button 
-                    onClick={() => {
-                      setStep(1);
-                      setAnswers({ q1: null, q2: null, q3: null, q4: null });
-                    }}
-                    className="text-slate-400 hover:text-slate-950 font-black uppercase text-[10px] tracking-widest py-2 transition-colors"
-                  >
-                    Reset Fit Scan
+                  <button onClick={onClose} className="text-xs font-bold text-slate-400 hover:text-slate-600 underline block mx-auto pt-2">
+                    Close Profile Session
                   </button>
                 </div>
-                
-                <p className="text-[11px] text-slate-400 font-bold max-w-lg mx-auto leading-relaxed">
-                  💡 **Tip:** You can also find your active $25 coupon code pinned directly inside our official Telegram group chat for easy copy-pasting.
-                </p>
-              </div>
+              ) : (
+                /* Verified Success State (Match Path) */
+                <div className="space-y-6 max-w-xl mx-auto">
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 border border-emerald-100 shadow-md">
+                      <Icon name="checkCircle" className="w-7 h-7" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#002F6C] block">SYSTEM VERIFIED - 100% ACCESS APPROVED</span>
+                      <h3 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight">Direct Wholesaler Passport Active</h3>
+                    </div>
+                  </div>
 
+                  {/* Multi-Video Verification Queue Block */}
+                  <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-4">
+                    <p className="text-slate-600 font-medium text-xs sm:text-sm leading-relaxed text-center">
+                      Welcome, <strong className="text-slate-900">{leadName}</strong>! Check out our direct validation videos below to complete your system matching checklist.
+                    </p>
+
+                    {/* Scrollable Container keeping multiple embeds organized */}
+                    <div className="max-h-[350px] overflow-y-auto space-y-4 pr-1 scrollbar-thin">
+                      
+                      {/* Video 1: Welcome to Travorium */}
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-black text-[#002F6C] uppercase tracking-wider block">Video 1: Welcome to Travorium</span>
+                        <div className="aspect-video w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-950 relative shadow-sm">
+                          <iframe 
+                            src={WELCOME_TRAVORIUM_URL} 
+                            className="w-full h-full absolute inset-0 border-0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                          />
+                        </div>
+                      </div>
+
+                      {/* Video 2: How It Works */}
+                      <div className="space-y-1 pt-2">
+                        <span className="text-[10px] font-black text-[#002F6C] uppercase tracking-wider block">Video 2: How Sourcing Works</span>
+                        <div className="aspect-video w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-950 relative shadow-sm">
+                          <iframe 
+                            src={HOW_IT_WORKS_URL} 
+                            className="w-full h-full absolute inset-0 border-0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                          />
+                        </div>
+                      </div>
+
+                      {/* Video 3: How to Sign Up */}
+                      <div className="space-y-1 pt-2">
+                        <span className="text-[10px] font-black text-[#002F6C] uppercase tracking-wider block">Video 3: Walkthrough On Scribing</span>
+                        <div className="aspect-video w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-950 relative shadow-sm">
+                          <iframe 
+                            src={HOW_TO_SIGN_UP_URL} 
+                            className="w-full h-full absolute inset-0 border-0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowFullScreen
+                          />
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  {/* Action Split paths configured exactly to your specifications */}
+                  <div className="flex flex-col sm:flex-row gap-2 pt-1 font-sans">
+                    <a 
+                      href={TRAVORIUM_ENROLL_URL} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex-grow bg-[#002F6C] hover:bg-[#001D45] text-white text-center font-black py-4 px-5 rounded-xl uppercase tracking-wider text-xs flex items-center justify-center space-x-1.5 shadow-md transition-all active:scale-95"
+                    >
+                      <span>Complete Registration</span>
+                      <Icon name="arrowUpRight" className="w-4 h-4" />
+                    </a>
+                    
+                    <button 
+                      onClick={handleRewardCopyAction}
+                      className="flex-grow bg-[#FFC000] hover:bg-[#FFB200] text-[#002F6C] font-black text-xs py-4 px-5 rounded-xl transition-all border border-[#002F6C]/10 flex items-center justify-center space-x-1.5 shadow-md animate-pulse"
+                    >
+                      <Icon name="gift" className="w-4 h-4 shrink-0" />
+                      <span>Join My Telegram Group and Claim $25 Gift</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -784,602 +751,566 @@ const TravelerQuiz = ({ isOpen, onClose, setView }) => {
   );
 };
 
-/**
- * PREMIUM PRIVATE WAITLIST MODAL
- */
-const WaitlistModal = ({ isOpen, onClose }) => {
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState('idle'); // idle, loading, success
-
-  if (!isOpen) return null;
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setStatus('loading');
-
-    try {
-      const formData = new FormData();
-      formData.append('email_address', email);
-      
-      await fetch("https://app.kit.com/forms/9018875/subscriptions", {
-        method: "POST",
-        body: formData,
-        mode: 'no-cors'
-      });
-      setTimeout(() => setStatus('success'), 1200);
-    } catch (err) {
-      setTimeout(() => setStatus('success'), 1200);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 sm:p-6 backdrop-blur-xl bg-slate-950/70 animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-lg rounded-[40px] p-8 md:p-12 relative shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-300">
-        <button onClick={onClose} className="absolute top-8 right-8 p-2 hover:bg-slate-100 rounded-full transition-colors z-20">
-          <X className="w-6 h-6 text-slate-400" />
-        </button>
-
-        {status === 'success' ? (
-          <div className="text-center py-6 animate-in zoom-in-95 duration-500">
-            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center text-green-600 mx-auto mb-6 border border-green-100 shadow-inner">
-              <Check className="w-10 h-10 stroke-[3]" />
-            </div>
-            <h3 className="text-3xl font-black text-slate-950 uppercase tracking-tighter mb-3 leading-none">
-              SLOT REQUESTED.
-            </h3>
-            <p className="text-slate-500 font-bold mb-8 text-sm leading-relaxed max-w-sm mx-auto">
-              We have archived your digital timestamp. A concierge representative will transmit details shortly if a slot clears.
-            </p>
-            <ActionButton variant="secondary" className="w-full py-4 text-xs" onClick={onClose}>
-              Dismiss Portal
-            </ActionButton>
-          </div>
-        ) : (
-          <div className="text-center relative z-10">
-            <div className="w-20 h-20 bg-amber-50 rounded-3xl flex items-center justify-center text-amber-600 mx-auto mb-8 shadow-inner animate-float">
-              <Lock className="w-10 h-10" />
-            </div>
-            <h3 className="text-3xl sm:text-4xl font-black text-slate-950 uppercase tracking-tighter mb-4 leading-none">
-              UNLISTED RATES <br/> ARE PROTECTED.
-            </h3>
-            <p className="text-slate-500 font-medium mb-8 leading-relaxed text-xs sm:text-sm">
-              To guarantee system integrity, private wholesale booking options require verified clearance. Join the queue to receive real-time availability updates.
-            </p>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-               <div className="text-left">
-                 <input 
-                   name="email_address" 
-                   required 
-                   type="email" 
-                   placeholder="your@email.com" 
-                   value={email}
-                   onChange={(e) => setEmail(e.target.value)}
-                   disabled={status === 'loading'}
-                   className="w-full h-16 bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 outline-none focus:border-amber-400 text-slate-900 font-bold transition-all disabled:opacity-50" 
-                 />
-               </div>
-               <ActionButton type="submit" disabled={status === 'loading'} variant="waitlist" className="w-full py-5 text-sm tracking-wider font-black">
-                 {status === 'loading' ? 'Encrypting Connection...' : 'Request Exclusive Access Invite'}
-               </ActionButton>
-               <div className="flex items-center justify-center space-x-2 mt-6">
-                  <ShieldCheck className="w-4 h-4 text-green-500" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Secured by No Time To Share Vault</span>
-               </div>
-            </form>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-/**
- * HIGH-FREQUENCY SOCIAL PROOF TICKER
- */
-const SavingsTicker = () => {
-  const [index, setIndex] = useState(0);
+export default function App() {
+  const [quizOpen, setQuizOpen] = useState(false);
+  const [selectedDestination, setSelectedDestination] = useState("Cancun");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [videoModal, setVideoModal] = useState({ isOpen: false, url: "" });
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % SAVINGS_FEED.length);
-    }, 4500);
-    return () => clearInterval(timer);
+    const styleTag = document.createElement("style");
+    styleTag.innerHTML = customStyles;
+    document.head.appendChild(styleTag);
+    return () => { document.head.removeChild(styleTag); };
   }, []);
 
-  return (
-    <div className="flex flex-col md:flex-row items-center gap-3">
-      {/* Dynamic Pill Container */}
-      <div className="bg-slate-950/90 backdrop-blur-md border border-white/10 rounded-full px-6 py-3 flex items-center space-x-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)] transition-all duration-500">
-        <div className="flex -space-x-2">
-          <div className="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-[9px] font-black text-slate-950 border border-slate-900 shadow">NTTS</div>
-        </div>
-        <p className="text-white text-[11px] font-bold tracking-wide">
-          <span className="text-amber-400 font-black">{SAVINGS_FEED[index].user}</span> saved <span className="text-emerald-400 font-black">{SAVINGS_FEED[index].saved}</span> in <span className="text-white/90 font-black">{SAVINGS_FEED[index].location}</span>
-        </p>
-        <div className="w-[1px] h-3 bg-white/20" />
-        <span className="text-white/40 text-[9px] uppercase font-black tracking-widest shrink-0">{SAVINGS_FEED[index].time}</span>
-      </div>
-
-      {/* Pulsing Hotspot Banner */}
-      <div className="bg-gradient-to-r from-red-500/20 to-orange-500/20 backdrop-blur-md border border-orange-500/30 rounded-full px-5 py-2.5 flex items-center space-x-2">
-        <Flame className="w-3.5 h-3.5 text-orange-500 animate-pulse" />
-        <span className="text-orange-400 text-[10px] font-black uppercase tracking-widest">Trending: Maldives</span>
-      </div>
-    </div>
-  );
-};
-
-/**
- * FLUID RESPONSIVE GLASS SYSTEM HEADER
- */
-const Header = ({ setView, activeView, onScanProfile }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const activeCompare = useMemo(() => {
+    return COMPARATIVE_DATA[selectedDestination];
+  }, [selectedDestination]);
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-6 py-6 pointer-events-none">
-      <div className="max-w-7xl mx-auto flex justify-between items-center bg-white/95 backdrop-blur-xl border border-slate-200/60 rounded-[28px] px-6 py-4 shadow-2xl pointer-events-auto relative">
-        
-        {/* Brand Container - Spacious, Separated, Non-crammed logo layout */}
-        <div className="flex items-center space-x-4 cursor-pointer group" onClick={() => { setView('home'); setIsOpen(false); }}>
-          <img 
-            src={BRAND_LOGO_URL} 
-            alt="No Time To Share" 
-            className="h-10 md:h-12 w-auto object-contain rounded-xl shadow-md border border-slate-200/60 transition-transform duration-300 group-hover:scale-105"
-            onError={(e) => {
-              e.target.style.display = 'none';
-            }}
-          />
-          <div className="flex flex-col justify-center border-l-2 border-slate-200 pl-4 py-0.5">
-            <span className="font-black text-slate-950 tracking-tighter text-sm md:text-lg uppercase leading-none">
-              NO TIME TO SHARE
-            </span>
-            <span className="text-[9px] font-black text-amber-500 uppercase tracking-[0.25em] mt-1 leading-none">
-              WHOLESALE DIRECT
-            </span>
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-[#FFC000] selection:text-[#002F6C] antialiased overflow-x-hidden">
+      
+      {/* Brand Nav Header matching the "No Time To Share" Blue & Gold Logo */}
+      <nav className="sticky top-0 z-50 bg-[#002F6C] border-b border-white/10 shadow-md transition-all">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            {/* Logo */}
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <img 
+                src={BRAND_LOGO_URL} 
+                alt="No Time To Share Logo" 
+                className="h-10 w-10 rounded-xl object-cover border border-white/20 shadow-md"
+                onError={(e) => { e.currentTarget.src = HERO_BACKGROUND_IMAGE; }}
+              />
+              <div className="flex flex-col text-left">
+                <span className="font-black text-sm tracking-wider text-white">NO TIME TO SHARE</span>
+                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#FFE28C] leading-none mt-0.5">Wholesale Travel Vault</span>
+              </div>
+            </div>
+
+            {/* Navigation links */}
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#rates-mismatch" className="text-xs font-black uppercase text-white/95 hover:text-[#FFC000] tracking-wider transition-colors">Market Surcharges</a>
+              <a href="#diagnostic-portal" className="text-xs font-black uppercase text-[#FFC000] tracking-wider transition-colors font-semibold bg-white/10 px-3.5 py-1.5 rounded-full">Take Eligibility Scan</a>
+              <a href="#private-directory" className="text-xs font-black uppercase text-white/95 hover:text-[#FFC000] tracking-wider transition-colors">Direct Sourcing</a>
+              <a href="#comparisons" className="text-xs font-black uppercase text-white/95 hover:text-[#FFC000] tracking-wider transition-colors">Audited Comparisons</a>
+            </div>
+
+            {/* Main Action Call */}
+            <div className="hidden md:block">
+              <ActionButton 
+                onClick={() => setQuizOpen(true)}
+                variant="primary" 
+                className="px-6 py-2.5 text-xs rounded-xl text-[#002F6C]"
+              >
+                <span>See If You Qualify</span>
+                <Icon name="zap" className="w-3.5 h-3.5 shrink-0" />
+              </ActionButton>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button 
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
+                className="p-2 text-white hover:bg-white/10 rounded-lg focus:outline-none"
+              >
+                <Icon name="menu" className="w-6 h-6" />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Desktop Links */}
-        <div className="hidden lg:flex items-center space-x-8">
-          <button 
-            onClick={() => setView('home')} 
-            className={`text-[10px] font-black uppercase tracking-widest transition-colors ${
-              activeView === 'home' ? 'text-amber-500' : 'text-slate-500 hover:text-slate-950'
-            }`}
-          >
-            Wholesale Core Portal
-          </button>
-        </div>
-
-        {/* Desktop CTA */}
-        <div className="hidden lg:block">
-          <ActionButton variant="primary" noGloss className="py-2.5 px-6 rounded-xl text-[10px] uppercase tracking-widest" onClick={onScanProfile}>
-            Verify Direct Access Rate
-          </ActionButton>
-        </div>
-
-        {/* Mobile Hamburger Controls */}
-        <button className="lg:hidden p-2 text-slate-800 hover:bg-slate-50 rounded-xl transition-all" onClick={() => setIsOpen(!isOpen)}>
-          <Menu className="w-6 h-6" />
-        </button>
-
-        {/* Mobile Panel Overlay */}
-        {isOpen && (
-          <div className="absolute top-[90px] left-0 right-0 bg-white/95 backdrop-blur-2xl border border-slate-200/80 rounded-3xl p-6 shadow-2xl flex flex-col space-y-4 animate-in fade-in slide-in-from-top-4 duration-200 pointer-events-auto">
-            <button 
-              onClick={() => { setView('home'); setIsOpen(false); }} 
-              className="text-left font-black uppercase tracking-wider text-xs py-2 text-slate-800 hover:text-amber-500"
+        {/* Mobile menu panel */}
+        {mobileMenuOpen && (
+          <div className="md:hidden px-4 pt-2 pb-6 bg-[#001D45] border-b border-white/10 space-y-3 animate-in slide-in-from-top-4 duration-200 text-left">
+            <a href="#rates-mismatch" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs font-black uppercase tracking-wider text-white hover:text-yellow-200">Market Surcharges</a>
+            <a href="#diagnostic-portal" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs font-black uppercase tracking-wider text-white hover:text-yellow-200">Eligibility Scan</a>
+            <a href="#private-directory" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs font-black uppercase tracking-wider text-white hover:text-yellow-200">Direct Sourcing</a>
+            <a href="#comparisons" onClick={() => setMobileMenuOpen(false)} className="block py-2 text-xs font-black uppercase tracking-wider text-white hover:text-yellow-200">Audited Comparisons</a>
+            <ActionButton 
+              onClick={() => { setQuizOpen(true); setMobileMenuOpen(false); }}
+              variant="primary" 
+              className="w-full py-3 text-xs mt-4 text-[#002F6C]"
             >
-              Wholesale Access Portal
-            </button>
-            <hr className="border-slate-100" />
-            <ActionButton variant="primary" noGloss className="py-3 px-6 rounded-xl text-[11px] uppercase tracking-wider w-full" onClick={() => { onScanProfile(); setIsOpen(false); }}>
-              Verify Direct Access Rate
+              <span>Take the 1-Minute Quiz</span>
             </ActionButton>
           </div>
         )}
+      </nav>
 
-      </div>
-    </nav>
-  );
-};
-
-/**
- * HOME VIEW COMPONENT
- */
-const HomeView = ({ setView, onScanProfile }) => {
-  return (
-    <div className="bg-white min-h-screen text-slate-900 overflow-x-hidden">
-      
-      {/* HERO SECTION */}
-      {}
-      <section className="relative min-h-[95vh] md:min-h-screen flex flex-col items-center justify-center pt-32 pb-24 px-4 sm:px-6 overflow-hidden">
+      {/* Hero Section: Sourcing & Pricing Leak Exposure */}
+      <section id="rates-mismatch" className="relative py-20 md:py-28 bg-[#002F6C] overflow-hidden border-b border-slate-100">
+        {/* Underlay textured background image */}
+        <div className="absolute inset-0 opacity-15 bg-cover bg-center pointer-events-none z-0" style={{ backgroundImage: `url(${HERO_BACKGROUND_IMAGE})` }} />
+        {/* Soft, deep Royal Blue overlay for crisp text readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#002F6C] via-[#001D45] to-[#003C8A] opacity-90 z-10" />
         
-        {/* Animated Visual Canvas Backdrop */}
-        <div className="absolute inset-0 z-0 scale-105">
-          <img 
-            src={ALTERNATIVE_HERO_IMAGE} 
-            className="w-full h-full object-cover animate-pulse-slow" 
-            alt="Luxury Villa Panorama" 
-            onError={(e) => {
-              e.target.src = OFFICIAL_HERO_IMAGE;
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/30 to-white" />
-        </div>
-
-        <div className="relative z-10 w-full max-w-6xl text-center">
-          <ScrollReveal>
-            <div className="mb-10 flex flex-col items-center space-y-8">
-              <SavingsTicker />
-              
-              {/* Responsive Hero Header - Tiny scale issue fixed */}
-              <h1 className="text-5xl sm:text-7xl md:text-[9rem] lg:text-[10.5rem] xl:text-[12rem] font-black text-white tracking-tighter leading-[0.95] uppercase drop-shadow-[0_10px_50px_rgba(0,0,0,0.65)]">
-                THE TRAVEL <br/> 
-                <span className="bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500 bg-clip-text text-transparent italic drop-shadow-[0_15px_30px_rgba(245,158,11,0.25)]">
-                  QUIZ...
-                </span>
-              </h1>
-              
-              <p className="text-white text-base sm:text-xl md:text-2xl font-bold max-w-3xl mx-auto leading-relaxed drop-shadow-lg opacity-95 uppercase tracking-wide">
-                Bypass timeshare sales & high retail booking margins. Connect directly to unlisted wholesale booking inventory.
-              </p>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 max-w-md sm:max-w-none mx-auto">
-              <ActionButton variant="primary" className="w-full sm:w-auto px-12 py-6 text-base tracking-widest" onClick={onScanProfile}>
-                Scan Travel Profile
-              </ActionButton>
-              <button 
-                onClick={() => {
-                  const el = document.getElementById('insights');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }} 
-                className="group text-white font-black text-xs uppercase tracking-[0.4em] flex items-center hover:text-amber-400 transition-colors py-4 px-6 rounded-full hover:bg-white/5"
-              >
-                View Live Comp <MoveRight className="ml-3 w-5 h-5 group-hover:translate-x-3 transition-transform" />
-              </button>
-            </div>
-          </ScrollReveal>
+            <div className="lg:col-span-6 space-y-6 md:space-y-8 text-center lg:text-left">
+              <div className="inline-flex items-center space-x-2 bg-white/10 border border-white/20 px-4 py-2 rounded-full shadow-sm backdrop-blur-sm">
+                <Icon name="info" className="w-4 h-4 text-[#FFC000]" />
+                <span className="text-[10px] sm:text-xs font-black text-[#FFE28C] tracking-widest uppercase font-mono font-bold">HIGH COST OF RETAIL TRAVEL</span>
+              </div>
 
-          {/* DYNAMIC TOP SPOTLIGHT VIDEO PANEL - Replaced scanner block */}
-          <ScrollReveal>
-            <div className="max-w-4xl mx-auto relative group">
-              <div className="absolute -inset-10 bg-amber-400/10 blur-[100px] rounded-full animate-pulse pointer-events-none" />
-              <div className="relative aspect-video w-full rounded-[32px] sm:rounded-[48px] overflow-hidden border-[6px] sm:border-[12px] border-white/5 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.8)] transition-all duration-700 group-hover:scale-[1.005]">
-                <iframe 
-                  src={TESTIMONIAL_VIDEO_URL} 
-                  className="w-full h-full"
-                  loading="lazy" 
-                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
-                  allowFullScreen
-                />
+              <div className="space-y-4">
+                <h1 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter text-white leading-[0.95]">
+                  The Hidden Cost of <br />
+                  <span className="bg-gradient-to-r from-[#FFC000] via-[#FFE28C] to-white bg-clip-text text-transparent">Retail Travel Portals</span>
+                </h1>
+                <p className="text-slate-200 text-sm sm:text-base md:text-lg font-bold leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                  Most travelers believe travel portals like Expedia, Booking.com, or Priceline find them the absolute lowest price. That is a calculated retail illusion.
+                </p>
+                <p className="text-slate-300/90 text-xs sm:text-sm leading-relaxed max-w-2xl mx-auto lg:mx-0 font-semibold">
+                  Under standard retail listing agreements, public platforms are contractually bound to apply substantial consumer-facing markups (frequently <span className="text-[#FFC000] font-bold">50% to 70%</span>) to cover advertising, marketing, and affiliate distribution structures. Standard public bookings directly fund these platforms' billion-dollar corporate budgets.
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-start space-x-3 text-left max-w-xl mx-auto lg:mx-0 shadow-sm backdrop-blur-sm">
+                  <Icon name="shieldCheck" className="w-5 h-5 text-[#FFC000] shrink-0 mt-0.5" />
+                  <p className="text-xs text-slate-300 font-semibold leading-relaxed">
+                    <strong className="text-[#FFE28C]">The Public Markup Rules:</strong> Hotels are legally prohibited from displaying deep discount rates publicly. As a result, standard consumer bookings carry massive premium markups simply due to public channel regulations.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                <ActionButton 
+                  onClick={() => {
+                    const el = document.getElementById("diagnostic-portal");
+                    el?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  variant="primary" 
+                  className="w-full sm:w-auto text-xs px-8 py-4"
+                >
+                  <span>See How We Do It</span>
+                  <Icon name="moveRight" className="w-4 h-4 shrink-0 text-[#002F6C]" />
+                </ActionButton>
               </div>
             </div>
-          </ScrollReveal>
-        </div>
-      </section>
 
-      {/* MEMBER COMPARATIVE INTEL */}
-      <section id="insights" className="max-w-7xl mx-auto px-4 sm:px-6 py-24 sm:py-32 bg-white">
-        <ScrollReveal>
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-slate-100 pb-12 gap-8">
-            <div className="max-w-2xl">
-              <span className="text-xs font-black uppercase tracking-[0.5em] text-amber-600 block mb-3">Direct Contract Variance Index</span>
-              <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-slate-950 tracking-tighter uppercase leading-[0.85] italic">
-                DIRECT UNLISTED CONTRACTS.
-              </h2>
-            </div>
-            <p className="text-slate-500 font-bold max-w-xs text-sm leading-relaxed">
-              Skip timeshare pitches and booking broker commissions. Access unlisted wholesale rates directly across verified networks.
-            </p>
-          </div>
-        </ScrollReveal>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            { name: "Florida", loc: "Miami Beach", price: "189", tag: "Beachfront Direct" },
-            { name: "New York", loc: "Times Square Premium", price: "245", tag: "Executive Suite" },
-            { name: "Las Vegas", loc: "The Strip Wholesale", price: "99", tag: "VIP Resort Access" },
-            { name: "Cancun", loc: "Tropical All-Inclusive", price: "220", tag: "Paradise Cove" }
-          ].map((dest, i) => (
-            <ScrollReveal key={i}>
-              <div className="group cursor-pointer">
-                <div className="relative h-[480px] sm:h-[520px] rounded-[48px] overflow-hidden mb-6 border-4 border-slate-50 shadow-2xl transition-all duration-700 hover:-translate-y-3">
-                  <img src={DESTINATION_ASSETS[dest.name]} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt={dest.name} />
-                  <div className="absolute top-8 left-8">
-                    <span className="px-5 py-2 bg-gradient-to-r from-amber-400 to-yellow-400 rounded-full text-[9px] font-black text-slate-950 uppercase tracking-widest shadow-lg border border-yellow-300">
-                      {dest.tag}
-                    </span>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-                  <div className="absolute bottom-8 left-8 right-8 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                    <ActionButton variant="waitlist" className="w-full py-4 rounded-2xl" onClick={onScanProfile}>Verify Special Rate</ActionButton>
-                  </div>
-                </div>
+            {/* Elegant Right-Hand Column displaying our Orlando Video proof with direct inline embed & surrounding overlays */}
+            <div className="lg:col-span-6">
+              <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-2xl relative overflow-hidden group text-left">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#EBF3FF] rounded-full filter blur-xl" />
                 
-                <div className="flex justify-between items-start px-4">
-                  <div>
-                    <h3 className="text-2xl font-black text-slate-950 uppercase tracking-tighter leading-none mb-1.5">{dest.name}</h3>
-                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest flex items-center">
-                      <MapPin className="w-3.5 h-3.5 mr-1 text-amber-500 shrink-0" /> {dest.loc}
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                  <span className="text-[10px] font-black text-[#002F6C] tracking-widest font-mono uppercase">Direct Proof: latest Trip</span>
+                  <span className="text-[9px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded font-black uppercase tracking-wider">Verified Stay</span>
+                </div>
+
+                <div className="space-y-4 pt-4">
+                  {/* High Quality Inline Video Player Container */}
+                  <div className="relative aspect-video w-full rounded-2xl overflow-hidden shadow-md bg-slate-950 border border-slate-200">
+                    <iframe 
+                      src={ORLANDO_VIDEO_URL} 
+                      className="w-full h-full absolute inset-0 border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowFullScreen
+                    />
+                  </div>
+
+                  <div className="p-4 bg-[#EBF3FF] rounded-xl border border-[#002F6C]/10 text-left space-y-1">
+                    <span className="text-[10px] font-black uppercase text-[#002F6C] block leading-none">Orlando Wholesale Cost File</span>
+                    <p className="text-xs text-slate-600 font-semibold leading-relaxed">
+                      Watch how we paid <strong className="text-[#002F6C]">a little over $300</strong> for 8 days and 7 nights at the largest resort in the world! See direct screen recording logs of our actual member pricing checkout in the video player above.
                     </p>
                   </div>
-                  <div className="text-right shrink-0">
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest line-through mb-0.5">Retail Booking: ${parseInt(dest.price) + 120}</p>
-                     <p className="text-xl sm:text-2xl font-black text-amber-600 leading-none">${dest.price}/n</p>
-                  </div>
                 </div>
               </div>
-            </ScrollReveal>
-          ))}
+            </div>
+
+          </div>
         </div>
       </section>
 
-      {/* RAW SOCIAL PROOF FEED */}
-      <section className="bg-slate-950 py-24 sm:py-36 px-4 sm:px-6 overflow-hidden">
-        <div className="max-w-6xl mx-auto">
-          <ScrollReveal className="text-center">
-            <div className="inline-flex items-center space-x-2.5 px-5 py-2.5 mb-8 text-[10px] font-black tracking-[0.4em] uppercase bg-white/5 text-amber-400 rounded-full border border-white/10">
-              <PlayCircle className="w-4 h-4 animate-pulse" />
-              <span>Raw Client Contract Feed</span>
-            </div>
+      {/* Evaluation Zone featuring our 1-Minute Diagnostic & Live Ticker */}
+      <section id="diagnostic-portal" className="py-20 bg-[#F5F7FA] relative z-10 overflow-hidden border-b border-slate-150">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#EBF3FF] rounded-full filter blur-[120px] pointer-events-none" />
+        
+        {/* Real-time social proof ticker feed placed cleanly in the middle of the evaluation section */}
+        <div className="max-w-7xl mx-auto mb-12 relative z-10">
+          <div className="bg-white border-y border-slate-150 py-4 overflow-hidden relative shadow-sm rounded-3xl max-w-6xl mx-auto">
+            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
             
-            <h2 className="text-4xl sm:text-6xl md:text-8xl font-black text-white tracking-tighter uppercase leading-[0.9] mb-12">
-              REAL CLIENT PORTAL DATA. <br/> <span className="text-white/30 italic">UNBIASED VERIFIED PROOF.</span>
-            </h2>
-
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mb-16">
-              {[
-                "Wholesale Contract Rates",
-                "Direct Pipeline API Connections",
-                "Timeshare Pitch Bypasses",
-                "Zero Broker Commissions"
-              ].map((item, idx) => (
-                <div key={idx} className="flex items-center space-x-3 bg-white/5 border border-white/10 px-5 py-3 rounded-2xl shadow-inner">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span className="text-white/90 font-bold text-xs uppercase tracking-wider">{item}</span>
+            <div className="flex whitespace-nowrap animate-marquee">
+              {[...SAVINGS_FEED, ...SAVINGS_FEED].map((item, idx) => (
+                <div 
+                  key={`marquee-item-${idx}`} 
+                  className="inline-flex items-center space-x-3 mx-8 bg-[#F5F7FA] border border-slate-100 px-4 py-2 rounded-xl"
+                >
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="text-xs font-bold text-slate-700">{item.user}</span>
+                  <span className="text-xs text-slate-400">saved</span>
+                  <span className="text-xs font-black text-emerald-600">{item.saved}</span>
+                  <span className="text-xs text-slate-400">in</span>
+                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">{item.location}</span>
+                  <span className="text-[9px] text-slate-400 font-mono italic">{item.time}</span>
                 </div>
               ))}
             </div>
+          </div>
+        </div>
 
-            <ActionButton variant="primary" className="mx-auto px-12 py-5 text-base tracking-widest animate-wiggle" onClick={onScanProfile}>
-              Start Live Verification Process <MoveRight className="ml-3 w-5 h-5" />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-8">
+          <div className="space-y-4">
+            <div className="inline-flex items-center space-x-2 bg-[#EBF3FF] border border-[#002F6C]/10 px-4 py-2 rounded-full mx-auto shadow-sm">
+              <Icon name="zap" className="w-4 h-4 text-[#002F6C] animate-bounce" />
+              <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-[#002F6C] font-mono">PORTAL REGISTRATION ENTRY</span>
+            </div>
+            <h2 className="text-3xl sm:text-5xl md:text-5xl font-black uppercase tracking-tighter text-[#002F6C] leading-none">
+              See If You Can Get Cheap Rates & <br />Claim $25 Travel Credit
+            </h2>
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-xl mx-auto font-semibold">
+              Because direct wholesale rate tables cannot be published to the open public, you must run our brief 60-second check to verify your travel profile style and activate your gateway access keys.
+            </p>
+          </div>
+
+          {/* Sourcing Parameters overview */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto pt-4 text-left font-sans">
+            <div className="p-4 bg-white border border-slate-150 rounded-2xl space-y-1 shadow-sm">
+              <span className="block text-[#002F6C] font-black text-sm tracking-widest font-mono">01. PROFILE</span>
+              <span className="block text-slate-800 text-xs font-bold uppercase leading-tight">Verify Volume Compatibility</span>
+              <p className="text-[10px] text-slate-500 leading-normal">Ensures your vacation style fits direct wholesale connections.</p>
+            </div>
+            <div className="p-4 bg-white border border-slate-150 rounded-2xl space-y-1 shadow-sm">
+              <span className="block text-[#002F6C] font-black text-sm tracking-widest font-mono">02. REWARD</span>
+              <span className="block text-slate-800 text-xs font-bold uppercase leading-tight">Secure $25 Code</span>
+              <p className="text-[10px] text-slate-500 leading-normal">Every travel profile checked receives a guaranteed HotelTonight voucher code on request.</p>
+            </div>
+            <div className="p-4 bg-white border border-slate-150 rounded-2xl space-y-1 shadow-sm">
+              <span className="block text-[#002F6C] font-black text-sm tracking-widest font-mono">03. GATEWAY</span>
+              <span className="block text-slate-800 text-xs font-bold uppercase leading-tight">Sponsor Registration</span>
+              <p className="text-[10px] text-slate-500 leading-normal">Direct fast-track registration route unlocked with sponsor credentials.</p>
+            </div>
+          </div>
+
+          <div>
+            <ActionButton 
+              onClick={() => setQuizOpen(true)}
+              variant="primary" 
+              className="mx-auto text-xs px-12 py-5 font-bold uppercase tracking-wider shadow-lg text-[#002F6C]"
+            >
+              <span>Start the 1-Minute Quiz</span>
+              <Icon name="zap" className="w-4 h-4 shrink-0" />
             </ActionButton>
-          </ScrollReveal>
+          </div>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="bg-white pt-24 pb-16 px-4 sm:px-6 border-t border-slate-100">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 sm:gap-16 mb-20">
-          <div className="lg:col-span-2">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="flex items-center space-x-2 bg-slate-950 p-2.5 rounded-xl">
-                <img 
-                  src={BRAND_LOGO_URL} 
-                  alt="No Time To Share Logo" 
-                  className="h-8 object-contain rounded-lg"
-                  onError={(e) => { e.target.style.display = 'none'; }}
-                />
-                <span className="font-black text-white tracking-tighter text-sm uppercase">NO TIME TO SHARE</span>
-              </div>
-            </div>
-            <p className="text-slate-500 font-medium max-w-md leading-relaxed mb-8 text-base">
-              Connecting consumers directly to verified unlisted wholesale inventory nodes. By aggregating active market volume, we deliver direct broker bypass solutions.
-            </p>
-          </div>
-          
-          <div>
-            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-6">Internal Navigation</h4>
-            <ul className="space-y-4">
-              <li><button onClick={() => setView('home')} className="text-slate-950 font-black uppercase tracking-widest text-xs hover:text-amber-600 transition-colors">Global Core Portal</button></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-6">Core Status</h4>
-            <div className="bg-emerald-50 rounded-2xl p-5 border border-emerald-100/50">
-               <div className="flex items-center space-x-3 mb-2">
-                 <span className="relative flex h-2.5 w-2.5">
-                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                 </span>
-                 <span className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Scanning Nodes Online</span>
-               </div>
-               <p className="text-[11px] font-bold text-slate-600 leading-snug">Global distribution network and wholesale Direct Contract APIs operational.</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="max-w-7xl mx-auto pt-10 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
-            © 2026 NO TIME TO SHARE • EST. 2014
-          </p>
-        </div>
-      </footer>
-    </div>
-  );
-};
-
-/**
- * PRESENTATION VAULT VIEW COMPONENT (Unlisted wholesale benefits & walkthrough presentation)
- */
-const PresentationView = ({ setView }) => {
-  const currentMonth = new Date().toLocaleString('default', { month: 'long' });
-
-  return (
-    <div className="bg-slate-950 min-h-screen text-white overflow-x-hidden selection:bg-amber-400 selection:text-slate-950">
-      <main className="pt-32 pb-24">
-        <ScrollReveal className="text-center">
-          
-          {/* TOP FLASH ACCENT */}
-          <div className="max-w-2xl mx-auto px-4 mb-8">
-            <div className="bg-amber-400/10 border border-amber-400/20 py-2 px-5 rounded-full inline-flex items-center space-x-2.5 shadow-lg">
-              <Gift className="w-4 h-4 text-amber-400 animate-pulse" />
-              <span className="text-[9px] sm:text-[11px] font-black uppercase tracking-wider text-amber-300">
-                Platinum Exclusive: Initialize direct wholesale clearance this {currentMonth} to unlock your bonus Las Vegas Escape Voucher!
-              </span>
-            </div>
-          </div>
-
-          <div className="px-4 mb-12 max-w-4xl mx-auto space-y-3">
-            <h1 className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tighter uppercase leading-none italic">
-              INSIDE THE <span className="text-amber-400 drop-shadow-[0_4px_15px_rgba(245,158,11,0.2)]">VAULT.</span>
-            </h1>
-            <p className="text-[10px] sm:text-sm text-slate-400 font-bold uppercase tracking-[0.3em] max-w-2xl mx-auto">
-              Confidential wholesale rates, premium rewards keys, and luxury portals revealed below.
-            </p>
-          </div>
-
-          {/* HIGH-RES IMMERSIVE EMBEDDED SYSTEM VIDEO */}
-          <div className="w-full relative group px-4 sm:px-6 mb-16">
-            <div className="absolute -inset-10 bg-amber-500/5 blur-[100px] rounded-full pointer-events-none" />
-            <div className="max-w-5xl mx-auto w-full">
-                <div className="relative aspect-video w-full rounded-2xl sm:rounded-[40px] overflow-hidden border-[6px] sm:border-[12px] border-white/5 shadow-3xl bg-black">
-                  <iframe 
-                    src={PERKS_VIDEO_URL} 
-                    className="w-full h-full"
-                    loading="lazy" 
-                    allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" 
-                    allowFullScreen
-                  />
-                </div>
-            </div>
-          </div>
-
-          {/* DYNAMIC DIRECT ACTIVATION REDIRECT PANEL */}
-          <div className="px-4 max-w-3xl mx-auto">
-            <a 
-              href={TRAVORIUM_ENROLL_URL} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="group relative flex flex-col items-center justify-center bg-white text-slate-950 p-6 sm:p-10 rounded-[32px] sm:rounded-[48px] hover:scale-[1.01] transition-all shadow-[0_20px_50px_rgba(255,255,255,0.08)] hover:shadow-[0_20px_60px_rgba(245,158,11,0.15)] w-full border border-white/80"
-            >
-              <div className="absolute inset-0 rounded-[32px] sm:rounded-[48px] bg-gradient-to-tr from-amber-400/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-              
-              <div className="flex flex-col sm:flex-row items-center justify-between w-full gap-6 relative z-10">
-                <div className="text-center sm:text-left space-y-1">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 block">Direct Wholesale Activation</span>
-                  <span className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-950 block">Setup Direct Account Clearance</span>
-                </div>
-                <div className="bg-slate-950 p-3 sm:p-4 rounded-full text-amber-400 group-hover:rotate-45 transition-transform shrink-0 shadow-lg shadow-amber-500/10">
-                  <ArrowUpRight className="w-6 h-6 sm:w-8 sm:h-8" />
-                </div>
-              </div>
-            </a>
+      {/* Private Sourcing Direct-to-Consumer Narrative */}
+      <section id="private-directory" className="py-20 md:py-32 bg-white border-b border-slate-100 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
-            <div className="mt-10 flex justify-center items-center space-x-8 opacity-50">
-                <div className="flex items-center space-x-2">
-                    <ShieldCheck className="w-4 h-4 text-amber-400" />
-                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Wholesale Direct Contracts Secured</span>
+            <div className="lg:col-span-5 order-2 lg:order-1">
+              <ScrollReveal className="glow-blue">
+                <div className="bg-white rounded-3xl p-6 border border-[#002F6C]/10 shadow-xl relative overflow-hidden text-left">
+                  <div className="absolute top-0 left-0 w-24 h-24 bg-[#EBF3FF] rounded-full filter blur-xl" />
+                  
+                  <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                    <span className="text-[10px] font-black text-[#002F6C] tracking-widest font-mono uppercase">Direct Partner API</span>
+                    <Icon name="lock" className="w-5 h-5 text-[#002F6C] shrink-0" />
+                  </div>
+
+                  <div className="space-y-4 pt-4">
+                    <div className="p-4 bg-slate-50 border border-slate-100 flex items-center justify-between rounded-xl">
+                      <div>
+                        <span className="text-[9px] font-black uppercase text-slate-400 block leading-none">Access Node Connection</span>
+                        <span className="text-xs font-black text-emerald-600 uppercase tracking-widest mt-1 block">STABLE & SECURED</span>
+                      </div>
+                      <Icon name="globe" className="w-5 h-5 text-emerald-500 shrink-0" />
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs font-bold text-slate-500">
+                        <span>Wholesaler Sourced Net Rate</span>
+                        <span className="text-slate-800 font-mono">$100 / night</span>
+                      </div>
+                      <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-[#002F6C] h-full w-[35%]" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs font-bold text-slate-500">
+                        <span>Distribution Surcharges</span>
+                        <span className="text-emerald-600 font-black">$0.00 / night</span>
+                      </div>
+                      <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div className="bg-slate-200 h-full w-0" />
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-[#EBF3FF] rounded-xl border border-[#002F6C]/10">
+                      <span className="text-[9px] font-black uppercase text-[#002F6C] block leading-none">Private Member Cost</span>
+                      <span className="text-2xl font-black text-[#002F6C] font-mono block mt-1">$100 / night</span>
+                      <span className="text-[10px] text-slate-600 font-semibold leading-relaxed block mt-1">
+                        Direct transaction pipeline with no added retail margin layers.
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                    <UserCheck className="w-4 h-4 text-amber-400" />
-                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest">Instant Booking Priority</span>
-                </div>
+              </ScrollReveal>
             </div>
 
-            <button onClick={() => setView('home')} className="mt-16 text-white/30 hover:text-white font-black uppercase tracking-[0.4em] text-[9px] transition-colors">
-              Return to Public Portal
-            </button>
+            <div className="lg:col-span-7 space-y-6 md:space-y-8 text-center lg:text-left order-1 lg:order-2">
+              <ScrollReveal>
+                <div className="inline-flex items-center space-x-2 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-full shadow-sm">
+                  <Icon name="sparkles" className="w-4 h-4 text-emerald-600 animate-pulse" />
+                  <span className="text-[10px] sm:text-xs font-black text-emerald-600 tracking-widest uppercase font-mono">DIRECT DATABASE SOURCE</span>
+                </div>
+              </ScrollReveal>
+
+              <ScrollReveal className="space-y-4">
+                <h2 className="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tighter text-[#002F6C] leading-[0.95]">
+                  Private Resort Sourcing <br />
+                  <span className="bg-gradient-to-r from-[#002F6C] to-[#0052C2] bg-clip-text text-transparent">Direct-to-Consumer</span>
+                </h2>
+                <p className="text-slate-600 text-sm sm:text-base md:text-lg font-medium leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                  Bypass commercial travel websites. Gain direct access to raw travel wholesaler inventories with rates up to <strong className="text-[#002F6C]">70% lower</strong> on vetted 4 and 5-star properties globally.
+                </p>
+                <p className="text-slate-500 text-xs sm:text-sm leading-relaxed max-w-2xl mx-auto lg:mx-0 font-medium">
+                  We integrate closed-loop rate channels, powered by Travorium partner databases. Because these settings are held under secure private member portal classifications, we can pass raw costs straight to verified members, circumventing standard commercial retail indexing laws.
+                </p>
+              </ScrollReveal>
+
+              <ScrollReveal className="pt-2">
+                <div className="p-4 bg-white border border-slate-100 rounded-2xl flex items-start space-x-3 text-left max-w-xl mx-auto lg:mx-0 shadow-sm">
+                  <Icon name="shieldCheck" className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-slate-600 font-semibold leading-relaxed">
+                    <strong className="text-slate-800">The Sourcing System:</strong> Closed-portal validation permits hotels to offload excess rooms quietly. Our members enjoy full property benefits without incurring standard booking markups.
+                  </p>
+                </div>
+              </ScrollReveal>
+
+              <ScrollReveal className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                <ActionButton 
+                  onClick={() => {
+                    const el = document.getElementById("comparisons");
+                    el?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  variant="primary" 
+                  className="w-full sm:w-auto text-xs px-10 py-4 text-[#002F6C]"
+                >
+                  <span>Show Me Real Prices</span>
+                  <Icon name="moveRight" className="w-4 h-4 shrink-0" />
+                </ActionButton>
+              </ScrollReveal>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* Audited Pricing Real-Time Sourcing Table */}
+      <section id="comparisons" className="py-20 md:py-32 bg-white border-b border-slate-100 relative z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="text-center space-y-4 max-w-3xl mx-auto mb-16">
+            <div className="inline-flex items-center space-x-2 bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-full mx-auto shadow-sm">
+              <Icon name="checkCircle" className="w-4 h-4 text-emerald-600" />
+              <span className="text-[10px] sm:text-xs font-black text-emerald-600 tracking-widest uppercase font-mono">ACTIVE DIRECTORY COMPARISON</span>
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#002F6C] leading-tight">
+              Identical Properties. Identical Dates. <br />Different Price Universes.
+            </h2>
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto font-medium">
+              We audited actual rates live on public retail channels against our private wholesale directory for identical guest dates and suite configurations.
+            </p>
+            
+            {/* Interactive Location Tab selector */}
+            <div className="flex flex-wrap items-center justify-center gap-1.5 bg-slate-50 border border-slate-200 p-1.5 rounded-2xl max-w-md mx-auto mt-6 shadow-sm">
+              {Object.keys(COMPARATIVE_DATA).map((dest) => (
+                <button
+                  key={dest}
+                  onClick={() => setSelectedDestination(dest)}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${
+                    selectedDestination === dest 
+                      ? 'bg-[#002F6C] text-white shadow-md' 
+                      : 'text-[#002F6C] hover:text-[#001D45] font-bold'
+                  }`}
+                >
+                  {dest}
+                </button>
+              ))}
+            </div>
           </div>
 
-        </ScrollReveal>
-      </main>
+          <ScrollReveal>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+              
+              {/* Hotel Detail Showcase */}
+              <div className="lg:col-span-5 rounded-3xl overflow-hidden border border-slate-100 relative group min-h-[350px] lg:min-h-auto shadow-md">
+                <img 
+                  src={activeCompare.image} 
+                  alt={activeCompare.name} 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/10 to-transparent" />
+                
+                <div className="absolute bottom-6 left-6 right-6 text-left space-y-2">
+                  <div className="flex items-center space-x-2 bg-[#FFC000] border border-[#FFE28C] w-max px-3 py-1 rounded-full text-[#002F6C] text-[9px] font-black uppercase tracking-widest font-mono">
+                    <Icon name="mapPin" className="w-3 h-3 shrink-0" />
+                    <span>AUDITED RATE FILE</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white leading-none">{activeCompare.name}</h3>
+                  <p className="text-slate-200 text-xs font-bold leading-relaxed">{activeCompare.roomType}</p>
+                  <p className="text-slate-300 text-[11px] font-mono leading-none pt-1">{activeCompare.dates}</p>
+                </div>
+              </div>
 
-      <footer className="py-16 border-t border-white/5 text-center px-4">
-          <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest text-center">
-            © 2026 NO TIME TO SHARE • EST. 2014
-          </p>
+              {/* Side-by-Side Sourcing Table */}
+              <div className="lg:col-span-7 flex flex-col justify-between bg-white border border-slate-100 rounded-3xl p-6 sm:p-8 space-y-6 text-left shadow-lg">
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Retail Booking */}
+                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col justify-between relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-2 h-2 bg-slate-300 rounded-bl-xl" />
+                    <div className="space-y-1">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block">Retail Sourcing</span>
+                      <span className="text-xs font-black text-slate-500 uppercase tracking-tight block">{activeCompare.retailSource}</span>
+                    </div>
+                    <div className="pt-6">
+                      <span className="text-3xl font-black text-slate-400 font-mono tracking-tight block line-through">${activeCompare.retailPrice.toLocaleString()}</span>
+                      <span className="text-[10px] font-semibold text-slate-500 block leading-none mt-1">Full checkout retail amount</span>
+                    </div>
+                  </div>
+
+                  {/* Private Wholesale */}
+                  <div className="bg-[#EBF3FF] p-5 rounded-2xl border border-[#002F6C]/10 flex flex-col justify-between relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-2 h-2 bg-[#FFC000] rounded-bl-xl" />
+                    <div className="space-y-1">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-[#002F6C] block">Wholesale Sourced API</span>
+                      <span className="text-xs font-black text-[#002F6C] uppercase tracking-tight block">No Time To Share Directory</span>
+                    </div>
+                    <div className="pt-6">
+                      <span className="text-3xl font-black text-[#002F6C] font-mono tracking-tight block animate-pulse">${activeCompare.wholesalePrice.toLocaleString()}</span>
+                      <span className="text-[10px] font-black text-emerald-600 block leading-none mt-1">Save {activeCompare.savingsPct} on this stay!</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Exclusive inclusions checklist */}
+                <div className="space-y-3 pt-2">
+                  <span className="text-[10px] font-black text-[#002F6C] uppercase tracking-widest block font-mono">Wholesale Package Advantages</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    {activeCompare.perks.map((perk, i) => (
+                      <div key={i} className="flex items-center space-x-2 text-xs font-bold text-slate-600">
+                        <Icon name="check" className="w-4 h-4 text-emerald-500 shrink-0" />
+                        <span>{perk}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Narrative connection */}
+                <div className="pt-4 border-t border-slate-100 space-y-4">
+                  <p className="text-slate-500 text-xs leading-relaxed font-semibold">
+                    Because this reservation bypasses retail booking algorithms entirely, you save <strong className="text-emerald-600">${(activeCompare.retailPrice - activeCompare.wholesalePrice).toLocaleString()}</strong> on the exact same room, dates, and benefits.
+                  </p>
+                  
+                  <ActionButton 
+                    onClick={() => {
+                      const el = document.getElementById("diagnostic-portal");
+                      el?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    variant="primary" 
+                    className="w-full text-xs py-4 text-[#002F6C]"
+                  >
+                    <span>Find Out What You Can Save</span>
+                    <Icon name="arrowUpRight" className="w-4 h-4 shrink-0" />
+                  </ActionButton>
+                </div>
+
+              </div>
+
+            </div>
+          </ScrollReveal>
+
+        </div>
+      </section>
+
+      {/* Global Brand Footer */}
+      <footer className="bg-[#001D45] py-12 relative z-10 text-slate-400 text-left border-t border-slate-800 font-sans">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between border-b border-slate-800 pb-8 gap-6">
+            
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <img 
+                src={BRAND_LOGO_URL} 
+                alt="No Time To Share" 
+                className="h-8 w-8 rounded-lg object-cover filter brightness-90 shadow-md"
+                onError={(e) => { e.currentTarget.src = HERO_BACKGROUND_IMAGE; }}
+              />
+              <div>
+                <span className="text-xs font-black text-white tracking-widest uppercase block">NO TIME TO SHARE</span>
+                <span className="text-[9px] font-semibold text-slate-300 block leading-none">Private Wholesale Travel Broker</span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-6 text-[10px] font-bold uppercase tracking-widest text-slate-300">
+              <a href="#rates-mismatch" className="hover:text-[#FFC000] transition-colors">Market Surcharges</a>
+              <a href="#diagnostic-portal" className="hover:text-[#FFC000] transition-colors">Take Eligibility Scan</a>
+              <a href="#private-directory" className="hover:text-[#FFC000] transition-colors">Direct Sourcing</a>
+              <a href="#comparisons" className="hover:text-[#FFC000] transition-colors">Audited Comparisons</a>
+            </div>
+          </div>
+
+          <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-slate-400">
+            <p className="text-center md:text-left leading-relaxed">
+              © {new Date().getFullYear()} No Time To Share. Developed in cooperative partnership with Travorium. All rates are secured in compliance with private member club API provisions.
+            </p>
+            <div className="flex space-x-4 shrink-0">
+              <span className="hover:text-slate-200 cursor-pointer">Terms of Service</span>
+              <span>•</span>
+              <span className="hover:text-slate-200 cursor-pointer">Privacy Protocol</span>
+            </div>
+          </div>
+        </div>
       </footer>
-    </div>
-  );
-};
 
-const MessageCircleIcon = ({ className = "" }) => (
-  <svg 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2.5" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.38 0 0 1 8 8v.5z" />
-  </svg>
-);
+      {/* THE DIAGNOSTIC MODAL */}
+      <TravelerQuiz isOpen={quizOpen} onClose={() => setQuizOpen(false)} setVideoModal={setVideoModal} />
 
-/**
- * MASTER SYSTEM ENTRY
- */
-const App = () => {
-  const [view, setView] = useState('home'); 
-  const [isQuizOpen, setIsQuizOpen] = useState(false);
-  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+      {/* Video Modal Overlay structure used for results validation display */}
+      {videoModal.isOpen && (
+        <div className="fixed inset-0 z-[250] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl overflow-hidden relative shadow-[0_0_50px_rgba(255,192,0,0.3)]">
+            
+            {/* Header overlay for high premium trust visual */}
+            <div className="bg-slate-950/80 border-b border-slate-850 px-6 py-4 flex items-center justify-between text-left">
+              <div className="flex items-center space-x-2">
+                <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse" />
+                <span className="text-[10px] font-black text-[#FFC000] uppercase tracking-[0.25em] font-mono leading-none">
+                  Live Sourcing Verification Playback
+                </span>
+              </div>
+              <button 
+                onClick={() => setVideoModal({ isOpen: false, url: "" })}
+                className="p-1.5 bg-slate-900 hover:bg-slate-850 text-slate-400 hover:text-white rounded-full transition-colors focus:outline-none"
+              >
+                <Icon name="x" className="w-5 h-5" />
+              </button>
+            </div>
 
-  // Dynamic Scarcity Module
-  const { spotsLeft } = useMemo(() => {
-    const now = new Date();
-    const dayOfMonth = now.getDate();
-    const remaining = Math.max(100 - (dayOfMonth - 1) * 3, 7); 
-    return { spotsLeft: remaining };
-  }, []);
-
-  // Script Loader for Kit Form System Integration
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://f.convertkit.com/ckjs/ck.5.js";
-    script.async = true;
-    document.body.appendChild(script);
-    return () => { if (script && document.body.contains(script)) document.body.removeChild(script); }
-  }, []);
-
-  useEffect(() => { 
-    window.scrollTo({ top: 0, behavior: 'auto' }); 
-  }, [view]);
-
-  return (
-    <div className="font-sans selection:bg-amber-400 selection:text-slate-950 text-slate-950 bg-slate-50 antialiased min-h-screen">
-      <style dangerouslySetInnerHTML={{ __html: customStyles }} />
-      
-      {/* Header Nodes */}
-      <Header setView={setView} activeView={view} onScanProfile={() => setIsQuizOpen(true)} />
-      
-      {/* Routing Nodes */}
-      {view === 'home' && (
-        <HomeView 
-          setView={setView}
-          onScanProfile={() => setIsQuizOpen(true)}
-        />
+            {/* Video container Frame */}
+            <div className="aspect-video w-full bg-slate-950">
+              <iframe 
+                src={videoModal.url} 
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
       )}
 
-      {view === 'presentation' && (
-        <PresentationView setView={setView} />
-      )}
-
-      {/* Shared Modals */}
-      <TravelerQuiz isOpen={isQuizOpen} onClose={() => setIsQuizOpen(false)} setView={setView} />
-      <WaitlistModal isOpen={isWaitlistOpen} onClose={() => setIsWaitlistOpen(false)} />
-
-      {/* Sticky High-Urgency Floating Hotspot */}
-      <div 
-        onClick={() => setIsWaitlistOpen(true)}
-        className="fixed bottom-6 right-6 z-[120] bg-white border border-slate-200/60 p-1.5 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center space-x-1 cursor-pointer hover:scale-105 active:scale-95 transition-all group animate-wiggle"
-      >
-        <div className="bg-slate-950 px-5 py-3 rounded-full flex items-center space-x-2.5 shadow-lg">
-           <Timer className="w-4 h-4 text-amber-400 animate-pulse shrink-0" />
-           <span className="text-[11px] font-black text-white uppercase tracking-widest">{spotsLeft} Vacancies Left</span>
-        </div>
-        <div className="px-3.5 py-3 hidden md:flex items-center space-x-1.5">
-           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Secure Seat</span>
-           <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:translate-x-1 transition-transform" />
-        </div>
-      </div>
     </div>
   );
-};
-
-export default App;
+}
