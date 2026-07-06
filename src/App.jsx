@@ -311,6 +311,7 @@ const TravelerQuiz = ({ isOpen, onClose, setVideoModal }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [activeVideoStep, setActiveVideoStep] = useState(1); // 1, 2, or 3 sequence stepper
 
   useEffect(() => {
     if (isOpen) {
@@ -320,6 +321,7 @@ const TravelerQuiz = ({ isOpen, onClose, setVideoModal }) => {
       setLeadName('');
       setLeadEmail('');
       setIsTransitioning(false);
+      setActiveVideoStep(1); // Reset step sequence
     }
   }, [isOpen]);
 
@@ -670,53 +672,113 @@ const TravelerQuiz = ({ isOpen, onClose, setVideoModal }) => {
                     </div>
                   </div>
 
-                  {/* Multi-Video Verification Queue Block */}
-                  <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-4">
+                  <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl space-y-4">
                     <p className="text-slate-600 font-medium text-xs sm:text-sm leading-relaxed text-center">
-                      Welcome, <strong className="text-slate-900">{leadName}</strong>! Check out our direct validation videos below to complete your system matching checklist.
+                      Welcome, <strong className="text-slate-900">{leadName}</strong>! Check out our direct validation videos below in order, using our **Step-by-Step guide**.
                     </p>
 
-                    {/* Scrollable Container keeping multiple embeds organized */}
-                    <div className="max-h-[350px] overflow-y-auto space-y-4 pr-1 scrollbar-thin">
+                    {/* Step wizard nav indicator */}
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                      {[
+                        { num: 1, label: "Step 1: Welcome" },
+                        { num: 2, label: "Step 2: Sourcing" },
+                        { num: 3, label: "Step 3: Signup Walkthrough" }
+                      ].map((stepObj) => (
+                        <button
+                          key={stepObj.num}
+                          type="button"
+                          onClick={() => setActiveVideoStep(stepObj.num)}
+                          className={`text-[9px] sm:text-[10px] font-black uppercase tracking-wider pb-1 transition-all ${
+                            activeVideoStep === stepObj.num
+                              ? "border-b-2 border-[#002F6C] text-[#002F6C]"
+                              : "text-slate-400 hover:text-slate-600"
+                          }`}
+                        >
+                          {stepObj.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Single Frame wrapper to completely bypass multiple overlay playback constraints */}
+                    <div className="space-y-3">
                       
-                      {/* Video 1: Welcome to Travorium */}
-                      <div className="space-y-1">
-                        <span className="text-[10px] font-black text-[#002F6C] uppercase tracking-wider block">Video 1: Welcome to Travorium</span>
-                        <div className="aspect-video w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-950 relative shadow-sm">
-                          <iframe 
-                            src={WELCOME_TRAVORIUM_URL} 
-                            className="w-full h-full absolute inset-0 border-0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                          />
+                      {activeVideoStep === 1 && (
+                        <div className="space-y-3 animate-in fade-in duration-300">
+                          <span className="text-[10px] font-black text-[#002F6C] uppercase tracking-wider block">Video 1: Welcome to Travorium</span>
+                          <div className="aspect-video w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-950 relative shadow-sm">
+                            <iframe 
+                              src={WELCOME_TRAVORIUM_URL} 
+                              className="w-full h-full absolute inset-0 border-0"
+                              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                              allowFullScreen
+                            />
+                          </div>
+                          <div className="flex justify-end">
+                            <button
+                              type="button"
+                              onClick={() => setActiveVideoStep(2)}
+                              className="bg-[#002F6C] hover:bg-[#001D45] text-white text-[11px] font-black uppercase tracking-wider py-2.5 px-4 rounded-lg flex items-center space-x-1"
+                            >
+                              <span>Next Video: How It Works</span>
+                              <Icon name="moveRight" className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
+                      )}
 
-                      {/* Video 2: How It Works */}
-                      <div className="space-y-1 pt-2">
-                        <span className="text-[10px] font-black text-[#002F6C] uppercase tracking-wider block">Video 2: How Sourcing Works</span>
-                        <div className="aspect-video w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-950 relative shadow-sm">
-                          <iframe 
-                            src={HOW_IT_WORKS_URL} 
-                            className="w-full h-full absolute inset-0 border-0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                          />
+                      {activeVideoStep === 2 && (
+                        <div className="space-y-3 animate-in fade-in duration-300">
+                          <span className="text-[10px] font-black text-[#002F6C] uppercase tracking-wider block">Video 2: How Sourcing Works</span>
+                          <div className="aspect-video w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-950 relative shadow-sm">
+                            <iframe 
+                              src={HOW_IT_WORKS_URL} 
+                              className="w-full h-full absolute inset-0 border-0"
+                              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                              allowFullScreen
+                            />
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <button
+                              type="button"
+                              onClick={() => setActiveVideoStep(1)}
+                              className="text-slate-500 hover:text-slate-700 text-[11px] font-black uppercase tracking-wider py-2"
+                            >
+                              Back
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setActiveVideoStep(3)}
+                              className="bg-[#002F6C] hover:bg-[#001D45] text-white text-[11px] font-black uppercase tracking-wider py-2.5 px-4 rounded-lg flex items-center space-x-1"
+                            >
+                              <span>Next Video: How To Join</span>
+                              <Icon name="moveRight" className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
+                      )}
 
-                      {/* Video 3: How to Sign Up */}
-                      <div className="space-y-1 pt-2">
-                        <span className="text-[10px] font-black text-[#002F6C] uppercase tracking-wider block">Video 3: Walkthrough On Scribing</span>
-                        <div className="aspect-video w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-950 relative shadow-sm">
-                          <iframe 
-                            src={HOW_TO_SIGN_UP_URL} 
-                            className="w-full h-full absolute inset-0 border-0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowFullScreen
-                          />
+                      {activeVideoStep === 3 && (
+                        <div className="space-y-3 animate-in fade-in duration-300">
+                          <span className="text-[10px] font-black text-[#002F6C] uppercase tracking-wider block">Video 3: Walkthrough On Joining</span>
+                          <div className="aspect-video w-full rounded-xl overflow-hidden border border-slate-200 bg-slate-950 relative shadow-sm">
+                            <iframe 
+                              src={HOW_TO_SIGN_UP_URL} 
+                              className="w-full h-full absolute inset-0 border-0"
+                              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                              allowFullScreen
+                            />
+                          </div>
+                          <div className="flex justify-start">
+                            <button
+                              type="button"
+                              onClick={() => setActiveVideoStep(2)}
+                              className="text-slate-500 hover:text-slate-700 text-[11px] font-black uppercase tracking-wider py-2"
+                            >
+                              Back to Step 2
+                            </button>
+                          </div>
                         </div>
-                      </div>
+                      )}
 
                     </div>
                   </div>
@@ -756,12 +818,26 @@ export default function App() {
   const [selectedDestination, setSelectedDestination] = useState("Cancun");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [videoModal, setVideoModal] = useState({ isOpen: false, url: "" });
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const styleTag = document.createElement("style");
     styleTag.innerHTML = customStyles;
     document.head.appendChild(styleTag);
     return () => { document.head.removeChild(styleTag); };
+  }, []);
+
+  // Scroll listener to activate minimized header transitions
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 30) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const activeCompare = useMemo(() => {
@@ -772,20 +848,25 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-[#FFC000] selection:text-[#002F6C] antialiased overflow-x-hidden">
       
       {/* Brand Nav Header matching the "No Time To Share" Blue & Gold Logo */}
-      <nav className="sticky top-0 z-50 bg-[#002F6C] border-b border-white/10 shadow-md transition-all">
+      {}
+      <nav className={`sticky top-0 z-50 border-b border-white/10 transition-all duration-300 ${
+        scrolled 
+          ? 'bg-[#001D45]/95 backdrop-blur-md py-2 shadow-lg' 
+          : 'bg-[#002F6C] py-4 shadow-md'
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
+          <div className={`flex items-center justify-between transition-all duration-300 ${scrolled ? 'h-14' : 'h-20'}`}>
             {/* Logo */}
             <div className="flex items-center space-x-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <img 
                 src={BRAND_LOGO_URL} 
                 alt="No Time To Share Logo" 
-                className="h-10 w-10 rounded-xl object-cover border border-white/20 shadow-md"
+                className={`transition-all duration-300 object-cover border border-white/20 shadow-md ${scrolled ? 'h-8 w-8 rounded-lg' : 'h-10 w-10 rounded-xl'}`}
                 onError={(e) => { e.currentTarget.src = HERO_BACKGROUND_IMAGE; }}
               />
               <div className="flex flex-col text-left">
-                <span className="font-black text-sm tracking-wider text-white">NO TIME TO SHARE</span>
-                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#FFE28C] leading-none mt-0.5">Wholesale Travel Vault</span>
+                <span className={`font-black tracking-wider text-white transition-all duration-300 ${scrolled ? 'text-xs' : 'text-sm'}`}>NO TIME TO SHARE</span>
+                <span className={`font-black uppercase tracking-[0.3em] text-[#FFE28C] leading-none mt-0.5 transition-all duration-300 ${scrolled ? 'text-[8px]' : 'text-[9px]'}`}>Wholesale Travel Vault</span>
               </div>
             </div>
 
@@ -802,7 +883,7 @@ export default function App() {
               <ActionButton 
                 onClick={() => setQuizOpen(true)}
                 variant="primary" 
-                className="px-6 py-2.5 text-xs rounded-xl text-[#002F6C]"
+                className={`transition-all duration-300 text-xs rounded-xl text-[#002F6C] ${scrolled ? 'px-4 py-2' : 'px-6 py-2.5'}`}
               >
                 <span>See If You Qualify</span>
                 <Icon name="zap" className="w-3.5 h-3.5 shrink-0" />
@@ -840,6 +921,7 @@ export default function App() {
       </nav>
 
       {/* Hero Section: Sourcing & Pricing Leak Exposure */}
+      {}
       <section id="rates-mismatch" className="relative py-20 md:py-28 bg-[#002F6C] overflow-hidden border-b border-slate-100">
         {/* Underlay textured background image */}
         <div className="absolute inset-0 opacity-15 bg-cover bg-center pointer-events-none z-0" style={{ backgroundImage: `url(${HERO_BACKGROUND_IMAGE})` }} />
@@ -874,7 +956,7 @@ export default function App() {
                     <iframe 
                       src={ORLANDO_VIDEO_URL} 
                       className="w-full h-full absolute inset-0 border-0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                       allowFullScreen
                     />
                   </div>
@@ -931,8 +1013,8 @@ export default function App() {
         </div>
       </section>
 
+      {/* Ticker integration within the evaluation scanner panel */}
       {}
-      {/* Evaluation Zone featuring our 1-Minute Diagnostic & Live Ticker */}
       <section id="diagnostic-portal" className="py-20 bg-[#F5F7FA] relative z-10 overflow-hidden border-b border-slate-150">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#EBF3FF] rounded-full filter blur-[120px] pointer-events-none" />
         
@@ -1007,8 +1089,7 @@ export default function App() {
         </div>
       </section>
 
-      {}
-      {/* Private Sourcing Direct-to-Consumer Narrative */}
+      {/* Sourcing Features Details */}
       <section id="private-directory" className="py-20 md:py-32 bg-white border-b border-slate-100 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -1113,8 +1194,7 @@ export default function App() {
         </div>
       </section>
 
-      {}
-      {/* Audited Pricing Real-Time Sourcing Table */}
+      {/* Comparisons Table */}
       <section id="comparisons" className="py-20 md:py-32 bg-white border-b border-slate-100 relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -1242,8 +1322,8 @@ export default function App() {
         </div>
       </section>
 
+      {/* Global Footer */}
       {}
-      {/* Global Brand Footer */}
       <footer className="bg-[#001D45] py-12 relative z-10 text-slate-400 text-left border-t border-slate-800 font-sans">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between border-b border-slate-800 pb-8 gap-6">
