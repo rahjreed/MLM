@@ -264,66 +264,41 @@ function QuizModal({ onClose }) {
   </div>;
 }
 
-function TravoriumValueExplorer() {
-  const [months, setMonths] = useState(6);
-  const [retail, setRetail] = useState("");
-  const [member, setMember] = useState("");
-  const [pointsSavings, setPointsSavings] = useState("");
-
-  const money = (amount) => "$" + Number(amount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-  const validAmount = (value) => value !== "" && Number.isFinite(Number(value)) && Number(value) >= 0;
-  const hasQuotes = validAmount(retail) && validAmount(member);
-  const appliedPointsValue = validAmount(pointsSavings) ? Number(pointsSavings) : 0;
-  const pointsOverLimit = hasQuotes && appliedPointsValue > Number(member);
-  const memberBookingDue = hasQuotes && !pointsOverLimit ? Math.max(0, Number(member) - appliedPointsValue) : 0;
-  const memberRateDifference = hasQuotes ? Number(retail) - Number(member) : 0;
-  const fullDifference = hasQuotes && !pointsOverLimit ? Number(retail) - memberBookingDue : 0;
-
+function OrlandoTripStory({ onQuiz }) {
   return <div className="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-2xl shadow-blue-950/10">
     <div className="bg-[#002F6C] px-6 py-6 text-white sm:px-8">
-      <div className="flex items-center gap-2 text-amber-300"><Sparkles size={18}/><p className="text-xs font-black uppercase tracking-[.13em]">Based on Travorium Platinum</p></div>
-      <h3 className="mt-2 text-2xl font-black leading-tight">Member discounts + Travel Points</h3>
-      <p className="mt-3 text-sm leading-relaxed text-blue-100">Your $135 monthly payment earns 270 Travel Points. Points accumulate while you're active and can be used to buy down eligible Getaways and World Tours, in addition to member travel pricing.</p>
+      <div className="flex items-center gap-2 text-amber-300"><PlayCircle size={18}/><p className="text-xs font-black uppercase tracking-[.13em]">Our own Orlando vacation</p></div>
+      <h3 className="mt-3 text-2xl font-black leading-tight sm:text-3xl">Eight days in a resort villa. Just over $300.</h3>
+      <p className="mt-3 text-sm leading-relaxed text-blue-100">This is the Orlando stay we shared on No Time to Share—not a hypothetical hotel deal.</p>
     </div>
-    <div className="space-y-7 p-6 sm:p-8">
+    <div className="p-6 sm:p-8">
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-2xl bg-[#EFF5FF] p-4"><p className="text-xs font-bold text-[#0052A4]">Monthly Platinum dues</p><p className="mt-2 text-2xl font-black text-[#002F6C]">$135</p><p className="mt-1 text-[11px] text-slate-600">Recurring membership charge</p></div>
-        <div className="rounded-2xl bg-amber-50 p-4"><p className="text-xs font-bold text-amber-900">Travel Points earned / month</p><p className="mt-2 text-2xl font-black text-[#002F6C]">270 pts</p><p className="mt-1 text-[11px] text-slate-600">For eligible Getaways / World Tours</p></div>
-      </div>
-      <div>
-        <div className="flex flex-wrap items-center justify-between gap-3"><label htmlFor="points-months" className="text-sm font-extrabold text-[#002F6C]">See how points accumulate</label><span className="rounded-lg bg-[#002F6C] px-3 py-1.5 text-sm font-black text-white">{months} {months === 1 ? "month" : "months"}</span></div>
-        <input id="points-months" type="range" min="1" max="24" step="1" value={months} onChange={(e) => setMonths(Number(e.target.value))} className="mt-4 w-full accent-[#002F6C]" aria-label="Number of Platinum membership months"/>
-        <div className="mt-1 flex justify-between text-xs font-bold text-slate-500"><span>1 month</span><span>12 months</span><span>24 months</span></div>
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-amber-900">Travel Points earned</p><p className="mt-1 text-3xl font-black text-[#002F6C]">{(months * 270).toLocaleString()} <span className="text-base">pts</span></p><p className="mt-1 text-xs text-slate-600">Total earned if each month is paid; before use or expiration</p></div>
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-600">Monthly dues paid</p><p className="mt-1 text-3xl font-black text-[#002F6C]">{money(months * 135)}</p><p className="mt-1 text-xs text-slate-600">Membership spending; not a cash account balance</p></div>
+        <div className="rounded-2xl border border-blue-100 bg-[#EFF5FF] p-4">
+          <p className="text-[11px] font-extrabold uppercase tracking-wide text-[#0052A4]">Time away</p>
+          <p className="mt-2 text-3xl font-black text-[#002F6C]">8 days</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-600">7 nights in Orlando</p>
         </div>
-        <p className="mt-3 text-xs leading-relaxed text-slate-500">New Platinum memberships also have a <strong>$269.95 one-time enrollment fee</strong>. Travel Points have no cash value, expire 24 months after they're earned and require active membership to redeem. The earned-points total above is not your guaranteed available balance. <a href="https://app.travorium.com/legal/membership-agreement" target="_blank" rel="noopener noreferrer" className="font-bold text-[#0052A4] underline">Read official terms</a>.</p>
-      </div>
-      <div className="border-t border-slate-200 pt-6">
-        <p className="text-xs font-extrabold uppercase tracking-widest text-[#0052A4]">Try your own trip</p>
-        <h4 className="mt-2 text-xl font-black text-[#002F6C]">How would a real booking compare?</h4>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600">Enter the actual public and member prices for the same trip. Add any dollar reduction displayed when applying Travel Points at checkout. You can leave that field blank when points aren't eligible.</p>
-        <div className="mt-5 space-y-3">
-          {[
-            { id: "retail-quote", label: "Public price, all fees included ($)", value: retail, change: setRetail, hint: "Same property, dates, occupancy and cancellation terms" },
-            { id: "member-quote", label: "Travorium member price before Travel Points ($)", value: member, change: setMember, hint: "Actual quoted member booking total" },
-            { id: "points-reduction", label: "Optional: Dollar reduction shown at checkout from Travel Points ($)", value: pointsSavings, change: setPointsSavings, hint: "Use the actual eligible booking discount shown; not your point balance" }
-          ].map((field) => <label key={field.id} htmlFor={field.id} className="block"><span className="text-xs font-extrabold text-slate-700">{field.label}</span><input id={field.id} type="number" inputMode="decimal" min="0" step="0.01" value={field.value} onChange={(e) => field.change(e.target.value)} placeholder="Enter actual quoted amount" className="mt-1 block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 focus:outline-2 focus:outline-blue-400"/><small className="mt-1 block text-[11px] leading-relaxed text-slate-500">{field.hint}</small></label>)}
+        <div className="rounded-2xl border border-blue-100 bg-[#EFF5FF] p-4">
+          <p className="text-[11px] font-extrabold uppercase tracking-wide text-[#0052A4]">Villa space</p>
+          <p className="mt-2 text-3xl font-black text-[#002F6C]">1,300</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-600">Approximate square feet</p>
         </div>
-        {pointsOverLimit && <p role="alert" className="mt-3 rounded-xl bg-rose-50 p-3 text-xs font-semibold text-rose-700">The point buy-down cannot exceed the displayed member booking total.</p>}
-        <div className="mt-5 rounded-2xl bg-[#002F6C] p-5 text-white">
-          <p className="text-xs font-bold uppercase tracking-wide text-blue-100">Your booking comparison</p>
-          {hasQuotes && !pointsOverLimit ? <div className="mt-4 space-y-3">
-            <div className="flex justify-between gap-3 text-sm"><span>Member-rate difference</span><strong>{money(memberRateDifference)}</strong></div>
-            <div className="flex justify-between gap-3 text-sm"><span>Travel Points reduction at checkout</span><strong>{money(appliedPointsValue)}</strong></div>
-            <div className="flex justify-between gap-3 text-sm"><span>Member booking cash due</span><strong>{money(memberBookingDue)}</strong></div>
-            <div className="border-t border-white/20 pt-3"><p className="text-xs text-blue-100">Booking price difference before membership dues</p><p className="mt-1 text-3xl font-black">{money(fullDifference)}</p></div>
-            {fullDifference < 0 && <p className="text-xs text-amber-200">On these quotes, the member booking costs more than the public option.</p>}
-          </div> : <p className="mt-3 text-sm text-blue-100">Enter two comparable prices to see the difference. Points are only applied if you enter an actual checkout reduction.</p>}
-        </div>
-        <p className="mt-3 text-xs leading-relaxed text-slate-500">This compares the <strong>booking transaction</strong>, not your net financial gain. You also pay membership dues and any enrollment fee. Travel Points are restricted to eligible Getaways and World Tours; they do not function as a cash wallet usable on every hotel. Any difference depends on real rates and redemption eligibility.</p>
       </div>
+      <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+        <p className="text-xs font-extrabold uppercase tracking-wide text-amber-900">The resort stay amount we shared</p>
+        <p className="mt-2 text-4xl font-black text-[#002F6C]">Just over $300</p>
+        <p className="mt-2 text-sm leading-relaxed text-slate-700">For the villa stay described in our Orlando video. It's a real example from our experience, not a price anyone can automatically book today.</p>
+      </div>
+      <div className="mt-6 rounded-2xl border border-slate-200 p-5">
+        <h4 className="text-base font-black text-[#002F6C]">What makes this story worth sharing?</h4>
+        <p className="mt-2 text-sm leading-relaxed text-slate-600">We wanted a comfortable place to stay without letting lodging consume the entire vacation budget. Our experience is why we encourage people to look beyond the first hotel price they see and compare the options available to them.</p>
+        <p className="mt-3 text-sm leading-relaxed text-slate-600">Travorium members may have access to member travel prices and can earn Travel Points for eligible future bookings. Any points actually used on a stay are separate from the member booking price. Different trips can produce very different results.</p>
+      </div>
+      <a href="#home" className="mt-5 inline-flex items-center gap-2 text-sm font-extrabold text-[#002F6C] underline underline-offset-4"><PlayCircle size={18}/> Watch our Orlando vacation walkthrough</a>
+      <div className="mt-5 border-t border-slate-200 pt-5">
+        <p className="text-xs leading-relaxed text-slate-500"><strong>About this example:</strong> The just-over-$300 figure comes from our original Orlando trip story. It is not a comparison against a verified public rate, and it does not represent the full vacation budget or every membership payment. Actual booking prices, fees, Travel Points eligibility and availability vary. We're not claiming a fixed amount or percentage saved.</p>
+      </div>
+      <button type="button" onClick={onQuiz} className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#FFC000] px-5 py-4 text-sm font-extrabold text-[#002F6C] hover:bg-[#FFCF40]">Find your vacation fit <ArrowRight size={18}/></button>
     </div>
   </div>;
 }
@@ -341,7 +316,7 @@ export default function App() {
         <div className="hidden items-center gap-7 lg:flex">
           <a href="#learn" className="text-xs font-bold uppercase tracking-wider text-white hover:text-amber-300">Timeshare truths</a>
           <a href="#orlando" className="text-xs font-bold uppercase tracking-wider text-white hover:text-amber-300">Our travel story</a>
-          <a href="#compare" className="text-xs font-bold uppercase tracking-wider text-white hover:text-amber-300">Compare costs</a>
+          <a href="#compare" className="text-xs font-bold uppercase tracking-wider text-white hover:text-amber-300">Our Orlando cost</a>
           <a href="#questions" className="text-xs font-bold uppercase tracking-wider text-white hover:text-amber-300">FAQ</a>
         </div>
         <div className="hidden sm:block"><Button onClick={startQuiz} className="!px-4 !py-3">Take the travel quiz <ArrowRight size={16}/></Button></div>
@@ -349,7 +324,7 @@ export default function App() {
       </div>
       {menuOpen && <div className="border-t border-white/10 bg-[#001D45] p-5 lg:hidden">
         <div className="flex flex-col gap-4 text-sm font-bold text-white">
-          {[["Timeshare truths","#learn"],["Our travel story","#orlando"],["Compare costs","#compare"],["FAQ","#questions"]].map(([label, url]) => <a key={url} href={url} onClick={() => setMenuOpen(false)}>{label}</a>)}
+          {[["Timeshare truths","#learn"],["Our travel story","#orlando"],["Our Orlando cost","#compare"],["FAQ","#questions"]].map(([label, url]) => <a key={url} href={url} onClick={() => setMenuOpen(false)}>{label}</a>)}
           <button onClick={startQuiz} className="rounded-xl bg-[#FFC000] p-3 text-left font-extrabold text-[#002F6C]">Take the travel quiz</button>
         </div>
       </div>}
@@ -401,12 +376,12 @@ export default function App() {
       <section id="compare" className="scroll-mt-24 bg-white px-5 py-20 sm:px-8">
         <div className="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-2">
           <div className="lg:pt-8">
-            <p className="text-xs font-black uppercase tracking-[.2em] text-[#0052A4]">How Platinum works</p><h2 className="mt-3 text-3xl font-black leading-tight text-[#002F6C] sm:text-5xl">Your membership offers two ways to find value.</h2>
-            <p className="mt-5 text-base leading-relaxed text-slate-600">Platinum offers access to member travel prices and earns Travel Points every month. For eligible Getaways and World Tours, those points may reduce the already displayed booking cost. Try the calculator to understand each part.</p>
-            <div className="mt-7 rounded-2xl border-l-4 border-amber-400 bg-amber-50 p-5"><p className="font-extrabold text-[#002F6C]">The important distinction</p><p className="mt-2 text-sm leading-relaxed text-slate-700">Travel Points aren't cash deposits, but they aren't simply a lost fee either: they're an additional member benefit with redemption rules. See your accumulated points separately from what you have paid, then compare the actual booking rates and eligible point discounts.</p></div>
+            <p className="text-xs font-black uppercase tracking-[.2em] text-[#0052A4]">Our real Orlando trip</p><h2 className="mt-3 text-3xl font-black leading-tight text-[#002F6C] sm:text-5xl">One Orlando trip. A story worth showing.</h2>
+            <p className="mt-5 text-base leading-relaxed text-slate-600">We shared our own stay in a roughly 1,300-square-foot Orlando resort villa for just over $300. It's a much better starting point than an invented hotel comparison—because you can watch the trip for yourself.</p>
+            <div className="mt-7 rounded-2xl border-l-4 border-amber-400 bg-amber-50 p-5"><p className="font-extrabold text-[#002F6C]">One trip isn't a promise</p><p className="mt-2 text-sm leading-relaxed text-slate-700">Your vacation dates, location, room, booking method, membership costs and eligible Travel Points all matter. We show what we experienced without inventing a retail comparison or guaranteed discount.</p></div>
             <div className="mt-8"><Button onClick={startQuiz}>Find your vacation fit <ArrowRight size={17}/></Button></div>
           </div>
-          <TravoriumValueExplorer/>
+          <OrlandoTripStory onQuiz={startQuiz}/>
         </div>
       </section>
 
