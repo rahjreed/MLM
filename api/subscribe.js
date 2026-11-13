@@ -15,7 +15,7 @@ export default async function handler(req, res) {
   const apiKey = process.env.KIT_API_KEY;
   if (!apiKey) return res.status(503).json({ error: "Email signup temporarily unavailable" });
 
-  const { email, name, consent, website } = req.body || {};
+  const { email, name, consent, website, profile, travel_nights, travel_priority, booking_frustration } = req.body || {};
   // Honeypot for bots; legitimate UI does not populate this field.
   if (website) return res.status(400).json({ error: "Invalid submission" });
   const safeEmail = typeof email === "string" ? email.trim().toLowerCase() : "";
@@ -35,7 +35,16 @@ export default async function handler(req, res) {
     const subscriberResponse = await fetch(KIT_API + "/subscribers", {
       method: "POST",
       headers,
-      body: JSON.stringify({ email_address: safeEmail, first_name: safeName })
+      body: JSON.stringify({
+        email_address: safeEmail,
+        first_name: safeName,
+        fields: {
+          travel_profile: typeof profile === "string" ? profile.slice(0, 80) : "",
+          travel_nights: typeof travel_nights === "string" ? travel_nights.slice(0, 80) : "",
+          travel_priority: typeof travel_priority === "string" ? travel_priority.slice(0, 100) : "",
+          booking_frustration: typeof booking_frustration === "string" ? booking_frustration.slice(0, 100) : ""
+        }
+      })
     });
     if (!subscriberResponse.ok) throw new Error("Subscriber creation failed");
     const subscriberBody = await subscriberResponse.json();
