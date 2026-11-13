@@ -294,7 +294,7 @@ function OrlandoTripStory({ onQuiz }) {
         <p className="mt-2 text-sm leading-relaxed text-slate-600">We wanted a comfortable place to stay without letting lodging consume the entire vacation budget. Our experience is why we encourage people to look beyond the first hotel price they see and compare the options available to them.</p>
         <p className="mt-3 text-sm leading-relaxed text-slate-600">Travorium members may have access to member travel prices and can earn Travel Points for eligible future bookings. Any points actually used on a stay are separate from the member booking price. Different trips can produce very different results.</p>
       </div>
-      <a href="#home" className="mt-5 inline-flex items-center gap-2 text-sm font-extrabold text-[#002F6C] underline underline-offset-4"><PlayCircle size={18}/> Watch our Orlando vacation walkthrough</a>
+      <a href="#orlando-video" className="mt-5 inline-flex items-center gap-2 text-sm font-extrabold text-[#002F6C] underline underline-offset-4"><PlayCircle size={18}/> Watch our Orlando vacation walkthrough</a>
       <div className="mt-5 border-t border-slate-200 pt-5">
         <p className="text-xs leading-relaxed text-slate-500"><strong>About this example:</strong> The just-over-$300 figure comes from our original Orlando trip story. It is not a comparison against a verified public rate, and it does not represent the full vacation budget or every membership payment. Actual booking prices, fees, Travel Points eligibility and availability vary. We're not claiming a fixed amount or percentage saved.</p>
       </div>
@@ -345,7 +345,7 @@ export default function App() {
         </div>
         <div className="rounded-3xl border border-white/15 bg-white p-4 text-slate-800 shadow-2xl sm:p-6">
           <div className="flex items-center justify-between gap-3 border-b border-slate-200 pb-3"><div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#002F6C]"><PlayCircle size={18}/> A real Orlando vacation story</div><span className="text-[10px] font-bold text-emerald-700">Travel walkthrough</span></div>
-          <div className="mt-4 aspect-video overflow-hidden rounded-2xl bg-slate-900"><iframe src={ORLANDO_VIDEO_URL} title="Orlando vacation walkthrough" loading="lazy" allow="encrypted-media; picture-in-picture" allowFullScreen className="h-full w-full border-0"/></div>
+          <div id="orlando-video" className="mt-4 aspect-video scroll-mt-32 overflow-hidden rounded-2xl bg-slate-900"><iframe src={ORLANDO_VIDEO_URL} title="Orlando vacation walkthrough" loading="lazy" allow="encrypted-media; picture-in-picture" allowFullScreen className="h-full w-full border-0"/></div>
           <h2 className="mt-4 text-lg font-black text-[#002F6C]">See the trip. Learn how to compare the cost.</h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-600">We share an Orlando resort experience and encourage you to compare the complete cost of any offer—including fees, membership charges and booking conditions.</p>
         </div>
@@ -377,7 +377,7 @@ export default function App() {
         <div className="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-2">
           <div className="lg:pt-8">
             <p className="text-xs font-black uppercase tracking-[.2em] text-[#0052A4]">Our real Orlando trip</p><h2 className="mt-3 text-3xl font-black leading-tight text-[#002F6C] sm:text-5xl">One Orlando trip. A story worth showing.</h2>
-            <p className="mt-5 text-base leading-relaxed text-slate-600">We shared our own stay in a roughly 1,300-square-foot Orlando resort villa for just over $300. It's a much better starting point than an invented hotel comparison—because you can watch the trip for yourself.</p>
+            <p className="mt-5 text-base leading-relaxed text-slate-600">We shared our own stay in a roughly 1,300-square-foot Orlando resort villa for just over $300. You can watch the stay in our original Orlando walkthrough and see why we started comparing travel options more carefully.</p>
             <div className="mt-7 rounded-2xl border-l-4 border-amber-400 bg-amber-50 p-5"><p className="font-extrabold text-[#002F6C]">One trip isn't a promise</p><p className="mt-2 text-sm leading-relaxed text-slate-700">Your vacation dates, location, room, booking method, membership costs and eligible Travel Points all matter. We show what we experienced without inventing a retail comparison or guaranteed discount.</p></div>
             <div className="mt-8"><Button onClick={startQuiz}>Find your vacation fit <ArrowRight size={17}/></Button></div>
           </div>
@@ -409,7 +409,7 @@ export default function App() {
 
     <footer className="bg-[#001A3B] px-5 py-12 text-slate-300 sm:px-8">
       <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col justify-between gap-8 border-b border-white/15 pb-8 sm:flex-row sm:items-center"><Brand/><div className="flex flex-wrap gap-5 text-sm font-semibold"><a className="hover:text-white" href="#learn">Timeshare education</a><a className="hover:text-white" href="#compare">Vacation comparison</a><a className="hover:text-white" href="/privacy.html">Privacy</a><a className="hover:text-white" href="/terms.html">Terms</a></div></div>
+        <div className="flex flex-col justify-between gap-8 border-b border-white/15 pb-8 sm:flex-row sm:items-center"><Brand/><div className="flex flex-wrap gap-5 text-sm font-semibold"><a className="hover:text-white" href="#learn">Timeshare education</a><a className="hover:text-white" href="#compare">Our Orlando trip</a><a className="hover:text-white" href="/privacy.html">Privacy</a><a className="hover:text-white" href="/terms.html">Terms</a></div></div>
         <p className="mt-6 max-w-4xl text-xs leading-relaxed text-slate-400">No Time to Share is an independent travel education and referral website. We may earn compensation through Travorium referrals. Membership fees and booking conditions apply. Hotel prices, availability and potential savings vary. This website does not sell or finance timeshares.</p>
         <p className="mt-5 text-xs text-slate-500">© {new Date().getFullYear()} No Time to Share. Travel well, decide wisely.</p>
       </div>
