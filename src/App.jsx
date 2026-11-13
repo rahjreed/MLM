@@ -34,6 +34,16 @@ const questions = [
     title: "What do you usually spend on lodging for a week?",
     context: "This is only to help frame your comparison—not a quote.",
     options: ["Under $1,000", "$1,000–$2,500", "$2,500–$5,000", "Over $5,000"]
+  },
+  {
+    title: "What frustrates you most about planning vacations?",
+    context: "This helps us suggest a smarter way to compare options.",
+    options: ["Surprise fees at checkout", "Spending hours comparing prices", "Finding enough space for everyone", "Limited dates or cancellation flexibility"]
+  },
+  {
+    title: "Which benefit matters most on your next trip?",
+    context: "There are no right or wrong answers—just your priorities.",
+    options: ["Keeping the total cost down", "Room for family and friends", "Comfortable resort experiences", "Freedom to book when I want"]
   }
 ];
 
@@ -81,6 +91,8 @@ function QuizModal({ onClose }) {
   const [signupState, setSignupState] = useState("idle");
   const [kitConfigured, setKitConfigured] = useState(false);
   const [detailVideosOpen, setDetailVideosOpen] = useState(false);
+  const [resultsUnlocked, setResultsUnlocked] = useState(false);
+  const [fallbackPending, setFallbackPending] = useState(false);
 
   useEffect(() => {
     function keydown(e) { if (e.key === "Escape") onClose(); }
@@ -93,34 +105,60 @@ function QuizModal({ onClose }) {
   }, []);
 
   const finished = step >= questions.length;
-  const nights = answers[2];
-  const traveler = nights === 3 ? {
-    label: "Frequent traveler",
-    detail: "Because you take multiple trips, comparing membership costs with actual booking quotes may be worthwhile.",
-    tip: "Add up the membership fees for the whole year, then compare at least two trips before deciding."
-  } : nights === 1 || nights === 2 ? {
-    label: "Regular vacation planner",
-    detail: "You have enough travel activity to compare offers, but savings depend heavily on your dates and the places you book.",
-    tip: "Price your next planned vacation both ways—same dates, room, fees and refund policy."
+  const nights = answers[2] ?? 0;
+  const lodging = answers[1] ?? 0;
+  const priority = answers[5] ?? 0;
+  const isResortLover = (lodging === 2 || priority === 2) && (nights >= 1 || (answers[3] ?? 0) >= 2);
+  const traveler = (nights === 0 && !isResortLover) ? {
+    id: "explorer",
+    label: "The Smart Explorer",
+    detail: "You're a flexible traveler who should compare memberships carefully against booking only when you need a trip.",
+    tip: "Start with a direct hotel quote and add the full annual cost of any travel membership before deciding.",
+    color: "from-cyan-100 to-sky-50",
+    badge: "Flexible & value-minded"
+  } : isResortLover ? {
+    id: "resort",
+    label: "The Resort Enthusiast",
+    detail: "You prioritize comfortable or upscale stays. Resort-focused memberships may be worth comparing, but only when actual travel dates and total costs line up.",
+    tip: "For your next resort trip, compare identical room types, included amenities, cancellation terms and membership costs.",
+    color: "from-amber-100 to-yellow-50",
+    badge: "Resort & experience-focused"
   } : {
-    label: "Occasional explorer",
-    detail: "With fewer travel nights, a membership fee may outweigh booking savings. Direct booking deserves a close look.",
-    tip: "Compare your actual annual travel spending with every recurring membership charge."
+    id: "planner",
+    label: "The Vacation Planner",
+    detail: "You plan regular getaways and want a balance between comfort, flexibility and price.",
+    tip: "Compare at least two trips over the next year and include enrollment, renewal and booking fees.",
+    color: "from-indigo-100 to-blue-50",
+    badge: "Practical & organized"
   };
+  const ProfileIcon = traveler.id === "explorer" ? Compass : traveler.id === "resort" ? Sparkles : Plane;
+  const frustrationTip = [
+    "Pay special attention to resort fees, taxes, cleaning charges and mandatory add-ons.",
+    "Compare a short list of like-for-like options instead of dozens of unrelated deals.",
+    "Compare total occupancy and sleeping arrangements, not just the nightly room rate.",
+    "Read the booking, change and refund terms before committing to any offer."
+  ][answers[4] ?? 0];
 
   async function saveLead(e) {
     e.preventDefault();
-    if (!consent || !email) return;
+    if (!consent || !name.trim() || !email.trim()) return;
     setSignupState("sending");
     try {
       const response = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), email: email.trim(), consent: true, profile: traveler.label })
+        body: JSON.stringify({
+          name: name.trim(), email: email.trim(), consent: true,
+          profile: traveler.label,
+          travel_nights: questions[2].options[answers[2]],
+          travel_priority: questions[5].options[answers[5]],
+          booking_frustration: questions[4].options[answers[4]]
+        })
       });
       if (!response.ok) throw new Error("Signup unavailable");
       setSignupState("success");
-    } catch (error) {
+      setResultsUnlocked(true);
+    } catch {
       setSignupState("error");
     }
   }
@@ -150,10 +188,53 @@ function QuizModal({ onClose }) {
           </div>
           {step > 0 && <button type="button" className="mt-6 flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-[#002F6C]" onClick={() => setStep(step - 1)}><ChevronLeft size={16}/> Previous question</button>}
         </div>
-      </> : <div className="p-6 sm:p-9">
+      </> : !resultsUnlocked ? <div className="p-6 sm:p-10">
+        <div className="mx-auto max-w-xl text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#E8F1FF] text-[#002F6C]"><ShieldCheck size={30}/></div>
+          <p className="mt-5 text-xs font-black uppercase tracking-[.2em] text-[#0052A4]">All six questions complete</p>
+          <h2 className="mt-3 text-2xl font-black leading-tight text-[#002F6C] sm:text-3xl">Your Vacation Profile Is Ready!</h2>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">You've told us how you like to travel. Enter your name and email to unlock your personalized travel snapshot, plus practical tips for comparing your next vacation.</p>
+        </div>
+        <form
+          className="mx-auto mt-7 max-w-md space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-5"
+          onSubmit={kitConfigured ? saveLead : () => setFallbackPending(true)}
+          action={!kitConfigured ? KIT_FORM_URL : undefined}
+          method={!kitConfigured ? "POST" : undefined}
+          target={!kitConfigured ? "_blank" : undefined}
+        >
+          <label className="block text-xs font-bold text-slate-700">Your first name
+            <input name="fields[first_name]" value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" required maxLength={80} placeholder="Your name" className="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 focus:outline-2 focus:outline-blue-400"/>
+          </label>
+          <label className="block text-xs font-bold text-slate-700">Your email
+            <input type="email" name="email_address" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required maxLength={254} placeholder="you@example.com" className="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 focus:outline-2 focus:outline-blue-400"/>
+          </label>
+          <label className="flex items-start gap-3 text-xs leading-relaxed text-slate-600">
+            <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} required className="mt-1"/>
+            <span>I agree to receive follow-up emails from No Time to Share about my travel assessment, vacation options, and relevant tips. I can unsubscribe at any time. See the <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="font-bold text-[#002F6C] underline">privacy notice</a>.</span>
+          </label>
+          <button type="submit" disabled={!consent || signupState === "sending"} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#002F6C] px-5 py-4 text-sm font-extrabold text-white hover:bg-[#00448D] disabled:opacity-60">{signupState === "sending" ? "Saving your details…" : kitConfigured ? "Unlock My Vacation Results" : "Continue with Kit to unlock" }<ArrowRight size={16}/></button>
+          <p className="text-xs leading-relaxed text-slate-500">{kitConfigured ? "Your results will open once your signup is accepted by our email provider." : "The signup opens through Kit in a separate tab. You can return here after submitting it to reveal your results."} No travel membership purchase is required.</p>
+        </form>
+        {signupState === "error" && <div role="alert" className="mx-auto mt-4 max-w-md rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">We couldn't confirm your signup. Please retry, or use the original Kit form instead:
+          <form method="POST" action={KIT_FORM_URL} target="_blank" onSubmit={() => setFallbackPending(true)}>
+            <input type="hidden" name="email_address" value={email} readOnly/>
+            <input type="hidden" name="fields[first_name]" value={name} readOnly/>
+            <button type="submit" className="mt-2 inline-flex items-center gap-1 font-bold underline">Submit through Kit <ExternalLink size={13}/></button>
+          </form>
+        </div>}
+        {fallbackPending && <div className="mx-auto mt-4 max-w-md rounded-xl border border-blue-200 bg-[#EAF2FF] p-4">
+          <p className="text-sm font-semibold text-[#002F6C]">Completed the signup in the Kit tab?</p>
+          <p className="mt-1 text-xs text-slate-600">We can't verify the external form's confirmation here. Please only continue after Kit confirms your submission.</p>
+          <button type="button" onClick={() => setResultsUnlocked(true)} className="mt-3 w-full rounded-lg border border-[#002F6C] bg-white px-3 py-3 text-sm font-bold text-[#002F6C]">I've submitted the form — view my results</button>
+        </div>}
+        <button type="button" className="mt-6 flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-[#002F6C]" onClick={() => setStep(questions.length - 1)}><ChevronLeft size={16}/> Back to last question</button>
+      </div> : <div className="p-6 sm:p-9">
         <div className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700"><CheckCircle2 size={15}/> Your results are ready</div>
-        <h2 className="mt-4 text-2xl font-black text-[#002F6C] sm:text-3xl">{traveler.label}</h2>
-        <p className="mt-3 leading-relaxed text-slate-600">{traveler.detail}</p>
+        <div className={"mt-5 flex items-center gap-4 rounded-2xl bg-gradient-to-br p-5 " + traveler.color}>
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-white bg-white/80 text-[#002F6C] shadow-sm"><ProfileIcon size={46} strokeWidth={1.6}/></div>
+          <div><p className="text-xs font-extrabold uppercase tracking-wide text-[#0052A4]">Your traveler type</p><h2 className="mt-1 text-2xl font-black text-[#002F6C]">{traveler.label}</h2><p className="mt-1 text-xs font-bold text-slate-600">{traveler.badge}</p></div>
+        </div>
+        <p className="mt-4 leading-relaxed text-slate-600">{traveler.detail}</p>
         <div className="mt-5 rounded-2xl border border-blue-100 bg-[#F1F6FF] p-5">
           <p className="text-xs font-black uppercase tracking-wider text-[#0052A4]">Your travel snapshot</p>
           <dl className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
@@ -161,9 +242,11 @@ function QuizModal({ onClose }) {
             <div><dt className="text-slate-500">Preferred lodging</dt><dd className="font-bold text-slate-800">{questions[1].options[answers[1]]}</dd></div>
             <div><dt className="text-slate-500">Travel companions</dt><dd className="font-bold text-slate-800">{questions[0].options[answers[0]]}</dd></div>
             <div><dt className="text-slate-500">Typical weekly lodging budget</dt><dd className="font-bold text-slate-800">{questions[3].options[answers[3]]}</dd></div>
+            <div><dt className="text-slate-500">Your biggest booking challenge</dt><dd className="font-bold text-slate-800">{questions[4].options[answers[4]]}</dd></div>
+            <div><dt className="text-slate-500">Your top travel priority</dt><dd className="font-bold text-slate-800">{questions[5].options[answers[5]]}</dd></div>
           </dl>
         </div>
-        <div className="mt-4 rounded-2xl border-l-4 border-amber-400 bg-amber-50 p-4"><strong className="text-sm text-[#002F6C]">Your best next step</strong><p className="mt-1 text-sm text-slate-700">{traveler.tip}</p></div>
+        <div className="mt-4 rounded-2xl border-l-4 border-amber-400 bg-amber-50 p-4"><strong className="text-sm text-[#002F6C]">Your best next step</strong><p className="mt-1 text-sm text-slate-700">{traveler.tip}</p><p className="mt-2 text-sm text-slate-700">{frustrationTip}</p></div>
         <div className="mt-8 border-t border-slate-200 pt-7">
           <div className="flex items-center gap-2 text-[#002F6C]"><PlayCircle size={21}/><h3 className="text-xl font-black">See how the travel membership works</h3></div>
           <p className="mt-2 text-sm text-slate-600">One short introduction. You can explore more videos only if you're interested.</p>
@@ -174,26 +257,6 @@ function QuizModal({ onClose }) {
           </div>}
           <a href={ENROLL_URL} target="_blank" rel="sponsored noopener noreferrer" className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#002F6C] px-5 py-4 text-center text-sm font-extrabold text-white hover:bg-[#00448D]">Explore current membership options <ArrowUpRight size={18}/></a>
           <p className="mt-3 text-xs leading-relaxed text-slate-500">Optional paid membership. Review current plan pricing, recurring charges, booking terms and cancellation conditions on the provider's site before enrolling. We may earn compensation through the referral link. Savings are not guaranteed.</p>
-        </div>
-        <div className="mt-7 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-          <div className="flex items-center gap-2"><Mail size={20} className="text-[#0052A4]"/><h3 className="font-extrabold text-[#002F6C]">Get occasional travel tips by email</h3></div>
-          <p className="mt-2 text-sm text-slate-600">Optional. Your quiz results are already above—no email is required to see them.</p>
-          {signupState === "success" ? <p role="status" className="mt-4 rounded-xl bg-green-50 p-3 text-sm font-bold text-green-800">You're subscribed. Check your inbox for any confirmation email.</p> :
-            <form className="mt-4 space-y-3" onSubmit={kitConfigured ? saveLead : undefined} action={!kitConfigured ? KIT_FORM_URL : undefined} method={!kitConfigured ? "POST" : undefined} target={!kitConfigured ? "_blank" : undefined}>
-              <label className="block text-xs font-bold text-slate-600">First name<input name="fields[first_name]" value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-900" required maxLength={80}/></label>
-              <label className="block text-xs font-bold text-slate-600">Email address<input type="email" name="email_address" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-900" required maxLength={254}/></label>
-              <label className="flex items-start gap-2 text-xs text-slate-600"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" required/><span>I agree to receive travel tips and follow-up emails from No Time to Share. I can unsubscribe anytime. See the <a className="font-bold underline" href="/privacy.html" target="_blank" rel="noopener noreferrer">privacy notice</a>.</span></label>
-              <button type="submit" disabled={!consent || signupState === "sending"} className="w-full rounded-xl bg-[#002F6C] px-5 py-3.5 text-sm font-bold text-white hover:bg-[#00448D] disabled:opacity-50">{signupState === "sending" ? "Saving your subscription…" : kitConfigured ? "Email me travel tips" : "Continue to Kit signup"}</button>
-              {!kitConfigured && <p className="text-xs leading-relaxed text-slate-500">Kit handles this signup in a separate tab. Check its confirmation screen before assuming you are subscribed.</p>}
-            </form>}
-          {signupState === "error" && <div role="alert" className="mt-3 space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-            <p>We couldn't verify your signup here, so we haven't marked you as subscribed. You can use the original Kit form instead:</p>
-            <form method="POST" action={KIT_FORM_URL} target="_blank">
-              <input type="hidden" name="email_address" value={email} readOnly/>
-              <input type="hidden" name="fields[first_name]" value={name} readOnly/>
-              <button className="text-sm font-bold underline" type="submit">Submit with Kit and view its confirmation <ExternalLink className="inline-block" size={14}/></button>
-            </form>
-          </div>}
         </div>
         <button type="button" onClick={onClose} className="mt-6 w-full py-2 text-sm font-bold text-slate-500 hover:text-[#002F6C]">Close my results</button>
       </div>}
@@ -243,13 +306,13 @@ export default function App() {
           <a href="#compare" className="text-xs font-bold uppercase tracking-wider text-white hover:text-amber-300">Compare costs</a>
           <a href="#questions" className="text-xs font-bold uppercase tracking-wider text-white hover:text-amber-300">FAQ</a>
         </div>
-        <div className="hidden sm:block"><Button onClick={startQuiz} className="!px-4 !py-3">Take the vacation quiz <ArrowRight size={16}/></Button></div>
+        <div className="hidden sm:block"><Button onClick={startQuiz} className="!px-4 !py-3">Take the travel quiz <ArrowRight size={16}/></Button></div>
         <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="rounded-lg p-2 text-white hover:bg-white/10 lg:hidden" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen}>{menuOpen ? <X/> : <Menu/>}</button>
       </div>
       {menuOpen && <div className="border-t border-white/10 bg-[#001D45] p-5 lg:hidden">
         <div className="flex flex-col gap-4 text-sm font-bold text-white">
           {[["Timeshare truths","#learn"],["Our travel story","#orlando"],["Compare costs","#compare"],["FAQ","#questions"]].map(([label, url]) => <a key={url} href={url} onClick={() => setMenuOpen(false)}>{label}</a>)}
-          <button onClick={startQuiz} className="rounded-xl bg-[#FFC000] p-3 text-left font-extrabold text-[#002F6C]">Take the vacation quiz</button>
+          <button onClick={startQuiz} className="rounded-xl bg-[#FFC000] p-3 text-left font-extrabold text-[#002F6C]">Take the travel quiz</button>
         </div>
       </div>}
     </nav>
@@ -262,7 +325,7 @@ export default function App() {
           <h1 className="text-4xl font-black uppercase leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">Love vacations.<span className="mt-2 block text-[#FFC000]">Not timeshare pressure.</span></h1>
           <p className="mt-7 max-w-xl text-base leading-relaxed text-blue-100 sm:text-lg">Learn what vacations really cost, avoid confusing travel offers, and explore options beyond traditional timeshare ownership. No high-pressure presentation required to get informed.</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Button onClick={startQuiz}>Take the free 1-minute quiz <ArrowRight size={17}/></Button>
+            <Button onClick={startQuiz}>Take the 6-question travel quiz <ArrowRight size={17}/></Button>
             <Button href="#learn" secondary>Learn before you decide <ChevronRight size={17}/></Button>
           </div>
           <p className="mt-5 max-w-lg text-xs leading-relaxed text-blue-200">We explain vacation costs and may refer you to an optional paid travel membership. No purchase is required to take the quiz. Savings vary.</p>
@@ -311,9 +374,9 @@ export default function App() {
 
       <section className="bg-[#002F6C] px-5 py-20 text-white sm:px-8">
         <div className="mx-auto max-w-5xl text-center">
-          <p className="text-xs font-black uppercase tracking-[.2em] text-amber-300">Your next step</p><h2 className="mt-4 text-3xl font-black leading-tight sm:text-5xl">Does a travel membership make sense for you?</h2><p className="mx-auto mt-5 max-w-2xl text-blue-100">Your answer depends on how frequently you travel, what you book, and what you're comfortable spending. Answer four simple questions and get a practical next step—before seeing any membership offer.</p>
-          <div className="mt-8"><Button onClick={startQuiz} className="!px-8 !py-4">Take my free travel fit quiz <ArrowRight size={18}/></Button></div>
-          <p className="mt-4 text-xs text-blue-200">No obligation to join. Email address not required for your result.</p>
+          <p className="text-xs font-black uppercase tracking-[.2em] text-amber-300">Your next step</p><h2 className="mt-4 text-3xl font-black leading-tight sm:text-5xl">Does a travel membership make sense for you?</h2><p className="mx-auto mt-5 max-w-2xl text-blue-100">Your answer depends on how frequently you travel, what you book, and what you're comfortable spending. Answer six simple questions and get a useful travel profile—before seeing any membership offer.</p>
+          <div className="mt-8"><Button onClick={startQuiz} className="!px-8 !py-4">Take my travel fit quiz <ArrowRight size={18}/></Button></div>
+          <p className="mt-4 text-xs text-blue-200">No obligation to join a travel membership. We'll ask for your email before displaying your personalized assessment.</p>
         </div>
       </section>
 
