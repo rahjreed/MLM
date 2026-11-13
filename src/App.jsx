@@ -12,7 +12,6 @@ const WELCOME_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/1d1b958
 const HOW_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/599f364c-36e1-4607-9993-b57e0c5906d1";
 const SIGNUP_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/eb1faa2b-68e5-4735-9fcb-978afd03f6a1";
 const ENROLL_URL = "https://travorium.com/enroll.php?sponsor=376362";
-const KIT_FORM_URL = "https://app.kit.com/forms/9018875/subscriptions";
 
 const questions = [
   {
@@ -89,20 +88,14 @@ function QuizModal({ onClose }) {
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
   const [signupState, setSignupState] = useState("idle");
-  const [kitConfigured, setKitConfigured] = useState(false);
   const [detailVideosOpen, setDetailVideosOpen] = useState(false);
   const [resultsUnlocked, setResultsUnlocked] = useState(false);
-  const [fallbackPending, setFallbackPending] = useState(false);
 
   useEffect(() => {
     function keydown(e) { if (e.key === "Escape") onClose(); }
     document.addEventListener("keydown", keydown);
     return () => document.removeEventListener("keydown", keydown);
   }, [onClose]);
-
-  useEffect(() => {
-    fetch("/api/subscribe").then((r) => r.ok ? r.json() : null).then((v) => setKitConfigured(v?.ready === true)).catch(() => setKitConfigured(false));
-  }, []);
 
   const finished = step >= questions.length;
   const nights = answers[2] ?? 0;
@@ -197,10 +190,7 @@ function QuizModal({ onClose }) {
         </div>
         <form
           className="mx-auto mt-7 max-w-md space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-5"
-          onSubmit={kitConfigured ? saveLead : () => setFallbackPending(true)}
-          action={!kitConfigured ? KIT_FORM_URL : undefined}
-          method={!kitConfigured ? "POST" : undefined}
-          target={!kitConfigured ? "_blank" : undefined}
+          onSubmit={saveLead}
         >
           <label className="block text-xs font-bold text-slate-700">Your first name
             <input name="fields[first_name]" value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" required maxLength={80} placeholder="Your name" className="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 focus:outline-2 focus:outline-blue-400"/>
@@ -212,20 +202,11 @@ function QuizModal({ onClose }) {
             <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} required className="mt-1"/>
             <span>I agree to receive follow-up emails from No Time to Share about my travel assessment, vacation options, and relevant tips. I can unsubscribe at any time. See the <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="font-bold text-[#002F6C] underline">privacy notice</a>.</span>
           </label>
-          <button type="submit" disabled={!consent || signupState === "sending"} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#002F6C] px-5 py-4 text-sm font-extrabold text-white hover:bg-[#00448D] disabled:opacity-60">{signupState === "sending" ? "Saving your details…" : kitConfigured ? "Unlock My Vacation Results" : "Continue to Secure Signup" }<ArrowRight size={16}/></button>
-          <p className="text-xs leading-relaxed text-slate-500">{kitConfigured ? "Your results will open once your signup is accepted by our email provider." : "The signup opens in a separate tab. Once the email form confirms your submission, return here to view your results."} No travel membership purchase is required.</p>
+          <button type="submit" disabled={!consent || signupState === "sending"} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#002F6C] px-5 py-4 text-sm font-extrabold text-white hover:bg-[#00448D] disabled:opacity-60">{signupState === "sending" ? "Sending your details…" : "Unlock My Vacation Results" }<ArrowRight size={16}/></button>
+          <p className="text-xs leading-relaxed text-slate-500">Your results appear here when your signup is accepted. There is no redirect to another website. No travel membership purchase is required.</p>
         </form>
-        {signupState === "error" && <div role="alert" className="mx-auto mt-4 max-w-md rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">We couldn't confirm your signup. Please retry or use the external email signup form:
-          <form method="POST" action={KIT_FORM_URL} target="_blank" onSubmit={() => setFallbackPending(true)}>
-            <input type="hidden" name="email_address" value={email} readOnly/>
-            <input type="hidden" name="fields[first_name]" value={name} readOnly/>
-            <button type="submit" className="mt-2 inline-flex items-center gap-1 font-bold underline">Open email signup <ExternalLink size={13}/></button>
-          </form>
-        </div>}
-        {fallbackPending && <div className="mx-auto mt-4 max-w-md rounded-xl border border-blue-200 bg-[#EAF2FF] p-4">
-          <p className="text-sm font-semibold text-[#002F6C]">Finished signing up in the new tab?</p>
-          <p className="mt-1 text-xs text-slate-600">We can't confirm the external form from this page. Continue only once the email signup page confirms your submission.</p>
-          <button type="button" onClick={() => setResultsUnlocked(true)} className="mt-3 w-full rounded-lg border border-[#002F6C] bg-white px-3 py-3 text-sm font-bold text-[#002F6C]">My signup was confirmed — view results</button>
+        {signupState === "error" && <div role="alert" className="mx-auto mt-4 max-w-md rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          We couldn't confirm that your details were received. Your answers are still here; please try again, or come back later.
         </div>}
         <button type="button" className="mt-6 flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-[#002F6C]" onClick={() => setStep(questions.length - 1)}><ChevronLeft size={16}/> Back to last question</button>
       </div> : <div className="p-6 sm:p-9">
