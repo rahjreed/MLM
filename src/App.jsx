@@ -264,39 +264,66 @@ function QuizModal({ onClose }) {
   </div>;
 }
 
-function ComparisonExample() {
+function TravoriumValueExplorer() {
+  const [months, setMonths] = useState(6);
+  const [retail, setRetail] = useState("");
+  const [member, setMember] = useState("");
+  const [pointsSavings, setPointsSavings] = useState("");
+
+  const money = (amount) => "$" + Number(amount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  const validAmount = (value) => value !== "" && Number.isFinite(Number(value)) && Number(value) >= 0;
+  const hasQuotes = validAmount(retail) && validAmount(member);
+  const appliedPointsValue = validAmount(pointsSavings) ? Number(pointsSavings) : 0;
+  const pointsOverLimit = hasQuotes && appliedPointsValue > Number(member);
+  const memberBookingDue = hasQuotes && !pointsOverLimit ? Math.max(0, Number(member) - appliedPointsValue) : 0;
+  const memberRateDifference = hasQuotes ? Number(retail) - Number(member) : 0;
+  const fullDifference = hasQuotes && !pointsOverLimit ? Number(retail) - memberBookingDue : 0;
+
   return <div className="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-2xl shadow-blue-950/10">
-    <div className="bg-[#002F6C] px-6 py-5 text-white sm:px-8">
-      <div className="flex items-center gap-2"><Info size={18} className="text-amber-300"/><p className="text-xs font-black uppercase tracking-[.16em] text-amber-300">Simple example — not a real hotel offer</p></div>
-      <h3 className="mt-2 text-2xl font-black">A lower booking price isn't the whole story.</h3>
-      <p className="mt-2 text-sm leading-relaxed text-blue-100">Imagine two ways to book the same hotel for the same dates.</p>
+    <div className="bg-[#002F6C] px-6 py-6 text-white sm:px-8">
+      <div className="flex items-center gap-2 text-amber-300"><Sparkles size={18}/><p className="text-xs font-black uppercase tracking-[.13em]">Based on Travorium Platinum</p></div>
+      <h3 className="mt-2 text-2xl font-black leading-tight">Member discounts + Travel Points</h3>
+      <p className="mt-3 text-sm leading-relaxed text-blue-100">Your $135 monthly payment earns 270 Travel Points. Points accumulate while you're active and can be used to buy down eligible Getaways and World Tours, in addition to member travel pricing.</p>
     </div>
-    <div className="space-y-5 p-6 sm:p-8">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Booking on a public site</p>
-          <p className="mt-3 text-3xl font-black text-[#002F6C]">$1,500</p>
-          <p className="mt-1 text-xs text-slate-500">Illustrative all-in total</p>
-        </div>
-        <div className="rounded-2xl border border-blue-100 bg-[#EFF5FF] p-5">
-          <p className="text-xs font-bold uppercase tracking-wide text-[#0052A4]">Booking through a membership</p>
-          <p className="mt-3 text-3xl font-black text-[#002F6C]">$1,000</p>
-          <p className="mt-1 text-xs text-slate-500">Illustrative hotel price before membership cost</p>
-        </div>
+    <div className="space-y-7 p-6 sm:p-8">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-2xl bg-[#EFF5FF] p-4"><p className="text-xs font-bold text-[#0052A4]">Monthly Platinum dues</p><p className="mt-2 text-2xl font-black text-[#002F6C]">$135</p><p className="mt-1 text-[11px] text-slate-600">Recurring membership charge</p></div>
+        <div className="rounded-2xl bg-amber-50 p-4"><p className="text-xs font-bold text-amber-900">Travel Points earned / month</p><p className="mt-2 text-2xl font-black text-[#002F6C]">270 pts</p><p className="mt-1 text-[11px] text-slate-600">For eligible Getaways / World Tours</p></div>
       </div>
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-        <p className="text-sm font-bold text-[#002F6C]">Now include the membership cost:</p>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-700">
-          <span>$1,000 booking + $300 membership fees</span>
-          <span className="text-xl font-black text-[#002F6C]">= $1,300</span>
+      <div>
+        <div className="flex flex-wrap items-center justify-between gap-3"><label htmlFor="points-months" className="text-sm font-extrabold text-[#002F6C]">See how points accumulate</label><span className="rounded-lg bg-[#002F6C] px-3 py-1.5 text-sm font-black text-white">{months} {months === 1 ? "month" : "months"}</span></div>
+        <input id="points-months" type="range" min="1" max="24" step="1" value={months} onChange={(e) => setMonths(Number(e.target.value))} className="mt-4 w-full accent-[#002F6C]" aria-label="Number of Platinum membership months"/>
+        <div className="mt-1 flex justify-between text-xs font-bold text-slate-500"><span>1 month</span><span>12 months</span><span>24 months</span></div>
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-amber-900">Travel Points earned</p><p className="mt-1 text-3xl font-black text-[#002F6C]">{(months * 270).toLocaleString()} <span className="text-base">pts</span></p><p className="mt-1 text-xs text-slate-600">Total earned if each month is paid; before use or expiration</p></div>
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-600">Monthly dues paid</p><p className="mt-1 text-3xl font-black text-[#002F6C]">{money(months * 135)}</p><p className="mt-1 text-xs text-slate-600">Membership spending; not a cash account balance</p></div>
         </div>
+        <p className="mt-3 text-xs leading-relaxed text-slate-500">New Platinum memberships also have a <strong>$269.95 one-time enrollment fee</strong>. Travel Points have no cash value, expire 24 months after they're earned and require active membership to redeem. The earned-points total above is not your guaranteed available balance. <a href="https://app.travorium.com/legal/membership-agreement" target="_blank" rel="noopener noreferrer" className="font-bold text-[#0052A4] underline">Read official terms</a>.</p>
       </div>
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
-        <p className="text-xs font-bold uppercase tracking-wide text-emerald-800">Difference in this made-up example</p>
-        <p className="mt-1 text-3xl font-black text-emerald-800">$200</p>
-        <p className="mt-1 text-sm text-emerald-900">Not $500—the membership fees count, too.</p>
+      <div className="border-t border-slate-200 pt-6">
+        <p className="text-xs font-extrabold uppercase tracking-widest text-[#0052A4]">Try your own trip</p>
+        <h4 className="mt-2 text-xl font-black text-[#002F6C]">How would a real booking compare?</h4>
+        <p className="mt-2 text-sm leading-relaxed text-slate-600">Enter the actual public and member prices for the same trip. Add any dollar reduction displayed when applying Travel Points at checkout. You can leave that field blank when points aren't eligible.</p>
+        <div className="mt-5 space-y-3">
+          {[
+            { id: "retail-quote", label: "Public price, all fees included ($)", value: retail, change: setRetail, hint: "Same property, dates, occupancy and cancellation terms" },
+            { id: "member-quote", label: "Travorium member price before Travel Points ($)", value: member, change: setMember, hint: "Actual quoted member booking total" },
+            { id: "points-reduction", label: "Optional: Dollar reduction shown at checkout from Travel Points ($)", value: pointsSavings, change: setPointsSavings, hint: "Use the actual eligible booking discount shown; not your point balance" }
+          ].map((field) => <label key={field.id} htmlFor={field.id} className="block"><span className="text-xs font-extrabold text-slate-700">{field.label}</span><input id={field.id} type="number" inputMode="decimal" min="0" step="0.01" value={field.value} onChange={(e) => field.change(e.target.value)} placeholder="Enter actual quoted amount" className="mt-1 block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 focus:outline-2 focus:outline-blue-400"/><small className="mt-1 block text-[11px] leading-relaxed text-slate-500">{field.hint}</small></label>)}
+        </div>
+        {pointsOverLimit && <p role="alert" className="mt-3 rounded-xl bg-rose-50 p-3 text-xs font-semibold text-rose-700">The point buy-down cannot exceed the displayed member booking total.</p>}
+        <div className="mt-5 rounded-2xl bg-[#002F6C] p-5 text-white">
+          <p className="text-xs font-bold uppercase tracking-wide text-blue-100">Your booking comparison</p>
+          {hasQuotes && !pointsOverLimit ? <div className="mt-4 space-y-3">
+            <div className="flex justify-between gap-3 text-sm"><span>Member-rate difference</span><strong>{money(memberRateDifference)}</strong></div>
+            <div className="flex justify-between gap-3 text-sm"><span>Travel Points reduction at checkout</span><strong>{money(appliedPointsValue)}</strong></div>
+            <div className="flex justify-between gap-3 text-sm"><span>Member booking cash due</span><strong>{money(memberBookingDue)}</strong></div>
+            <div className="border-t border-white/20 pt-3"><p className="text-xs text-blue-100">Booking price difference before membership dues</p><p className="mt-1 text-3xl font-black">{money(fullDifference)}</p></div>
+            {fullDifference < 0 && <p className="text-xs text-amber-200">On these quotes, the member booking costs more than the public option.</p>}
+          </div> : <p className="mt-3 text-sm text-blue-100">Enter two comparable prices to see the difference. Points are only applied if you enter an actual checkout reduction.</p>}
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-slate-500">This compares the <strong>booking transaction</strong>, not your net financial gain. You also pay membership dues and any enrollment fee. Travel Points are restricted to eligible Getaways and World Tours; they do not function as a cash wallet usable on every hotel. Any difference depends on real rates and redemption eligibility.</p>
       </div>
-      <p className="text-xs leading-relaxed text-slate-500"><strong>Important:</strong> These numbers are fictional and demonstrate the math only. Actual membership costs, resort availability, room types, taxes, credits, and booking restrictions can change the result. Sometimes the public rate is the better deal.</p>
     </div>
   </div>;
 }
@@ -374,12 +401,12 @@ export default function App() {
       <section id="compare" className="scroll-mt-24 bg-white px-5 py-20 sm:px-8">
         <div className="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-2">
           <div className="lg:pt-8">
-            <p className="text-xs font-black uppercase tracking-[.2em] text-[#0052A4]">What makes a deal worth it?</p><h2 className="mt-3 text-3xl font-black leading-tight text-[#002F6C] sm:text-5xl">Here's why we compare the whole price.</h2>
-            <p className="mt-5 text-base leading-relaxed text-slate-600">A lower advertised hotel price isn't automatically a better deal. This simple example shows why you should count membership charges and check the terms before making a decision.</p>
-            <div className="mt-7 rounded-2xl border-l-4 border-amber-400 bg-amber-50 p-5"><p className="font-extrabold text-[#002F6C]">An important difference</p><p className="mt-2 text-sm leading-relaxed text-slate-700">A timeshare generally involves a vacation-ownership arrangement. A travel club is a different product, often with recurring fees and its own booking rules. Neither automatically guarantees the lowest vacation price.</p></div>
+            <p className="text-xs font-black uppercase tracking-[.2em] text-[#0052A4]">How Platinum works</p><h2 className="mt-3 text-3xl font-black leading-tight text-[#002F6C] sm:text-5xl">Your membership offers two ways to find value.</h2>
+            <p className="mt-5 text-base leading-relaxed text-slate-600">Platinum offers access to member travel prices and earns Travel Points every month. For eligible Getaways and World Tours, those points may reduce the already displayed booking cost. Try the calculator to understand each part.</p>
+            <div className="mt-7 rounded-2xl border-l-4 border-amber-400 bg-amber-50 p-5"><p className="font-extrabold text-[#002F6C]">The important distinction</p><p className="mt-2 text-sm leading-relaxed text-slate-700">Travel Points aren't cash deposits, but they aren't simply a lost fee either: they're an additional member benefit with redemption rules. See your accumulated points separately from what you have paid, then compare the actual booking rates and eligible point discounts.</p></div>
             <div className="mt-8"><Button onClick={startQuiz}>Find your vacation fit <ArrowRight size={17}/></Button></div>
           </div>
-          <ComparisonExample/>
+          <TravoriumValueExplorer/>
         </div>
       </section>
 
@@ -397,7 +424,8 @@ export default function App() {
             ["Is this a timeshare?", "No. This website provides travel education and introduces an optional travel membership referral. Review the membership agreement to understand its terms and fees; it is not the same thing as buying a timeshare."],
             ["Will I definitely save money?", "No. Availability, dates, property choices, fees and membership costs affect your total. Always compare the full cost with public and direct-booking options."],
             ["Do I have to provide my email to take the quiz?", "You can answer all six questions before entering any contact details. We ask for your name, email and permission to follow up before revealing your customized travel snapshot. A travel membership purchase is never required."],
-            ["How much does membership cost?", "Membership may have enrollment and recurring charges depending on the current plan. Check the provider's pricing and terms before you choose whether to enroll."],
+            ["How much does membership cost?", "Travorium's published Platinum plan is $269.95 to enroll and $135 per month, earning 270 Travel Points per month. Titanium and Silver plans have different costs and benefits. Always confirm current fees at enrollment."],
+            ["Can I use Travel Points like cash at any hotel?", "No. Travorium Travel Points have no cash value and may be used to reduce eligible Getaway and World Tour bookings, subject to availability, program limits and an active membership. The points generally expire 24 months after they are earned."],
             ["Do you receive compensation if I sign up?", "We may receive referral compensation when you enroll through our Travorium link. That relationship does not change the cost-comparison advice we encourage you to follow."]
           ].map(([question, answer], index) => <div key={question} className="overflow-hidden rounded-2xl border border-slate-200 bg-white"><button type="button" onClick={() => setFaqOpen(faqOpen === index ? null : index)} aria-expanded={faqOpen === index} className="flex w-full items-center justify-between gap-4 p-5 text-left font-bold text-[#002F6C]"><span>{question}</span><ChevronDown size={18} className={"shrink-0 transition-transform " + (faqOpen === index ? "rotate-180" : "")}/></button>{faqOpen === index && <p className="px-5 pb-5 text-sm leading-relaxed text-slate-600">{answer}</p>}</div>)}</div>
         </div>
