@@ -79,6 +79,7 @@ function QuizModal({ onClose }) {
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
   const [signupState, setSignupState] = useState("idle");
+  const [kitConfigured, setKitConfigured] = useState(false);
   const [detailVideosOpen, setDetailVideosOpen] = useState(false);
 
   useEffect(() => {
@@ -86,6 +87,10 @@ function QuizModal({ onClose }) {
     document.addEventListener("keydown", keydown);
     return () => document.removeEventListener("keydown", keydown);
   }, [onClose]);
+
+  useEffect(() => {
+    fetch("/api/subscribe").then((r) => r.ok ? r.json() : null).then((v) => setKitConfigured(v?.ready === true)).catch(() => setKitConfigured(false));
+  }, []);
 
   const finished = step >= questions.length;
   const nights = answers[2];
@@ -174,11 +179,12 @@ function QuizModal({ onClose }) {
           <div className="flex items-center gap-2"><Mail size={20} className="text-[#0052A4]"/><h3 className="font-extrabold text-[#002F6C]">Get occasional travel tips by email</h3></div>
           <p className="mt-2 text-sm text-slate-600">Optional. Your quiz results are already above—no email is required to see them.</p>
           {signupState === "success" ? <p role="status" className="mt-4 rounded-xl bg-green-50 p-3 text-sm font-bold text-green-800">You're subscribed. Check your inbox for any confirmation email.</p> :
-            <form className="mt-4 space-y-3" onSubmit={saveLead}>
-              <label className="block text-xs font-bold text-slate-600">First name<input value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-900" required maxLength={80}/></label>
-              <label className="block text-xs font-bold text-slate-600">Email address<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-900" required maxLength={254}/></label>
+            <form className="mt-4 space-y-3" onSubmit={kitConfigured ? saveLead : undefined} action={!kitConfigured ? KIT_FORM_URL : undefined} method={!kitConfigured ? "POST" : undefined} target={!kitConfigured ? "_blank" : undefined}>
+              <label className="block text-xs font-bold text-slate-600">First name<input name="fields[first_name]" value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-900" required maxLength={80}/></label>
+              <label className="block text-xs font-bold text-slate-600">Email address<input type="email" name="email_address" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-900" required maxLength={254}/></label>
               <label className="flex items-start gap-2 text-xs text-slate-600"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1" required/><span>I agree to receive travel tips and follow-up emails from No Time to Share. I can unsubscribe anytime. See the <a className="font-bold underline" href="/privacy.html" target="_blank" rel="noopener noreferrer">privacy notice</a>.</span></label>
-              <button type="submit" disabled={!consent || signupState === "sending"} className="w-full rounded-xl bg-[#002F6C] px-5 py-3.5 text-sm font-bold text-white hover:bg-[#00448D] disabled:opacity-50">{signupState === "sending" ? "Saving your subscription…" : "Email me travel tips"}</button>
+              <button type="submit" disabled={!consent || signupState === "sending"} className="w-full rounded-xl bg-[#002F6C] px-5 py-3.5 text-sm font-bold text-white hover:bg-[#00448D] disabled:opacity-50">{signupState === "sending" ? "Saving your subscription…" : kitConfigured ? "Email me travel tips" : "Continue to Kit signup"}</button>
+              {!kitConfigured && <p className="text-xs leading-relaxed text-slate-500">Kit handles this signup in a separate tab. Check its confirmation screen before assuming you are subscribed.</p>}
             </form>}
           {signupState === "error" && <div role="alert" className="mt-3 space-y-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
             <p>We couldn't verify your signup here, so we haven't marked you as subscribed. You can use the original Kit form instead:</p>
