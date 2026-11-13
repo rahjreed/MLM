@@ -5,6 +5,7 @@ const KIT_API = "https://api.kit.com/v4";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
+  if (req.method === "GET") return res.status(200).json({ ready: Boolean(process.env.KIT_API_KEY) });
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method not allowed" });
