@@ -212,20 +212,20 @@ function QuizModal({ onClose }) {
             <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} required className="mt-1"/>
             <span>I agree to receive follow-up emails from No Time to Share about my travel assessment, vacation options, and relevant tips. I can unsubscribe at any time. See the <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="font-bold text-[#002F6C] underline">privacy notice</a>.</span>
           </label>
-          <button type="submit" disabled={!consent || signupState === "sending"} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#002F6C] px-5 py-4 text-sm font-extrabold text-white hover:bg-[#00448D] disabled:opacity-60">{signupState === "sending" ? "Saving your details…" : kitConfigured ? "Unlock My Vacation Results" : "Continue with Kit to unlock" }<ArrowRight size={16}/></button>
-          <p className="text-xs leading-relaxed text-slate-500">{kitConfigured ? "Your results will open once your signup is accepted by our email provider." : "The signup opens through Kit in a separate tab. You can return here after submitting it to reveal your results."} No travel membership purchase is required.</p>
+          <button type="submit" disabled={!consent || signupState === "sending"} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#002F6C] px-5 py-4 text-sm font-extrabold text-white hover:bg-[#00448D] disabled:opacity-60">{signupState === "sending" ? "Saving your details…" : kitConfigured ? "Unlock My Vacation Results" : "Continue to Secure Signup" }<ArrowRight size={16}/></button>
+          <p className="text-xs leading-relaxed text-slate-500">{kitConfigured ? "Your results will open once your signup is accepted by our email provider." : "The signup opens in a separate tab. Once the email form confirms your submission, return here to view your results."} No travel membership purchase is required.</p>
         </form>
-        {signupState === "error" && <div role="alert" className="mx-auto mt-4 max-w-md rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">We couldn't confirm your signup. Please retry, or use the original Kit form instead:
+        {signupState === "error" && <div role="alert" className="mx-auto mt-4 max-w-md rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">We couldn't confirm your signup. Please retry or use the external email signup form:
           <form method="POST" action={KIT_FORM_URL} target="_blank" onSubmit={() => setFallbackPending(true)}>
             <input type="hidden" name="email_address" value={email} readOnly/>
             <input type="hidden" name="fields[first_name]" value={name} readOnly/>
-            <button type="submit" className="mt-2 inline-flex items-center gap-1 font-bold underline">Submit through Kit <ExternalLink size={13}/></button>
+            <button type="submit" className="mt-2 inline-flex items-center gap-1 font-bold underline">Open email signup <ExternalLink size={13}/></button>
           </form>
         </div>}
         {fallbackPending && <div className="mx-auto mt-4 max-w-md rounded-xl border border-blue-200 bg-[#EAF2FF] p-4">
-          <p className="text-sm font-semibold text-[#002F6C]">Completed the signup in the Kit tab?</p>
-          <p className="mt-1 text-xs text-slate-600">We can't verify the external form's confirmation here. Please only continue after Kit confirms your submission.</p>
-          <button type="button" onClick={() => setResultsUnlocked(true)} className="mt-3 w-full rounded-lg border border-[#002F6C] bg-white px-3 py-3 text-sm font-bold text-[#002F6C]">I've submitted the form — view my results</button>
+          <p className="text-sm font-semibold text-[#002F6C]">Finished signing up in the new tab?</p>
+          <p className="mt-1 text-xs text-slate-600">We can't confirm the external form from this page. Continue only once the email signup page confirms your submission.</p>
+          <button type="button" onClick={() => setResultsUnlocked(true)} className="mt-3 w-full rounded-lg border border-[#002F6C] bg-white px-3 py-3 text-sm font-bold text-[#002F6C]">My signup was confirmed — view results</button>
         </div>}
         <button type="button" className="mt-6 flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-[#002F6C]" onClick={() => setStep(questions.length - 1)}><ChevronLeft size={16}/> Back to last question</button>
       </div> : <div className="p-6 sm:p-9">
@@ -264,29 +264,40 @@ function QuizModal({ onClose }) {
   </div>;
 }
 
-function Calculator() {
-  const [publicCost, setPublicCost] = useState("");
-  const [memberCost, setMemberCost] = useState("");
-  const [fees, setFees] = useState("");
-  const valid = publicCost !== "" && memberCost !== "" && fees !== "" &&
-    [publicCost, memberCost, fees].every((value) => Number.isFinite(Number(value)) && Number(value) >= 0);
-  const net = valid ? Number(publicCost) - Number(memberCost) - Number(fees) : 0;
-  return <div className="rounded-3xl border border-blue-100 bg-white p-6 shadow-2xl shadow-blue-950/10 sm:p-8">
-    <div className="flex items-center gap-3"><span className="rounded-xl bg-[#E8F1FF] p-3 text-[#002F6C]"><Search size={24}/></span><div><p className="text-xs font-bold uppercase tracking-wider text-[#0052A4]">Vacation value check</p><h3 className="text-xl font-black text-[#002F6C]">Run your own numbers</h3></div></div>
-    <p className="mt-4 text-sm text-slate-600">Enter actual quoted totals for the same room, dates and cancellation terms. Include taxes and other mandatory fees in the prices below.</p>
-    <div className="mt-5 space-y-4">
-      {[
-        { label: "Public booking total ($)", value: publicCost, change: setPublicCost, hint: "Taxes and fees included" },
-        { label: "Membership booking total ($)", value: memberCost, change: setMemberCost, hint: "Taxes and fees included" },
-        { label: "Membership fees for the period ($)", value: fees, change: setFees, hint: "Include signup and recurring charges" }
-      ].map((field) => <label key={field.label} className="block"><span className="text-xs font-bold text-slate-700">{field.label}</span><input value={field.value} onChange={(e) => field.change(e.target.value)} min="0" step="0.01" inputMode="decimal" type="number" placeholder="Enter amount" className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3 text-base text-slate-900 focus:outline-2 focus:outline-blue-400"/><small className="mt-1 block text-[11px] text-slate-400">{field.hint}</small></label>)}
+function ComparisonExample() {
+  return <div className="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-2xl shadow-blue-950/10">
+    <div className="bg-[#002F6C] px-6 py-5 text-white sm:px-8">
+      <div className="flex items-center gap-2"><Info size={18} className="text-amber-300"/><p className="text-xs font-black uppercase tracking-[.16em] text-amber-300">Simple example — not a real hotel offer</p></div>
+      <h3 className="mt-2 text-2xl font-black">A lower booking price isn't the whole story.</h3>
+      <p className="mt-2 text-sm leading-relaxed text-blue-100">Imagine two ways to book the same hotel for the same dates.</p>
     </div>
-    <div className="mt-5 rounded-xl bg-[#002F6C] p-5 text-white">
-      <p className="text-xs font-bold uppercase tracking-wider text-blue-100">Potential difference after membership fees</p>
-      <p className="mt-1 text-3xl font-black">{valid ? (net < 0 ? "−" : "+") + "$" + Math.abs(net).toLocaleString(undefined, { maximumFractionDigits: 2 }) : "Enter your amounts"}</p>
-      <p className="mt-2 text-xs leading-relaxed text-blue-100">{valid ? (net > 0 ? "The membership option is lower on these inputs." : net < 0 ? "The public option is lower on these inputs." : "The two options have the same calculated total.") : "Nothing here is a live quote or guaranteed saving."}</p>
+    <div className="space-y-5 p-6 sm:p-8">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Booking on a public site</p>
+          <p className="mt-3 text-3xl font-black text-[#002F6C]">$1,500</p>
+          <p className="mt-1 text-xs text-slate-500">Illustrative all-in total</p>
+        </div>
+        <div className="rounded-2xl border border-blue-100 bg-[#EFF5FF] p-5">
+          <p className="text-xs font-bold uppercase tracking-wide text-[#0052A4]">Booking through a membership</p>
+          <p className="mt-3 text-3xl font-black text-[#002F6C]">$1,000</p>
+          <p className="mt-1 text-xs text-slate-500">Illustrative hotel price before membership cost</p>
+        </div>
+      </div>
+      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+        <p className="text-sm font-bold text-[#002F6C]">Now include the membership cost:</p>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-700">
+          <span>$1,000 booking + $300 membership fees</span>
+          <span className="text-xl font-black text-[#002F6C]">= $1,300</span>
+        </div>
+      </div>
+      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+        <p className="text-xs font-bold uppercase tracking-wide text-emerald-800">Difference in this made-up example</p>
+        <p className="mt-1 text-3xl font-black text-emerald-800">$200</p>
+        <p className="mt-1 text-sm text-emerald-900">Not $500—the membership fees count, too.</p>
+      </div>
+      <p className="text-xs leading-relaxed text-slate-500"><strong>Important:</strong> These numbers are fictional and demonstrate the math only. Actual membership costs, resort availability, room types, taxes, credits, and booking restrictions can change the result. Sometimes the public rate is the better deal.</p>
     </div>
-    <p className="mt-3 text-xs leading-relaxed text-slate-500">This illustration uses only the figures you enter. Check availability, points or credits, renewal costs, cancellation rules and whether the properties are truly comparable.</p>
   </div>;
 }
 
@@ -363,12 +374,12 @@ export default function App() {
       <section id="compare" className="scroll-mt-24 bg-white px-5 py-20 sm:px-8">
         <div className="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-2">
           <div className="lg:pt-8">
-            <p className="text-xs font-black uppercase tracking-[.2em] text-[#0052A4]">Transparent vacation math</p><h2 className="mt-3 text-3xl font-black leading-tight text-[#002F6C] sm:text-5xl">Compare the real total, not the biggest percentage.</h2>
-            <p className="mt-5 text-base leading-relaxed text-slate-600">Some people do save money with private travel options. Others find that a public booking or a direct hotel rate is better. We won't promise a percentage until the actual numbers support it.</p>
+            <p className="text-xs font-black uppercase tracking-[.2em] text-[#0052A4]">What makes a deal worth it?</p><h2 className="mt-3 text-3xl font-black leading-tight text-[#002F6C] sm:text-5xl">Here's why we compare the whole price.</h2>
+            <p className="mt-5 text-base leading-relaxed text-slate-600">A lower advertised hotel price isn't automatically a better deal. This simple example shows why you should count membership charges and check the terms before making a decision.</p>
             <div className="mt-7 rounded-2xl border-l-4 border-amber-400 bg-amber-50 p-5"><p className="font-extrabold text-[#002F6C]">An important difference</p><p className="mt-2 text-sm leading-relaxed text-slate-700">A timeshare generally involves a vacation-ownership arrangement. A travel club is a different product, often with recurring fees and its own booking rules. Neither automatically guarantees the lowest vacation price.</p></div>
             <div className="mt-8"><Button onClick={startQuiz}>Find your vacation fit <ArrowRight size={17}/></Button></div>
           </div>
-          <Calculator/>
+          <ComparisonExample/>
         </div>
       </section>
 
