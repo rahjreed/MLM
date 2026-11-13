@@ -11,7 +11,7 @@ const ORLANDO_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/1f0a846
 const WELCOME_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/1d1b9589-cdc8-4408-a563-750df53f0e67";
 const HOW_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/599f364c-36e1-4607-9993-b57e0c5906d1";
 const SIGNUP_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/eb1faa2b-68e5-4735-9fcb-978afd03f6a1";
-const ENROLL_URL = "https://travorium.com/enroll.php?sponsor=376362";
+const ENROLL_URL = "https://travorium.com/376362";
 
 const questions = [
   {
