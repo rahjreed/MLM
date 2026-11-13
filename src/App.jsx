@@ -5,7 +5,7 @@ import {
   PlayCircle, Search, ShieldCheck, Sparkles, X
 } from "lucide-react";
 
-const LOGO_URL = "https://images.travelprox.com/notimetoshare/notimetosharelogo.jpg";
+const LOGO_URL = "/favicon.svg";
 const HERO_IMAGE = "https://travorium.com/resort-on-top-2.jpg";
 const ORLANDO_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/1f0a8468-ea19-477a-8d6c-c3dcaf68df9d";
 const WELCOME_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/1d1b9589-cdc8-4408-a563-750df53f0e67";
