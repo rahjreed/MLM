@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import KitQuizForm from "./KitQuizForm.jsx";
+import QuizOptIn from "./QuizOptIn.jsx";
 import {
   ArrowRight, ArrowUpRight, CheckCircle2, ChevronDown, ChevronLeft,
   ChevronRight, Compass, Menu, Plane, PlayCircle, ShieldCheck, Sparkles, X
@@ -12,9 +12,6 @@ const WELCOME_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/1d1b958
 const HOW_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/599f364c-36e1-4607-9993-b57e0c5906d1";
 const SIGNUP_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/eb1faa2b-68e5-4735-9fcb-978afd03f6a1";
 const ENROLL_URL = "https://travorium.com/enroll.php?sponsor=376362";
-const kitFormId = "9404800";
-const kitFormUid = "6c202710e3";
-const kitEmbedUrl = "https://travelprox.kit.com/6c202710e3/index.js";
 
 const questions = [
   {
@@ -90,6 +87,7 @@ function QuizModal({ onClose }) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [detailVideosOpen, setDetailVideosOpen] = useState(false);
+  const [sendingLead, setSendingLead] = useState(false);
   const [resultsUnlocked, setResultsUnlocked] = useState(false);
 
   useEffect(() => {
@@ -152,11 +150,11 @@ function QuizModal({ onClose }) {
     setStep(step + 1);
   };
 
-  return <dialog ref={dialogRef} onCancel={(event) => { event.preventDefault(); onClose(); }} aria-labelledby="quiz-heading" className="fixed inset-0 m-0 h-[100dvh] max-h-none w-full max-w-none overscroll-contain overflow-y-auto bg-transparent p-3 py-6 backdrop:bg-[#00112A]/85 sm:p-8">
+  return <dialog ref={dialogRef} onCancel={(event) => { event.preventDefault(); if (!sendingLead) onClose(); }} aria-labelledby="quiz-heading" className="fixed inset-0 m-0 h-[100dvh] max-h-none w-full max-w-none overscroll-contain overflow-y-auto bg-transparent p-3 py-6 backdrop:bg-[#00112A]/85 sm:p-8">
     <div className="mx-auto max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
       <div className="flex items-center justify-between bg-[#002F6C] px-5 py-4 text-white sm:px-8">
         <div><small className="block text-[10px] font-bold uppercase tracking-[.2em] text-amber-300">No Time to Share</small><strong className="text-lg">Your Vacation Fit Check</strong></div>
-        <button type="button" aria-label="Close quiz" className="rounded-full p-2 hover:bg-white/15" onClick={onClose}><X size={22}/></button>
+        <button type="button" aria-label="Close quiz" disabled={sendingLead} className="rounded-full p-2 hover:bg-white/15" onClick={onClose}><X size={22}/></button>
       </div>
       {!finished ? <>
         <div className="h-1.5 bg-blue-100"><div className="h-full bg-[#FFC000] transition-all" style={{ width: Math.round((step / questions.length) * 100) + "%" }}/></div>
@@ -177,10 +175,10 @@ function QuizModal({ onClose }) {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#E8F1FF] text-[#002F6C]"><ShieldCheck size={30}/></div>
           <p className="mt-5 text-xs font-black uppercase tracking-[.2em] text-[#0052A4]">All six questions complete</p>
           <h2 ref={headingRef} id="quiz-heading" tabIndex={-1} className="mt-3 text-2xl font-black leading-tight text-[#002F6C] sm:text-3xl">Unlock your vacation profile</h2>
-          <p className="mt-3 text-sm leading-relaxed text-slate-600">Sign up by email to see your travel profile and tips for your next vacation.</p>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">Enter your name and email to see your travel profile and tips for your next vacation.</p>
         </div>
-        <KitQuizForm formId={kitFormId} uid={kitFormUid} scriptUrl={kitEmbedUrl} onAccepted={() => setResultsUnlocked(true)}/>
-        <button type="button" className="mt-6 flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-[#002F6C]" onClick={() => setStep(questions.length - 1)}><ChevronLeft size={16}/> Back to last question</button>
+        <QuizOptIn onSending={setSendingLead} onAccepted={() => setResultsUnlocked(true)}/>
+        <button type="button" className="mt-6 flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-[#002F6C]" disabled={sendingLead} onClick={() => setStep(questions.length - 1)}><ChevronLeft size={16}/> Back to last question</button>
       </div> : <div className="p-6 sm:p-9">
         <div className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700"><CheckCircle2 size={15}/> Your results are ready</div>
         <div className={"mt-5 flex items-center gap-4 rounded-2xl bg-gradient-to-br p-5 " + traveler.color}>
@@ -346,7 +344,7 @@ export default function App() {
         <div className="mx-auto max-w-5xl text-center">
           <p className="text-xs font-black uppercase tracking-[.2em] text-amber-300">Your next step</p><h2 className="mt-4 text-3xl font-black leading-tight sm:text-5xl">Does a travel membership make sense for you?</h2><p className="mx-auto mt-5 max-w-2xl text-blue-100">Your answer depends on how frequently you travel, what you book, and what you're comfortable spending. Answer six simple questions and get a useful travel profile—before seeing any membership offer.</p>
           <div className="mt-8"><Button onClick={startQuiz} className="!px-8 !py-4">Take my travel fit quiz <ArrowRight size={18}/></Button></div>
-          <p className="mt-4 text-xs text-blue-200">No obligation to join a travel membership. We'll ask for your email before displaying your personalized assessment.</p>
+          <p className="mt-4 text-xs text-blue-200">No obligation to join a travel membership. We'll ask for your name and email before displaying your personalized assessment.</p>
         </div>
       </section>
 
@@ -355,7 +353,7 @@ export default function App() {
           <div className="mt-8 space-y-3">{[
             ["Is this a timeshare?", "No. This website provides travel education and introduces an optional travel membership referral. Review the membership agreement to understand its terms and fees; it is not the same thing as buying a timeshare."],
             ["Will I definitely save money?", "No. Availability, dates, property choices, fees and membership costs affect your total. Always compare the full cost with public and direct-booking options."],
-            ["Do I have to provide my email to take the quiz?", "You can answer all six questions before entering any contact details. We ask for your email and permission to follow up before revealing your customized travel snapshot. A travel membership purchase is never required."],
+            ["Do I have to provide my email to take the quiz?", "You can answer all six questions before entering any contact details. We ask for your name, email and permission to follow up before revealing your customized travel snapshot. A travel membership purchase is never required."],
             ["How much does membership cost?", "Plans can have different enrollment fees, monthly dues, and travel benefits. Check the current price and recurring charges for your plan before enrolling."],
             ["Can I use Travel Points like cash at any hotel?", "No. Travorium Travel Points have no cash value and may be used to reduce eligible Getaway and World Tour bookings, subject to availability, program limits and an active membership. The points generally expire 24 months after they are earned."],
             ["Do you receive compensation if I sign up?", "We may receive referral compensation when you enroll through our Travorium link. That relationship does not change the cost-comparison advice we encourage you to follow."]
