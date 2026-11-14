@@ -1,3 +1,141 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * No Time to Share styling for the official Kit inline embed.
+ * Visual treatment only: Kit's form element, submit handler, validation,
+ * accessibility labels, success alert, and configured destination remain Kit-owned.
+ * These selectors are scoped to the quiz's embed host, not other Kit forms.
+ */
+.ntts-kit-embed .formkit-form,
+.ntts-kit-embed form[data-format="inline"] {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-family: inherit !important;
+  text-align: left !important;
+}
+
+.ntts-kit-embed .formkit-form *,
+.ntts-kit-embed form[data-format="inline"] * {
+  box-sizing: border-box !important;
+  font-family: inherit !important;
+}
+
+.ntts-kit-embed .formkit-content,
+.ntts-kit-embed [data-element="content"] {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* The quiz already provides its own heading and explanation. */
+.ntts-kit-embed .formkit-header,
+.ntts-kit-embed .formkit-subheader,
+.ntts-kit-embed .formkit-image,
+.ntts-kit-embed .formkit-background {
+  display: none !important;
+}
+
+.ntts-kit-embed .formkit-fields,
+.ntts-kit-embed [data-element="fields"] {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.ntts-kit-embed .formkit-field,
+.ntts-kit-embed [data-element="fields"] > div {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+}
+
+.ntts-kit-embed .formkit-input,
+.ntts-kit-embed input[type="email"],
+.ntts-kit-embed input[type="text"] {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 48px !important;
+  padding: 12px 16px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  color: #0f172a !important;
+  font-size: 16px !important;
+  line-height: 1.45 !important;
+  box-shadow: none !important;
+}
+
+.ntts-kit-embed input:focus-visible,
+.ntts-kit-embed button:focus-visible {
+  outline: 3px solid #93c5fd !important;
+  outline-offset: 2px !important;
+}
+
+.ntts-kit-embed .formkit-submit,
+.ntts-kit-embed button[type="submit"] {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 50px !important;
+  margin: 2px 0 0 !important;
+  padding: 13px 18px !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: #002f6c !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1.5 !important;
+  text-align: center !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  transition: background-color 150ms ease !important;
+}
+
+.ntts-kit-embed .formkit-submit span,
+.ntts-kit-embed button[type="submit"] span {
+  color: inherit !important;
+  background: transparent !important;
+}
+
+.ntts-kit-embed .formkit-submit:hover,
+.ntts-kit-embed button[type="submit"]:hover {
+  background: #00448d !important;
+}
+
+.ntts-kit-embed .formkit-form .formkit-alert,
+.ntts-kit-embed .formkit-alert-success,
+.ntts-kit-embed .formkit-alert-error {
+  width: 100% !important;
+  margin: 10px 0 0 !important;
+  padding: 12px !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.ntts-kit-embed .formkit-guarantee,
+.ntts-kit-embed .formkit-powered-by-convertkit {
+  font-size: 11px !important;
+  line-height: 1.5 !important;
+  color: #64748b !important;
+}
