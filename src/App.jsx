@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  ArrowRight, ArrowUpRight, Check, CheckCircle2, ChevronDown, ChevronLeft,
-  ChevronRight, Compass, ExternalLink, Heart, Info, Mail, Menu, Plane,
-  PlayCircle, Search, ShieldCheck, Sparkles, X
+  ArrowRight, ArrowUpRight, CheckCircle2, ChevronDown, ChevronLeft,
+  ChevronRight, Compass, Menu, Plane, PlayCircle, ShieldCheck, Sparkles, X
 } from "lucide-react";
 
 const LOGO_URL = "/favicon.svg";
@@ -11,7 +10,7 @@ const ORLANDO_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/1f0a846
 const WELCOME_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/1d1b9589-cdc8-4408-a563-750df53f0e67";
 const HOW_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/599f364c-36e1-4607-9993-b57e0c5906d1";
 const SIGNUP_VIDEO_URL = "https://player.mediadelivery.net/embed/587199/eb1faa2b-68e5-4735-9fcb-978afd03f6a1";
-const ENROLL_URL = "https://travorium.com/376362";
+const ENROLL_URL = "https://travorium.com/enroll.php?sponsor=376362";
 
 const questions = [
   {
@@ -82,6 +81,9 @@ function Brand() {
 }
 
 function QuizModal({ onClose }) {
+  const dialogRef = useRef(null);
+  const headingRef = useRef(null);
+  const submitting = useRef(false);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [name, setName] = useState("");
@@ -92,12 +94,26 @@ function QuizModal({ onClose }) {
   const [resultsUnlocked, setResultsUnlocked] = useState(false);
 
   useEffect(() => {
-    function keydown(e) { if (e.key === "Escape") onClose(); }
-    document.addEventListener("keydown", keydown);
-    return () => document.removeEventListener("keydown", keydown);
-  }, [onClose]);
+    const dialog = dialogRef.current;
+    const trigger = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    dialog.showModal();
+    return () => {
+      dialog.close();
+      document.body.style.overflow = previousOverflow;
+      if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+      else document.getElementById("mobile-nav-toggle")?.focus({ preventScroll: true });
+    };
+  }, []);
+
+  useEffect(() => {
+    dialogRef.current.scrollTop = 0;
+    headingRef.current.focus({ preventScroll: true });
+  }, [step, resultsUnlocked]);
 
   const finished = step >= questions.length;
+  // Frequency anchors the recommendation; resort intent also needs enough use or budget.
   const nights = answers[2] ?? 0;
   const lodging = answers[1] ?? 0;
   const priority = answers[5] ?? 0;
@@ -134,49 +150,52 @@ function QuizModal({ onClose }) {
 
   async function saveLead(e) {
     e.preventDefault();
-    if (!consent || !name.trim() || !email.trim()) return;
+    if (submitting.current || !consent || !email.trim()) return;
+    if (!name.trim()) {
+      setSignupState("name");
+      return;
+    }
+    submitting.current = true;
     setSignupState("sending");
     try {
       const response = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(), email: email.trim(), consent: true,
-          profile: traveler.label,
-          travel_nights: questions[2].options[answers[2]],
-          travel_priority: questions[5].options[answers[5]],
-          booking_frustration: questions[4].options[answers[4]]
-        })
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), consent: true }),
+        redirect: "error",
+        signal: AbortSignal.timeout(12000)
       });
-      if (!response.ok) throw new Error("Signup unavailable");
+      if (!response.ok || (await response.json()).ok !== true) throw new Error("Signup unavailable");
       setSignupState("success");
       setResultsUnlocked(true);
     } catch {
       setSignupState("error");
+    } finally {
+      submitting.current = false;
     }
   }
 
   const selectOption = (index) => {
     setAnswers((prev) => ({ ...prev, [step]: index }));
-    setStep((prev) => prev + 1);
+    setStep(step + 1);
   };
 
-  return <div className="fixed inset-0 z-[100] overflow-y-auto bg-[#00112A]/85 backdrop-blur-sm p-3 py-6 sm:p-8" role="dialog" aria-modal="true" aria-label="Vacation fit quiz">
+  return <dialog ref={dialogRef} onCancel={(event) => { event.preventDefault(); if (!submitting.current) onClose(); }} aria-labelledby="quiz-heading" className="fixed inset-0 m-0 h-[100dvh] max-h-none w-full max-w-none overscroll-contain overflow-y-auto bg-transparent p-3 py-6 backdrop:bg-[#00112A]/85 sm:p-8">
     <div className="mx-auto max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
       <div className="flex items-center justify-between bg-[#002F6C] px-5 py-4 text-white sm:px-8">
         <div><small className="block text-[10px] font-bold uppercase tracking-[.2em] text-amber-300">No Time to Share</small><strong className="text-lg">Your Vacation Fit Check</strong></div>
-        <button type="button" aria-label="Close quiz" className="rounded-full p-2 hover:bg-white/15" onClick={onClose}><X size={22}/></button>
+        <button type="button" aria-label="Close quiz" disabled={signupState === "sending"} className="rounded-full p-2 hover:bg-white/15" onClick={onClose}><X size={22}/></button>
       </div>
       {!finished ? <>
         <div className="h-1.5 bg-blue-100"><div className="h-full bg-[#FFC000] transition-all" style={{ width: Math.round((step / questions.length) * 100) + "%" }}/></div>
         <div className="p-6 sm:p-10">
           <p className="mb-3 text-xs font-extrabold uppercase tracking-wider text-[#0052A4]">Question {step + 1} of {questions.length}</p>
-          <h2 className="text-2xl font-black leading-tight text-[#002F6C] sm:text-3xl">{questions[step].title}</h2>
+          <h2 ref={headingRef} id="quiz-heading" tabIndex={-1} className="text-2xl font-black leading-tight text-[#002F6C] sm:text-3xl">{questions[step].title}</h2>
           <p className="mt-3 text-sm text-slate-600">{questions[step].context}</p>
           <div className="mt-8 space-y-3">
             {questions[step].options.map((option, index) => <button key={option} type="button" onClick={() => selectOption(index)}
               className="flex w-full items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-left font-semibold text-slate-800 transition-colors hover:border-blue-500 hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-blue-500">
-              <span>{option}</span><ChevronRight className="shrink-0 text-[#0052A4]" size={18}/>
+              <span>{option}{answers[step] === index && <span className="ml-2 text-xs font-bold text-[#0052A4]">Previous answer</span>}</span><ChevronRight className="shrink-0 text-[#0052A4]" size={18}/>
             </button>)}
           </div>
           {step > 0 && <button type="button" className="mt-6 flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-[#002F6C]" onClick={() => setStep(step - 1)}><ChevronLeft size={16}/> Previous question</button>}
@@ -185,7 +204,7 @@ function QuizModal({ onClose }) {
         <div className="mx-auto max-w-xl text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#E8F1FF] text-[#002F6C]"><ShieldCheck size={30}/></div>
           <p className="mt-5 text-xs font-black uppercase tracking-[.2em] text-[#0052A4]">All six questions complete</p>
-          <h2 className="mt-3 text-2xl font-black leading-tight text-[#002F6C] sm:text-3xl">Your Vacation Profile Is Ready!</h2>
+          <h2 ref={headingRef} id="quiz-heading" tabIndex={-1} className="mt-3 text-2xl font-black leading-tight text-[#002F6C] sm:text-3xl">Unlock your vacation profile</h2>
           <p className="mt-3 text-sm leading-relaxed text-slate-600">You've told us how you like to travel. Enter your name and email to unlock your personalized travel snapshot, plus practical tips for comparing your next vacation.</p>
         </div>
         <form
@@ -205,15 +224,16 @@ function QuizModal({ onClose }) {
           <button type="submit" disabled={!consent || signupState === "sending"} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#002F6C] px-5 py-4 text-sm font-extrabold text-white hover:bg-[#00448D] disabled:opacity-60">{signupState === "sending" ? "Sending your details…" : "Unlock My Vacation Results" }<ArrowRight size={16}/></button>
           <p className="text-xs leading-relaxed text-slate-500">Your results appear here when your signup is accepted. There is no redirect to another website. No travel membership purchase is required.</p>
         </form>
+        {signupState === "name" && <p role="alert" className="mx-auto mt-4 max-w-md text-sm text-red-800">Enter your first name to continue.</p>}
         {signupState === "error" && <div role="alert" className="mx-auto mt-4 max-w-md rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
           We couldn't confirm that your details were received. Your answers are still here; please try again, or come back later.
         </div>}
-        <button type="button" className="mt-6 flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-[#002F6C]" onClick={() => setStep(questions.length - 1)}><ChevronLeft size={16}/> Back to last question</button>
+        <button type="button" className="mt-6 flex items-center gap-1 text-sm font-bold text-slate-500 hover:text-[#002F6C]" disabled={signupState === "sending"} onClick={() => setStep(questions.length - 1)}><ChevronLeft size={16}/> Back to last question</button>
       </div> : <div className="p-6 sm:p-9">
         <div className="inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700"><CheckCircle2 size={15}/> Your results are ready</div>
         <div className={"mt-5 flex items-center gap-4 rounded-2xl bg-gradient-to-br p-5 " + traveler.color}>
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-white bg-white/80 text-[#002F6C] shadow-sm"><ProfileIcon size={46} strokeWidth={1.6}/></div>
-          <div><p className="text-xs font-extrabold uppercase tracking-wide text-[#0052A4]">Your traveler type</p><h2 className="mt-1 text-2xl font-black text-[#002F6C]">{traveler.label}</h2><p className="mt-1 text-xs font-bold text-slate-600">{traveler.badge}</p></div>
+          <div className="flex h-12 w-12 shrink-0 sm:h-20 sm:w-20 items-center justify-center rounded-2xl border border-white bg-white/80 text-[#002F6C] shadow-sm"><ProfileIcon aria-hidden="true" className="h-7 w-7 sm:h-11 sm:w-11" strokeWidth={1.6}/></div>
+          <div><p className="text-xs font-extrabold uppercase tracking-wide text-[#0052A4]">Your traveler type</p><h2 ref={headingRef} id="quiz-heading" tabIndex={-1} className="mt-1 text-xl font-black text-[#002F6C] sm:text-2xl">{traveler.label}</h2><p className="mt-1 text-xs font-bold text-slate-600">{traveler.badge}</p></div>
         </div>
         <p className="mt-4 leading-relaxed text-slate-600">{traveler.detail}</p>
         <div className="mt-5 rounded-2xl border border-blue-100 bg-[#F1F6FF] p-5">
@@ -230,19 +250,19 @@ function QuizModal({ onClose }) {
         <div className="mt-4 rounded-2xl border-l-4 border-amber-400 bg-amber-50 p-4"><strong className="text-sm text-[#002F6C]">Your best next step</strong><p className="mt-1 text-sm text-slate-700">{traveler.tip}</p><p className="mt-2 text-sm text-slate-700">{frustrationTip}</p></div>
         <div className="mt-8 border-t border-slate-200 pt-7">
           <div className="flex items-center gap-2 text-[#002F6C]"><PlayCircle size={21}/><h3 className="text-xl font-black">See how the travel membership works</h3></div>
-          <p className="mt-2 text-sm text-slate-600">One short introduction. You can explore more videos only if you're interested.</p>
+          <p className="mt-2 text-sm text-slate-600">Use the tips above to compare your next trip with the booking options in this Travorium introduction.</p>
           <div className="mt-4 aspect-video overflow-hidden rounded-2xl bg-slate-900"><iframe title="Introduction to Travorium" src={WELCOME_VIDEO_URL} loading="lazy" allow="accelerometer; encrypted-media; picture-in-picture" allowFullScreen className="h-full w-full border-0"/></div>
+          <p className="mt-5 text-sm text-slate-600">This is an optional paid membership. We may earn compensation if you enroll through our link. Review current prices, recurring charges and cancellation terms before enrolling.</p>
+          <a href={ENROLL_URL} rel="sponsored" className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[#002F6C] px-5 py-4 text-center text-sm font-extrabold text-white hover:bg-[#00448D]">See plans and join through Roger Reed <ArrowUpRight size={18} className="shrink-0"/></a>
           <button type="button" onClick={() => setDetailVideosOpen(!detailVideosOpen)} aria-expanded={detailVideosOpen} className="mt-4 flex w-full items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-left text-sm font-bold text-[#002F6C] hover:bg-slate-50">More details: how it works and how to join <ChevronDown size={18} className={detailVideosOpen ? "rotate-180" : ""}/></button>
           {detailVideosOpen && <div className="mt-4 grid gap-5 sm:grid-cols-2">
             {[{ url: HOW_VIDEO_URL, title: "How the membership works" }, { url: SIGNUP_VIDEO_URL, title: "Joining walkthrough" }].map((video) => <div key={video.title}><h4 className="mb-2 text-xs font-bold text-slate-700">{video.title}</h4><div className="aspect-video overflow-hidden rounded-xl bg-slate-900"><iframe title={video.title} loading="lazy" src={video.url} allow="encrypted-media; picture-in-picture" allowFullScreen className="h-full w-full border-0"/></div></div>)}
           </div>}
-          <a href={ENROLL_URL} target="_blank" rel="sponsored noopener noreferrer" className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#002F6C] px-5 py-4 text-center text-sm font-extrabold text-white hover:bg-[#00448D]">Explore current membership options <ArrowUpRight size={18}/></a>
-          <p className="mt-3 text-xs leading-relaxed text-slate-500">Optional paid membership. Review current plan pricing, recurring charges, booking terms and cancellation conditions on the provider's site before enrolling. We may earn compensation through the referral link. Savings are not guaranteed.</p>
         </div>
         <button type="button" onClick={onClose} className="mt-6 w-full py-2 text-sm font-bold text-slate-500 hover:text-[#002F6C]">Close my results</button>
       </div>}
     </div>
-  </div>;
+  </dialog>;
 }
 
 function OrlandoTripStory({ onQuiz }) {
@@ -257,7 +277,7 @@ function OrlandoTripStory({ onQuiz }) {
         <div className="rounded-2xl border border-blue-100 bg-[#EFF5FF] p-4">
           <p className="text-[11px] font-extrabold uppercase tracking-wide text-[#0052A4]">Time away</p>
           <p className="mt-2 text-3xl font-black text-[#002F6C]">8 days</p>
-          <p className="mt-1 text-xs leading-relaxed text-slate-600">7 nights in Orlando</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-600">Orlando resort stay</p>
         </div>
         <div className="rounded-2xl border border-blue-100 bg-[#EFF5FF] p-4">
           <p className="text-[11px] font-extrabold uppercase tracking-wide text-[#0052A4]">Villa space</p>
@@ -286,9 +306,9 @@ function OrlandoTripStory({ onQuiz }) {
 
 export default function App() {
   const [quizOpen, setQuizOpen] = useState(false);
+  const [orlandoVideoOpen, setOrlandoVideoOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [faqOpen, setFaqOpen] = useState(null);
-  const [moreAboutOpen, setMoreAboutOpen] = useState(false);
   const startQuiz = () => { setQuizOpen(true); setMenuOpen(false); };
   return <div id="home" className="min-h-screen bg-[#F6F8FC] font-sans text-slate-800">
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#002F6C] shadow-lg" aria-label="Main navigation">
@@ -301,7 +321,7 @@ export default function App() {
           <a href="#questions" className="text-xs font-bold uppercase tracking-wider text-white hover:text-amber-300">FAQ</a>
         </div>
         <div className="hidden sm:block"><Button onClick={startQuiz} className="!px-4 !py-3">Take the travel quiz <ArrowRight size={16}/></Button></div>
-        <button type="button" onClick={() => setMenuOpen(!menuOpen)} className="rounded-lg p-2 text-white hover:bg-white/10 lg:hidden" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen}>{menuOpen ? <X/> : <Menu/>}</button>
+        <button id="mobile-nav-toggle" type="button" onClick={() => setMenuOpen(!menuOpen)} className="rounded-lg p-2 text-white hover:bg-white/10 lg:hidden" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen}>{menuOpen ? <X/> : <Menu/>}</button>
       </div>
       {menuOpen && <div className="border-t border-white/10 bg-[#001D45] p-5 lg:hidden">
         <div className="flex flex-col gap-4 text-sm font-bold text-white">
@@ -326,7 +346,11 @@ export default function App() {
         </div>
         <div className="rounded-3xl border border-white/15 bg-white p-4 text-slate-800 shadow-2xl sm:p-6">
           <div className="flex items-center justify-between gap-3 border-b border-slate-200 pb-3"><div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-[#002F6C]"><PlayCircle size={18}/> A real Orlando vacation story</div><span className="text-[10px] font-bold text-emerald-700">Travel walkthrough</span></div>
-          <div id="orlando-video" className="mt-4 aspect-video scroll-mt-32 overflow-hidden rounded-2xl bg-slate-900"><iframe src={ORLANDO_VIDEO_URL} title="Orlando vacation walkthrough" loading="lazy" allow="encrypted-media; picture-in-picture" allowFullScreen className="h-full w-full border-0"/></div>
+          <div id="orlando-video" className="mt-4 aspect-video scroll-mt-32 overflow-hidden rounded-2xl bg-[#002F6C]">
+            {orlandoVideoOpen
+              ? <iframe src={ORLANDO_VIDEO_URL} title="Orlando vacation walkthrough" allow="encrypted-media; picture-in-picture" allowFullScreen className="h-full w-full border-0"/>
+              : <button type="button" onClick={() => setOrlandoVideoOpen(true)} className="flex h-full w-full items-center justify-center gap-3 px-4 font-bold text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-amber-300"><PlayCircle aria-hidden="true" className="shrink-0 text-amber-300"/> Open the Orlando video</button>}
+          </div>
           <h2 className="mt-4 text-lg font-black text-[#002F6C]">See the trip. Learn how to compare the cost.</h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-600">We share an Orlando resort experience and encourage you to compare the complete cost of any offer—including fees, membership charges and booking conditions.</p>
         </div>
@@ -346,7 +370,7 @@ export default function App() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-2">
           <div><p className="text-xs font-black uppercase tracking-[.2em] text-[#0052A4]">Why we share our trips</p><h2 className="mt-3 text-3xl font-black leading-tight text-[#002F6C] sm:text-4xl">A better deal starts with a better comparison.</h2><p className="mt-5 max-w-xl leading-relaxed text-slate-600">Travel costs can look very different depending on dates, property, package and booking method. We use our own vacation experiences to start the conversation—but you should always check current rates for your trip.</p>
             <ul className="mt-6 space-y-3 text-sm font-semibold text-slate-700">{["Same room and occupancy", "Taxes, resort fees and mandatory charges", "Refund and change conditions", "Membership costs over the comparison period"].map((v) => <li className="flex items-start gap-2" key={v}><CheckCircle2 className="mt-0.5 shrink-0 text-[#0052A4]" size={17}/>{v}</li>)}</ul>
-            <a href="#compare" className="mt-7 inline-flex items-center gap-2 text-sm font-extrabold text-[#002F6C] underline underline-offset-4">Run your own price check <ArrowRight size={17}/></a>
+            <a href="#compare" className="mt-7 inline-flex items-center gap-2 text-sm font-extrabold text-[#002F6C] underline underline-offset-4">See what our Orlando stay cost <ArrowRight size={17}/></a>
           </div>
           <div className="overflow-hidden rounded-3xl border border-white bg-[#002F6C] shadow-xl">
             <div className="relative h-72 bg-cover bg-center sm:h-96" style={{ backgroundImage: "url(" + HERO_IMAGE + ")" }}><div className="absolute inset-0 bg-gradient-to-t from-[#001D45] to-[#002F6C]/10"/><div className="absolute bottom-7 left-7 right-7"><p className="text-xs font-bold uppercase tracking-wider text-amber-300">An invitation to compare</p><h3 className="mt-2 text-2xl font-black text-white">More vacation. More clarity. Less guesswork.</h3></div></div>
@@ -380,7 +404,7 @@ export default function App() {
             ["Is this a timeshare?", "No. This website provides travel education and introduces an optional travel membership referral. Review the membership agreement to understand its terms and fees; it is not the same thing as buying a timeshare."],
             ["Will I definitely save money?", "No. Availability, dates, property choices, fees and membership costs affect your total. Always compare the full cost with public and direct-booking options."],
             ["Do I have to provide my email to take the quiz?", "You can answer all six questions before entering any contact details. We ask for your name, email and permission to follow up before revealing your customized travel snapshot. A travel membership purchase is never required."],
-            ["How much does membership cost?", "Travorium's published Platinum plan is $269.95 to enroll and $135 per month, earning 270 Travel Points per month. Titanium and Silver plans have different costs and benefits. Always confirm current fees at enrollment."],
+            ["How much does membership cost?", "Plans can have different enrollment fees, monthly dues, and travel benefits. Check the current price and recurring charges for your plan before enrolling."],
             ["Can I use Travel Points like cash at any hotel?", "No. Travorium Travel Points have no cash value and may be used to reduce eligible Getaway and World Tour bookings, subject to availability, program limits and an active membership. The points generally expire 24 months after they are earned."],
             ["Do you receive compensation if I sign up?", "We may receive referral compensation when you enroll through our Travorium link. That relationship does not change the cost-comparison advice we encourage you to follow."]
           ].map(([question, answer], index) => <div key={question} className="overflow-hidden rounded-2xl border border-slate-200 bg-white"><button type="button" onClick={() => setFaqOpen(faqOpen === index ? null : index)} aria-expanded={faqOpen === index} className="flex w-full items-center justify-between gap-4 p-5 text-left font-bold text-[#002F6C]"><span>{question}</span><ChevronDown size={18} className={"shrink-0 transition-transform " + (faqOpen === index ? "rotate-180" : "")}/></button>{faqOpen === index && <p className="px-5 pb-5 text-sm leading-relaxed text-slate-600">{answer}</p>}</div>)}</div>
