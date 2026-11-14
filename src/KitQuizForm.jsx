@@ -88,13 +88,13 @@ export default function KitQuizForm({ formId, uid, scriptUrl, onAccepted }) {
     };
   }, [formId, scriptUrl, uid]);
 
-  return <div className="mx-auto mt-7 max-w-md rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+  return <div className="mx-auto mt-7 max-w-md rounded-2xl border border-[#D9E6F7] bg-[#F4F8FF] p-5 shadow-sm sm:p-6">
     <label className="mb-4 flex items-start gap-3 text-sm leading-relaxed text-slate-700">
       <input ref={consentRef} type="checkbox" required className="mt-1 shrink-0"/>
       <span>I agree to receive emails from No Time to Share about vacation options and travel tips. I can unsubscribe at any time. See the <a href="/privacy.html" target="_blank" rel="noopener noreferrer" className="font-bold text-[#002F6C] underline">privacy notice</a>.</span>
     </label>
     {!ready && !problem && <p role="status" className="text-sm text-slate-600">Loading the email form…</p>}
     {problem && <p role="alert" className="mb-3 text-sm text-red-800">{problem}</p>}
-    <div ref={hostRef} className="min-w-0 [&_input[type=email]]:!text-base"/>
+    <div ref={hostRef} className="ntts-kit-embed min-w-0"/>
   </div>;
 }
